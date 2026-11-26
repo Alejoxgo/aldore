@@ -27,7 +27,7 @@ export default async function ProductPage({ params }: Props) {
         <div className="container-x grid items-end gap-10 pb-16 pt-14 sm:pt-20 lg:grid-cols-12">
           <div className="lg:col-span-8">
             <Link href="/#productos" className="eyebrow !text-paper/50 hover:!text-paper">← Productos</Link>
-            <h1 className="mt-10 font-serif text-6xl font-medium tracking-tight sm:text-8xl">
+            <h1 className="mt-10 font-display text-6xl font-medium tracking-tight sm:text-8xl">
               {p.name}<span className="text-brand-500">.</span>
             </h1>
             <p className="mt-5 max-w-xl font-serif text-2xl italic text-paper/80">{p.tagline}</p>
@@ -35,7 +35,7 @@ export default async function ProductPage({ params }: Props) {
           <div className="flex flex-col gap-3 lg:col-span-4 lg:items-end">
             {p.price && (
               <p className="text-right">
-                <span className="font-serif text-3xl">{p.price}</span>
+                <span className="font-display text-3xl">{p.price}</span>
                 {p.priceNote && <span className="block text-sm text-paper/50">{p.priceNote}</span>}
               </p>
             )}
@@ -59,7 +59,7 @@ export default async function ProductPage({ params }: Props) {
         )}
       </section>
       <section className="py-20">
-        <div className="container-x grid gap-14 lg:grid-cols-12">
+        <div className="container-x grid grid-cols-1 gap-14 lg:grid-cols-12">
           <div className="space-y-6 text-lg leading-relaxed text-ink-700 lg:col-span-7">
             {paragraphs(p.description).map((t, i) => <p key={i}>{t}</p>)}
           </div>
@@ -78,7 +78,7 @@ export default async function ProductPage({ params }: Props) {
         </div>
       </section>
       <section id="solicitar" className="scroll-mt-16 border-t border-paper-line bg-white/50 py-20">
-        <div className="container-x grid gap-12 lg:grid-cols-12">
+        <div className="container-x grid grid-cols-1 gap-12 lg:grid-cols-12">
           <h2 className="section-title lg:col-span-5">¿Quieres {p.name} en tu empresa?</h2>
           <div className="lg:col-span-7">
             <ContactForm services={[p.name]} defaultService={p.name} />

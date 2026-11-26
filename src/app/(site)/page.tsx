@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
+import { IntegrationsDiagram, StackMarquee } from "@/components/TechSections";
 import ContactForm from "@/components/ContactForm";
 import { CastorlyBlock, Emph, FaqList, Hero, Plans, Process, ProductsList, ServicesList, Testimonials } from "@/components/Sections";
 
@@ -18,15 +19,17 @@ export default async function HomePage() {
   return (
     <>
       <Hero s={s} />
+      <StackMarquee s={s} />
       <ServicesList services={services} s={s} />
       <CastorlyBlock s={s} product={castorly} />
       <ProductsList products={products} s={s} />
+      <IntegrationsDiagram s={s} />
       <Process s={s} />
       <Plans plans={plans} s={s} />
       <Testimonials items={testimonials} s={s} />
       <FaqList items={faqs} s={s} />
       <section id="contacto" className="scroll-mt-16 border-t border-paper-line bg-white/50 py-24">
-        <div className="container-x grid gap-14 lg:grid-cols-12">
+        <div className="container-x grid grid-cols-1 gap-14 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <p className="eyebrow">Contacto</p>
             <h2 className="section-title mt-5"><Emph text={s["cta.title"]} /></h2>

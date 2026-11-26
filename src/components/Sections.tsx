@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import { lines } from "@/lib/utils";
+import Terminal from "./Terminal";
 import type { Settings } from "@/lib/settings";
 import type { Faq, Plan, Product, Service, Testimonial } from "@prisma/client";
 
@@ -11,7 +12,7 @@ export function Emph({ text }: { text: string }) {
     <>
       {parts.map((p, i) =>
         i % 2 ? (
-          <em key={i} className="font-normal italic text-brand-500">{p}</em>
+          <em key={i} className="font-serif font-normal italic tracking-normal text-brand-500">{p}</em>
         ) : (
           <Fragment key={i}>{p}</Fragment>
         ),
@@ -38,34 +39,52 @@ const Arrow = ({ className = "h-5 w-5" }: { className?: string }) => (
 
 export function Hero({ s }: { s: Settings }) {
   const stats = [1, 2, 3].map((i) => [s[`hero.stat${i}Value`], s[`hero.stat${i}Label`]]).filter(([v]) => v);
+  const script = lines(s["hero.terminal"]).map((l) =>
+    l.startsWith("$")
+      ? { kind: "cmd" as const, text: l.replace(/^\$\s*/, "") }
+      : l.startsWith("✓")
+        ? { kind: "ok" as const, text: l.replace(/^✓\s*/, "") }
+        : { kind: "info" as const, text: l },
+  );
   return (
-    <section className="border-b border-paper-line">
-      <div className="container-x pb-16 pt-16 sm:pb-20 sm:pt-24">
-        <p className="eyebrow">{s["hero.badge"]}</p>
-        <h1 className="mt-6 max-w-5xl font-serif text-[2.75rem] font-medium leading-[1.02] tracking-tight text-ink-900 sm:text-7xl lg:text-[5.5rem]">
-          <Emph text={s["hero.title"]} />
-        </h1>
-        <div className="mt-12 grid gap-10 border-t border-paper-line pt-10 lg:grid-cols-12">
-          <div className="lg:col-span-6">
-            <p className="text-lg leading-relaxed text-ink-700">{s["hero.subtitle"]}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/contacto" className="btn-signal">
-                {s["hero.ctaPrimary"]} <Arrow className="h-4 w-4" />
-              </Link>
-              <Link href="/castorly" className="btn-outline">{s["hero.ctaSecondary"]}</Link>
-            </div>
+    <section className="relative overflow-hidden bg-ink-900 text-paper">
+      <div className="tech-grid pointer-events-none absolute inset-0" />
+      <div className="pointer-events-none absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-brand-500/10 blur-[120px]" />
+      <div className="container-x relative grid grid-cols-1 items-center gap-14 pb-20 pt-16 sm:pt-24 lg:grid-cols-12">
+        <div className="min-w-0 lg:col-span-6">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs text-paper/70">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            </span>
+            {s["hero.badge"]}
+          </p>
+          <h1 className="mt-7 font-display text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-[3.9rem]">
+            <Emph text={s["hero.title"]} />
+          </h1>
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-paper/70">{s["hero.subtitle"]}</p>
+          <div className="mt-9 flex flex-wrap gap-3">
+            <Link href="/contacto" className="btn-signal">
+              {s["hero.ctaPrimary"]} <Arrow className="h-4 w-4" />
+            </Link>
+            <Link href="/castorly" className="btn-ghost text-paper">{s["hero.ctaSecondary"]}</Link>
           </div>
           {stats.length > 0 && (
-            <dl className="grid grid-cols-3 items-start gap-6 lg:col-span-5 lg:col-start-8">
+            <dl className="mt-14 grid grid-cols-3 items-start gap-6 border-t border-white/10 pt-8">
               {stats.map(([v, l]) => (
-                <div key={l} className="border-l border-paper-line pl-4">
-                  <dt className="font-serif text-4xl text-ink-900">{v}</dt>
-                  <dd className="mt-2 text-sm leading-snug text-ink-500">{l}</dd>
+                <div key={l}>
+                  <dt className="font-display text-3xl text-paper sm:text-4xl">{v}</dt>
+                  <dd className="mt-2 font-mono text-xs leading-snug text-paper/50">{l}</dd>
                 </div>
               ))}
             </dl>
           )}
         </div>
+        {script.length > 0 && (
+          <div className="min-w-0 lg:col-span-6">
+            <Terminal script={script} />
+          </div>
+        )}
       </div>
     </section>
   );
@@ -90,8 +109,15 @@ export function ServicesList({ services, s }: { services: Service[]; s: Settings
                 className="group grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-4 gap-y-2 py-7 transition-colors hover:bg-paper-2 sm:grid-cols-[4rem_1fr_1.2fr_auto] sm:px-3"
               >
                 <span className="font-mono text-sm text-ink-400">{String(i + 1).padStart(2, "0")}</span>
-                <span className="font-serif text-2xl text-ink-900 sm:text-3xl">{sv.title}</span>
-                <span className="col-start-2 text-ink-500 sm:col-start-3 sm:row-start-1">{sv.shortDescription}</span>
+                <span className="font-display text-2xl text-ink-900 sm:text-3xl">{sv.title}</span>
+                <span className="col-start-2 text-ink-500 sm:col-start-3 sm:row-start-1">
+                  {sv.shortDescription}
+                  <span className="mt-3 hidden flex-wrap gap-1.5 sm:flex">
+                    {lines(sv.features).slice(0, 3).map((f) => (
+                      <span key={f} className="rounded border border-paper-line bg-paper px-2 py-0.5 font-mono text-[11px] text-ink-500">{f}</span>
+                    ))}
+                  </span>
+                </span>
                 <span className="col-start-3 row-start-1 text-ink-400 transition group-hover:translate-x-1 group-hover:text-brand-500 sm:col-start-4">
                   <Arrow />
                 </span>
@@ -109,10 +135,10 @@ export function CastorlyBlock({ s, product }: { s: Settings; product: Product | 
   const image = s["castorly.imageUrl"] || product?.imageUrl;
   return (
     <section id="castorly" className="scroll-mt-16 bg-ink-900 py-24 text-paper">
-      <div className="container-x grid items-center gap-14 lg:grid-cols-12">
+      <div className="container-x grid grid-cols-1 items-center gap-14 lg:grid-cols-12">
         <div className="lg:col-span-5">
           <Label n="02" light>{s["castorly.badge"]}</Label>
-          <h2 className="mt-5 font-serif text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">
+          <h2 className="mt-5 font-display text-4xl leading-[1.05] sm:text-5xl">
             <Emph text={s["castorly.title"]} />
           </h2>
           <p className="mt-6 text-lg leading-relaxed text-paper/70">{s["castorly.text"]}</p>
@@ -191,7 +217,7 @@ export function ProductsList({ products, s }: { products: Product[]; s: Settings
   if (!others.length) return null;
   return (
     <section id="productos" className="scroll-mt-16 border-b border-paper-line py-24">
-      <div className="container-x grid gap-12 lg:grid-cols-12">
+      <div className="container-x grid grid-cols-1 gap-12 lg:grid-cols-12">
         <div className="lg:col-span-4">
           <Label n="03">Productos</Label>
           <h2 className="section-title mt-5"><Emph text={s["products.title"]} /></h2>
@@ -200,7 +226,7 @@ export function ProductsList({ products, s }: { products: Product[]; s: Settings
         <div className="grid gap-px overflow-hidden rounded-xl border border-paper-line bg-paper-line sm:grid-cols-2 lg:col-span-8">
           {others.map((p) => (
             <Link key={p.id} href={`/productos/${p.slug}`} className="group flex flex-col bg-paper p-7 transition-colors hover:bg-white">
-              <h3 className="font-serif text-2xl text-ink-900">{p.name}</h3>
+              <h3 className="font-display text-2xl text-ink-900">{p.name}</h3>
               <p className="mt-2 flex-1 text-ink-500">{p.tagline}</p>
               {p.price && <p className="mt-6 text-sm font-semibold text-ink-900">{p.price}</p>}
               <span className="mt-4 inline-flex items-center gap-2 text-sm text-ink-700 group-hover:text-brand-600">
@@ -229,7 +255,7 @@ export function Process({ s }: { s: Settings }) {
           {steps.map((st, i) => (
             <li key={i} className="border-t border-ink-900 pt-5">
               <span className="font-mono text-xs text-brand-500">Paso {String(i + 1).padStart(2, "0")}</span>
-              <h3 className="mt-3 font-serif text-2xl text-ink-900">{st.title}</h3>
+              <h3 className="mt-3 font-display text-2xl text-ink-900">{st.title}</h3>
               <p className="mt-3 leading-relaxed text-ink-500">{st.text}</p>
             </li>
           ))}
@@ -257,11 +283,11 @@ export function Plans({ plans, s }: { plans: Plan[]; s: Settings }) {
             return (
               <div key={p.id} className={`flex flex-col rounded-xl p-8 ${hl ? "bg-ink-900 text-paper" : "border border-paper-line bg-paper"}`}>
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="font-serif text-2xl">{p.name}</h3>
+                  <h3 className="font-display text-2xl">{p.name}</h3>
                   {hl && <span className="font-mono text-[11px] uppercase tracking-wider text-brand-400">El más elegido</span>}
                 </div>
                 <p className={`mt-1 text-sm ${hl ? "text-paper/60" : "text-ink-500"}`}>{p.description}</p>
-                <p className="mt-8 font-serif text-5xl tracking-tight">{p.price}</p>
+                <p className="mt-8 font-display text-5xl tracking-tight">{p.price}</p>
                 {p.period && <p className={`mt-1 text-sm ${hl ? "text-paper/50" : "text-ink-400"}`}>{p.period}</p>}
                 <ul className={`mt-8 flex-1 divide-y border-t text-[15px] ${hl ? "divide-white/10 border-white/10" : "divide-paper-line border-paper-line"}`}>
                   {lines(p.features).map((f) => (
@@ -292,7 +318,7 @@ export function Testimonials({ items, s }: { items: Testimonial[]; s: Settings }
       <div className="container-x">
         <Label n="06">{s["testimonials.title"]}</Label>
         <figure className="mt-10 max-w-4xl">
-          <blockquote className="font-serif text-3xl leading-snug text-ink-900 sm:text-4xl">“{first.quote}”</blockquote>
+          <blockquote className="font-display text-3xl leading-snug text-ink-900 sm:text-4xl">“{first.quote}”</blockquote>
           <figcaption className="mt-6 text-ink-500">
             <span className="font-semibold text-ink-900">{first.name}</span> · {who(first)}
           </figcaption>
@@ -318,7 +344,7 @@ export function FaqList({ items, s }: { items: Faq[]; s: Settings }) {
   if (!items.length) return null;
   return (
     <section id="faq" className="scroll-mt-16 border-t border-paper-line py-24">
-      <div className="container-x grid gap-10 lg:grid-cols-12">
+      <div className="container-x grid grid-cols-1 gap-10 lg:grid-cols-12">
         <div className="lg:col-span-4">
           <Label n="07">Preguntas</Label>
           <h2 className="section-title mt-5"><Emph text={s["faq.title"]} /></h2>

@@ -13,23 +13,23 @@ const nav = [
 export default function Header({ name }: { name: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-40 border-b border-paper-line bg-paper/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-ink-900/90 text-paper backdrop-blur">
       <div className="container-x flex h-16 items-center justify-between">
         <Link href="/" aria-label={`${name}, inicio`}>
-          <Logo name={name} />
+          <Logo name={name} light />
         </Link>
         <nav className="hidden items-center gap-8 md:flex">
           {nav.map((n) => (
-            <Link key={n.href} href={n.href} className="text-[15px] text-ink-700 transition hover:text-ink-900">
+            <Link key={n.href} href={n.href} className="text-[15px] text-paper/70 transition hover:text-paper">
               {n.label}
             </Link>
           ))}
-          <Link href="/contacto" className="btn-primary !py-2">
+          <Link href="/contacto" className="btn-signal !py-2">
             Hablemos
           </Link>
         </nav>
         <button
-          className="rounded-lg p-2 text-ink-900 md:hidden"
+          className="rounded-lg p-2 text-paper md:hidden"
           onClick={() => setOpen((o) => !o)}
           aria-label="Abrir menú"
           aria-expanded={open}
@@ -40,14 +40,14 @@ export default function Header({ name }: { name: string }) {
         </button>
       </div>
       {open && (
-        <nav className="border-t border-paper-line bg-paper md:hidden">
+        <nav className="border-t border-white/10 bg-ink-900 md:hidden">
           <div className="container-x flex flex-col py-3">
             {nav.map((n) => (
-              <Link key={n.href} href={n.href} onClick={() => setOpen(false)} className="border-b border-paper-line py-3 font-serif text-2xl">
+              <Link key={n.href} href={n.href} onClick={() => setOpen(false)} className="border-b border-white/10 py-3 font-display text-2xl">
                 {n.label}
               </Link>
             ))}
-            <Link href="/contacto" onClick={() => setOpen(false)} className="btn-primary mt-4">
+            <Link href="/contacto" onClick={() => setOpen(false)} className="btn-signal mt-4">
               Hablemos
             </Link>
           </div>

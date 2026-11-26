@@ -10,7 +10,7 @@ export default function ContactForm({ services, defaultService = "" }: { service
   if (state.ok) {
     return (
       <div className="border-t border-ink-900 pt-8">
-        <p className="font-serif text-3xl text-ink-900">Gracias.</p>
+        <p className="font-display text-3xl text-ink-900">Gracias.</p>
         <p className="mt-3 text-lg text-ink-700">{state.message}</p>
       </div>
     );

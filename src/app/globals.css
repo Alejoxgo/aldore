@@ -14,9 +14,32 @@ body { @apply bg-paper font-sans text-ink-900 antialiased; }
   .btn-ghost { @apply btn border border-current hover:bg-white/10; }
   .btn-outline { @apply btn border border-ink-900/25 text-ink-900 hover:border-ink-900; }
   .eyebrow { @apply font-mono text-xs uppercase tracking-[0.14em] text-ink-500; }
-  .section-title { @apply font-serif text-4xl font-medium leading-[1.05] tracking-tight text-ink-900 sm:text-5xl; }
+  .section-title { @apply font-sans font-semibold tracking-[-0.035em] text-4xl leading-[1.05] text-ink-900 sm:text-5xl; }
   .card { @apply rounded-xl border border-paper-line bg-white/60 p-6; }
   .input { @apply w-full rounded-lg border border-paper-line bg-white px-4 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-ink-900 focus:outline-none focus:ring-0; }
   .label { @apply mb-1.5 block text-sm font-medium text-ink-700; }
   .link-u { @apply underline decoration-brand-500 decoration-2 underline-offset-4 hover:text-brand-600; }
+}
+
+@layer components {
+  .font-display { font-family: "Inter Tight Variable", system-ui, sans-serif; font-weight: 600; letter-spacing: -0.035em; }
+  .tech-grid {
+    background-image: linear-gradient(rgba(244,241,234,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(244,241,234,.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at 70% 40%, #000 20%, transparent 75%);
+  }
+}
+
+@keyframes marquee { to { transform: translateX(-50%); } }
+.marquee-track { animation: marquee 40s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
+@keyframes flow { to { stroke-dashoffset: -36; } }
+.flow { animation: flow 1.4s linear infinite; }
+
+@keyframes pulse-ring { 0% { transform: scale(.85); opacity: .9; } 100% { transform: scale(1.35); opacity: 0; } }
+.pulse-ring { transform-box: fill-box; transform-origin: center; animation: pulse-ring 2.4s ease-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track, .flow, .pulse-ring { animation: none; }
 }

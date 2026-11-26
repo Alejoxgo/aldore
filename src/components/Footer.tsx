@@ -12,7 +12,7 @@ export default function Footer({ s, services }: { s: Settings; services: { slug:
   return (
     <footer className="bg-ink-900 text-paper/70">
       <div className="container-x py-16">
-        <p className="max-w-3xl font-serif text-3xl leading-tight text-paper sm:text-4xl">
+        <p className="max-w-3xl font-display text-3xl leading-tight text-paper sm:text-4xl">
           ¿Tienes un proyecto en mente?{" "}
           <Link href="/contacto" className="text-brand-400 underline decoration-1 underline-offset-[6px] hover:text-brand-300">
             Escríbenos

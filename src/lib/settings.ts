@@ -72,6 +72,40 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     ],
   },
   {
+    id: "tecnologia",
+    title: "Tecnología e integraciones",
+    description: "Franja de tecnologías bajo la portada, terminal animada y diagrama de integraciones.",
+    fields: [
+      { key: "tech.title", label: "Título de la franja de tecnologías", default: "Con qué construimos" },
+      {
+        key: "tech.stack",
+        label: "Tecnologías (una por línea)",
+        type: "textarea",
+        default: "Next.js\nReact\nReact Native\nNode.js\nPython\nPostgreSQL\nDocker\nAWS\nGoogle Cloud\nWhatsApp Business API\nOpenAI\nClaude\nn8n\nREST · Webhooks",
+      },
+      {
+        key: "hero.terminal",
+        label: "Terminal de la portada (una línea por renglón; empieza con $ para comandos y ✓ para resultados)",
+        type: "textarea",
+        default:
+          "$ aldore new tienda-online --stack next,postgres\n✓ Proyecto creado · diseño aprobado por el cliente\n$ aldore connect erp --webhooks\n✓ 1.284 productos sincronizados\n$ aldore bot train --canal whatsapp\n✓ Bot entrenado con 312 preguntas frecuentes\n$ aldore deploy --prod\n▲ Publicado en 41 s → https://tu-empresa.co",
+      },
+      { key: "integrations.title", label: "Integraciones – título", default: "Tus sistemas, hablando entre sí." },
+      {
+        key: "integrations.text",
+        label: "Integraciones – texto",
+        type: "textarea",
+        default: "Conectamos lo que ya usas para que un pedido, una factura o un ticket viajen solos de un sistema a otro, sin copiar y pegar.",
+      },
+      {
+        key: "integrations.nodes",
+        label: "Integraciones – sistemas del diagrama (uno por línea, máx. 8)",
+        type: "textarea",
+        default: "ERP\nCRM\nFacturación\nPagos\nWhatsApp\nTienda online\nCastorly\nBI",
+      },
+    ],
+  },
+  {
     id: "castorly",
     title: "Sección Castorly",
     description: "Bloque destacado de la portada y página /castorly. Los detalles del producto se editan en Productos.",

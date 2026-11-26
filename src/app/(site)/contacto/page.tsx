@@ -20,10 +20,10 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
 
   return (
     <section className="py-16 sm:py-24">
-      <div className="container-x grid gap-14 lg:grid-cols-12">
+      <div className="container-x grid grid-cols-1 gap-14 lg:grid-cols-12">
         <div className="lg:col-span-5">
           <p className="eyebrow">Contacto</p>
-          <h1 className="mt-5 font-serif text-5xl font-medium leading-[1.03] tracking-tight sm:text-6xl"><Emph text={s["cta.title"]} /></h1>
+          <h1 className="mt-5 font-display text-5xl font-medium leading-[1.03] tracking-tight sm:text-6xl"><Emph text={s["cta.title"]} /></h1>
           <p className="mt-6 text-lg text-ink-700">{s["cta.text"]}</p>
           <dl className="mt-10 space-y-5 border-t border-paper-line pt-6 text-[15px]">
             <div><dt className="eyebrow">Correo</dt><dd className="mt-1"><a className="link-u" href={`mailto:${s["contact.email"]}`}>{s["contact.email"]}</a></dd></div>
