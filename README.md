@@ -1,6 +1,6 @@
-# NexoByte · Sitio web + panel de administración
+# Nodara · Sitio web + panel de administración
 
-Sitio web corporativo (en español) para **NexoByte**, empresa de servicios TI: páginas web, aplicaciones a la medida, chatbots con IA, integraciones TI, nube/soporte, ciberseguridad y la app propia **Castorly**.
+Sitio web corporativo (en español) para **Nodara**, empresa de servicios TI: páginas web, aplicaciones a la medida, chatbots con IA, integraciones TI, nube/soporte, ciberseguridad y la app propia **Castorly**.
 
 Todo el contenido es administrable desde `/admin` (protegido con usuario y contraseña).
 
@@ -62,10 +62,10 @@ cp .env.example .env     # define AUTH_SECRET y ADMIN_PASSWORD
 docker compose up -d --build
 ```
 
-La base de datos queda en el volumen `nexobyte-data`, así que sobrevive a reinicios y actualizaciones. Pon delante un proxy con HTTPS (Caddy, Nginx + Certbot, Cloudflare). Ejemplo con Caddy:
+La base de datos queda en el volumen `nodara-data`, así que sobrevive a reinicios y actualizaciones. Pon delante un proxy con HTTPS (Caddy, Nginx + Certbot, Cloudflare). Ejemplo con Caddy:
 
 ```
-nexobyte.co {
+nodara.co {
   reverse_proxy localhost:3000
 }
 ```
@@ -75,7 +75,7 @@ Para actualizar: `git pull && docker compose up -d --build`.
 ### Opción B · Railway / Render / Fly.io
 
 1. Crea el servicio desde este repositorio (detectan el `Dockerfile`).
-2. Agrega un **volumen persistente** montado en `/data` y define `DATABASE_URL=file:/data/nexobyte.db`.
+2. Agrega un **volumen persistente** montado en `/data` y define `DATABASE_URL=file:/data/nodara.db`.
 3. Define `AUTH_SECRET`, `ADMIN_EMAIL` y `ADMIN_PASSWORD`.
 
 ### Opción C · Vercel (con PostgreSQL)

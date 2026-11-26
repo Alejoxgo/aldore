@@ -4,13 +4,13 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: "file:/data/nexobyte.db"
+      DATABASE_URL: "file:/data/nodara.db"
       AUTH_SECRET: "${AUTH_SECRET:?Define AUTH_SECRET en el archivo .env}"
-      ADMIN_EMAIL: "${ADMIN_EMAIL:-admin@nexobyte.co}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL:-admin@nodara.co}"
       ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Define ADMIN_PASSWORD en el archivo .env}"
     volumes:
-      - nexobyte-data:/data
+      - nodara-data:/data
     restart: unless-stopped
 
 volumes:
-  nexobyte-data:
+  nodara-data:

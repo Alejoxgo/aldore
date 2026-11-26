@@ -39,7 +39,10 @@ export default async function ProductPage({ params }: Props) {
             )}
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               {p.ctaUrl ? (
-                <a href={p.ctaUrl} target="_blank" rel="noopener noreferrer" className="btn bg-white text-brand-800 hover:bg-slate-100">{p.ctaLabel} →</a>
+                <>
+                  <a href={p.ctaUrl} target="_blank" rel="noopener noreferrer" className="btn bg-white text-brand-800 hover:bg-slate-100">{p.ctaLabel} ↗</a>
+                  <a href="#solicitar" className="btn-ghost">Hablar con un asesor</a>
+                </>
               ) : (
                 <a href="#solicitar" className="btn bg-white text-brand-800 hover:bg-slate-100">{p.ctaLabel} →</a>
               )}

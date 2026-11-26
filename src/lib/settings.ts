@@ -9,15 +9,15 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     id: "marca",
     title: "Marca y SEO",
     fields: [
-      { key: "site.name", label: "Nombre de la empresa", default: "NexoByte" },
+      { key: "site.name", label: "Nombre de la empresa", default: "Nodara" },
       { key: "site.tagline", label: "Eslogan", default: "Tecnología que conecta tu negocio" },
-      { key: "seo.title", label: "Título SEO", default: "NexoByte | Desarrollo web, apps, chatbots e integraciones TI" },
+      { key: "seo.title", label: "Título SEO", default: "Nodara | Desarrollo web, apps, chatbots e integraciones TI" },
       {
         key: "seo.description",
         label: "Descripción SEO",
         type: "textarea",
         default:
-          "Creamos páginas web, aplicaciones, chatbots con IA e integraciones TI para empresas que quieren crecer. Conoce también Castorly.",
+          "Creamos páginas web, aplicaciones, chatbots con IA e integraciones TI para empresas que quieren crecer. Conoce también Castorly, nuestra plataforma para Service Desk.",
       },
     ],
   },
@@ -77,16 +77,17 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     description: "Bloque destacado de la portada y página /castorly. Los detalles del producto se editan en Productos.",
     fields: [
       { key: "castorly.badge", label: "Etiqueta", default: "Nuestra app" },
-      { key: "castorly.title", label: "Título", default: "Castorly: la app que organiza tu operación" },
+      { key: "castorly.title", label: "Título", default: "Castorly: calma en cada llamada" },
       {
         key: "castorly.text",
         label: "Texto",
         type: "textarea",
         default:
-          "Castorly es nuestra aplicación propia para que tu equipo trabaje mejor: centraliza la información, automatiza tareas repetitivas y te da visibilidad en tiempo real desde el celular o el computador.",
+          "Castorly es el centro de trabajo para tu Service Desk: llamadas, tickets, base de conocimiento y Cástor, el asistente que te acompaña, todo en un solo lugar.",
       },
-      { key: "castorly.cta", label: "Texto del botón", default: "Descubre Castorly" },
-      { key: "castorly.url", label: "Enlace externo de la app (opcional)", type: "url", default: "" },
+      { key: "castorly.cta", label: "Texto del botón", default: "Conocer Castorly" },
+      { key: "castorly.url", label: "Enlace a la app", type: "url", default: "https://castorly.co" },
+      { key: "castorly.urlLabel", label: "Texto del botón de la app", default: "Ir a castorly.co" },
       { key: "castorly.imageUrl", label: "Imagen / captura (URL, opcional)", type: "url", default: "" },
     ],
   },
@@ -102,7 +103,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     id: "contacto",
     title: "Datos de contacto y redes",
     fields: [
-      { key: "contact.email", label: "Correo", default: "hola@nexobyte.co" },
+      { key: "contact.email", label: "Correo", default: "hola@nodara.co" },
       { key: "contact.phone", label: "Teléfono", default: "+57 300 000 0000" },
       { key: "contact.whatsapp", label: "WhatsApp (con indicativo)", default: "+573000000000" },
       { key: "contact.address", label: "Dirección / ciudad", default: "Bogotá, Colombia · Trabajo remoto en toda Latam" },

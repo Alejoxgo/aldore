@@ -101,7 +101,7 @@ export function CastorlyBlock({ s, product }: { s: Settings; product: Product | 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href="/castorly" className="btn bg-white text-brand-800 hover:bg-slate-100">{s["castorly.cta"]} →</Link>
                 {s["castorly.url"] && (
-                  <a href={s["castorly.url"]} target="_blank" rel="noopener noreferrer" className="btn-ghost">Abrir la app</a>
+                  <a href={s["castorly.url"]} target="_blank" rel="noopener noreferrer" className="btn-ghost">{s["castorly.urlLabel"] || "Abrir la app"} ↗</a>
                 )}
               </div>
             </div>
@@ -130,11 +130,10 @@ function PhoneMock() {
           <div className="text-sm font-bold text-ink-900">Castorly</div>
         </div>
         <div className="rounded-xl bg-brand-50 p-3">
-          <div className="text-[10px] text-slate-500">Resumen de hoy</div>
-          <div className="text-xl font-bold text-ink-900">87%</div>
-          <div className="mt-2 h-1.5 rounded-full bg-brand-100"><div className="h-1.5 w-[87%] rounded-full bg-brand-500" /></div>
+          <div className="text-[10px] text-slate-500">Cástor</div>
+          <div className="text-xs font-semibold text-ink-900">Te ayudo con este ticket 👋</div>
         </div>
-        {["Tareas", "Clientes", "Reportes", "Equipo"].map((t, i) => (
+        {["Llamadas", "Tickets", "Artículos", "Equipo"].map((t, i) => (
           <div key={t} className="flex items-center justify-between rounded-xl border border-slate-100 p-3">
             <span className="text-xs font-medium text-slate-700">{t}</span>
             <span className="rounded-full bg-accent-500/15 px-2 py-0.5 text-[10px] font-semibold text-accent-600">{[12, 48, 5, 9][i]}</span>

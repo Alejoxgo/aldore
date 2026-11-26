@@ -65,19 +65,20 @@ const products = [
   {
     slug: "castorly",
     name: "Castorly",
-    tagline: "La app que organiza y automatiza la operación de tu negocio.",
+    tagline: "Calma en cada llamada.",
     description:
-      "Castorly es nuestra aplicación propia, diseñada para que los equipos trabajen de forma más ordenada y productiva. Centraliza clientes, tareas y reportes en un solo lugar y funciona desde el celular o el computador.\n\nEdita esta descripción desde el panel de administración (Productos → Castorly) para contar exactamente qué hace la app, para quién es y cuánto cuesta.",
-    features: "Disponible en web, Android e iOS\nGestión de clientes y tareas\nReportes en tiempo real\nAutomatización de procesos repetitivos\nRoles y permisos para tu equipo\nSoporte en español",
-    price: "Prueba gratis",
-    priceNote: "Planes desde el primer mes",
-    ctaLabel: "Solicitar demo",
+      "Castorly es tu centro de trabajo para el Service Desk: llamadas, tickets, conocimiento y Cástor, en un solo lugar.\n\nCástor es el asistente integrado que te acompaña mientras atiendes llamadas, gestionas tickets y consultas artículos, para que tu equipo resuelva más rápido y con menos estrés.\n\nLas cuentas las aprueba el administrador de cada organización y el acceso está protegido con conexión segura y verificación en dos pasos.",
+    features: "Llamadas del Service Desk en un solo lugar\nGestión de tickets\nBase de conocimiento y artículos\nCástor, asistente que te acompaña en cada caso\nVerificación en dos pasos\nCuentas aprobadas por el administrador",
+    price: "",
+    priceNote: "",
+    ctaLabel: "Solicitar acceso",
+    ctaUrl: "https://castorly.co/register",
     featured: true,
     order: 0,
   },
   {
-    slug: "nexobot",
-    name: "NexoBot",
+    slug: "nodara-bot",
+    name: "Nodara Bot",
     tagline: "Chatbot de WhatsApp listo en 7 días.",
     description:
       "Un asistente virtual con IA que atiende a tus clientes en WhatsApp las 24 horas, responde preguntas frecuentes, toma pedidos y agenda citas.\n\nIncluye configuración, entrenamiento con la información de tu negocio y panel de conversaciones.",
@@ -88,8 +89,8 @@ const products = [
     order: 1,
   },
   {
-    slug: "nexoweb",
-    name: "NexoWeb",
+    slug: "nodara-web",
+    name: "Nodara Web",
     tagline: "Tu página web autoadministrable, lista en 10 días.",
     description:
       "Una página web profesional con panel de administración, hosting, dominio y certificado SSL incluidos. Ideal para pymes y emprendedores que necesitan presencia digital rápida y efectiva.",
@@ -138,7 +139,7 @@ const testimonials = [
 const faqs = [
   { question: "¿Cuánto tiempo toma desarrollar una página web?", answer: "Una landing page está lista en 7 a 10 días hábiles. Un sitio corporativo completo toma de 3 a 5 semanas, y una tienda online de 4 a 8 semanas, según el alcance.", order: 0 },
   { question: "¿Puedo editar mi página yo mismo?", answer: "Sí. Todos nuestros sitios incluyen un panel de administración sencillo para que cambies textos, imágenes, productos y precios sin conocimientos técnicos.", order: 1 },
-  { question: "¿Qué es Castorly?", answer: "Es nuestra aplicación propia para organizar y automatizar la operación de tu negocio. Puedes solicitar una demo gratuita desde la página de Castorly.", order: 2 },
+  { question: "¿Qué es Castorly?", answer: "Es nuestra plataforma para equipos de Service Desk: reúne llamadas, tickets, base de conocimiento y a Cástor, un asistente que te acompaña en cada caso. Puedes solicitar acceso en castorly.co.", order: 2 },
   { question: "¿Trabajan con empresas fuera de mi ciudad?", answer: "Sí, trabajamos 100 % remoto con clientes en toda Latinoamérica y coordinamos reuniones por videollamada.", order: 3 },
   { question: "¿Ofrecen soporte después de la entrega?", answer: "Todos los proyectos incluyen un periodo de soporte y garantía. Además ofrecemos planes de mantenimiento mensual.", order: 4 },
 ];
@@ -153,7 +154,7 @@ async function seedIfEmpty(name, delegate, rows) {
 }
 
 async function main() {
-  const email = (process.env.ADMIN_EMAIL || "admin@nexobyte.co").toLowerCase();
+  const email = (process.env.ADMIN_EMAIL || "admin@nodara.co").toLowerCase();
   const password = process.env.ADMIN_PASSWORD || "CambiaEsta123!";
   if ((await prisma.user.count()) === 0) {
     await prisma.user.create({ data: { email, name: "Administrador", passwordHash: await bcrypt.hash(password, 12) } });
