@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import ContactForm from "@/components/ContactForm";
+import { Emph } from "@/components/Sections";
 import { whatsappLink } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Contacto" };
@@ -18,36 +19,23 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
   const wa = whatsappLink(s["contact.whatsapp"], "Hola, quiero cotizar un proyecto.");
 
   return (
-    <>
-      <section className="bg-ink-900 py-20 text-white">
-        <div className="container-x">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">{s["cta.title"]}</h1>
-          <p className="mt-4 max-w-2xl text-lg text-slate-300">{s["cta.text"]}</p>
+    <section className="py-16 sm:py-24">
+      <div className="container-x grid gap-14 lg:grid-cols-12">
+        <div className="lg:col-span-5">
+          <p className="eyebrow">Contacto</p>
+          <h1 className="mt-5 font-serif text-5xl font-medium leading-[1.03] tracking-tight sm:text-6xl"><Emph text={s["cta.title"]} /></h1>
+          <p className="mt-6 text-lg text-ink-700">{s["cta.text"]}</p>
+          <dl className="mt-10 space-y-5 border-t border-paper-line pt-6 text-[15px]">
+            <div><dt className="eyebrow">Correo</dt><dd className="mt-1"><a className="link-u" href={`mailto:${s["contact.email"]}`}>{s["contact.email"]}</a></dd></div>
+            <div><dt className="eyebrow">Teléfono</dt><dd className="mt-1">{s["contact.phone"]}</dd></div>
+            <div><dt className="eyebrow">Dónde</dt><dd className="mt-1">{s["contact.address"]}<br /><span className="text-ink-500">{s["contact.hours"]}</span></dd></div>
+          </dl>
+          {wa && <a href={wa} target="_blank" rel="noopener noreferrer" className="btn-outline mt-8">Escríbenos por WhatsApp</a>}
         </div>
-      </section>
-      <section className="py-20">
-        <div className="container-x grid gap-12 lg:grid-cols-3">
-          <div className="card hover:translate-y-0 lg:col-span-2">
-            <ContactForm services={options} defaultService={servicio} />
-          </div>
-          <aside className="space-y-6">
-            <div>
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Correo</h2>
-              <a href={`mailto:${s["contact.email"]}`} className="mt-1 block text-lg font-medium text-ink-900 hover:text-brand-700">{s["contact.email"]}</a>
-            </div>
-            <div>
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Teléfono</h2>
-              <p className="mt-1 text-lg font-medium text-ink-900">{s["contact.phone"]}</p>
-            </div>
-            <div>
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">Ubicación</h2>
-              <p className="mt-1 text-ink-900">{s["contact.address"]}</p>
-              <p className="text-sm text-slate-500">{s["contact.hours"]}</p>
-            </div>
-            {wa && <a href={wa} target="_blank" rel="noopener noreferrer" className="btn w-full bg-[#25D366] text-white hover:brightness-95">Escríbenos por WhatsApp</a>}
-          </aside>
+        <div className="lg:col-span-7">
+          <ContactForm services={options} defaultService={servicio} />
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

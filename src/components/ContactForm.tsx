@@ -9,8 +9,9 @@ export default function ContactForm({ services, defaultService = "" }: { service
 
   if (state.ok) {
     return (
-      <div className="rounded-2xl border border-accent-500/30 bg-accent-500/10 p-8 text-center">
-        <p className="text-lg font-semibold text-ink-900">{state.message}</p>
+      <div className="border-t border-ink-900 pt-8">
+        <p className="font-serif text-3xl text-ink-900">Gracias.</p>
+        <p className="mt-3 text-lg text-ink-700">{state.message}</p>
       </div>
     );
   }
@@ -19,7 +20,7 @@ export default function ContactForm({ services, defaultService = "" }: { service
   const err = (k: string) => state.errors?.[k] && <p className="mt-1 text-xs text-red-600">{state.errors[k]}</p>;
 
   return (
-    <form key={JSON.stringify(v)} action={action} className="grid gap-4 sm:grid-cols-2" noValidate>
+    <form key={JSON.stringify(v)} action={action} className="grid gap-5 sm:grid-cols-2" noValidate>
       <div>
         <label className="label" htmlFor="cf-name">Nombre *</label>
         <input id="cf-name" name="name" defaultValue={v.name} className="input" autoComplete="name" required />
@@ -55,7 +56,7 @@ export default function ContactForm({ services, defaultService = "" }: { service
       </div>
       <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
       <div className="flex flex-col gap-3 sm:col-span-2 sm:flex-row sm:items-center">
-        <button type="submit" className="btn-primary" disabled={pending}>
+        <button type="submit" className="btn-signal" disabled={pending}>
           {pending ? "Enviando…" : "Enviar mensaje"}
         </button>
         {state.message && !state.ok && <p className="text-sm text-red-600">{state.message}</p>}

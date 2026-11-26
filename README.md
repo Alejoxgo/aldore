@@ -108,8 +108,15 @@ src/lib/resources.ts          Configuración del CRUD genérico (campos de servi
 src/components/               Componentes del sitio y del panel
 ```
 
+## Identidad visual
+
+- **Logo:** arco ojival (la «A» de Aldore y una puerta) con la entrada en bermellón. Archivos: `public/logo-mark.svg` y `src/app/icon.svg` (favicon). Componente: `src/components/Logo.tsx`.
+- **Colores:** papel `#f4f1ea`, tinta `#16130f`, bermellón `#e2471c`.
+- **Tipografías:** Fraunces (títulos), Inter Tight (texto) y JetBrains Mono (etiquetas), servidas localmente con Fontsource.
+- En los títulos editables puedes encerrar una palabra entre `*asteriscos*` para resaltarla en cursiva.
+
 ## Personalización rápida
 
 - **Nuevo texto editable:** agrégalo en `SETTINGS_GROUPS` (`src/lib/settings.ts`) y úsalo con `s["tu.clave"]`.
 - **Nuevo campo en servicios/productos:** agrégalo al modelo en `schema.prisma`, ejecuta `npm run db:push` y añádelo en `src/lib/resources.ts`.
-- **Colores de marca:** `tailwind.config.ts` (`brand`, `accent`, `ink`).
+- **Colores de marca:** `tailwind.config.ts` (`brand`, `paper`, `ink`).

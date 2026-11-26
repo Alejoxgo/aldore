@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "./fonts";
 import "./globals.css";
 import { getSettings } from "@/lib/settings";
 

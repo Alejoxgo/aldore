@@ -8,7 +8,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
   return (
     <div className="max-w-3xl">
       <h1 className="text-2xl font-bold text-ink-900">Textos del sitio</h1>
-      <p className="mb-6 mt-1 text-sm text-slate-500">Edita los títulos, textos, datos de contacto y redes sociales. Los cambios se ven de inmediato.</p>
+      <p className="mb-6 mt-1 text-sm text-slate-500">Edita los títulos, textos, datos de contacto y redes sociales. Los cambios se ven de inmediato. En los títulos puedes encerrar una palabra entre *asteriscos* para resaltarla.</p>
       <Flash ok={ok} />
       <div className="mb-6 flex flex-wrap gap-2">
         {SETTINGS_GROUPS.map((g) => (
@@ -31,6 +31,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
                 ) : (
                   <input id={f.key} name={f.key} defaultValue={s[f.key]} className="input" placeholder={f.type === "url" ? "https://…" : undefined} />
                 )}
+                {f.help && <p className="mt-1 text-xs text-slate-500">{f.help}</p>}
               </div>
             ))}
             <button className="btn-primary">Guardar «{g.title}»</button>

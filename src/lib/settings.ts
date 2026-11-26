@@ -10,7 +10,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     title: "Marca y SEO",
     fields: [
       { key: "site.name", label: "Nombre de la empresa", default: "Aldore" },
-      { key: "site.tagline", label: "Eslogan", default: "Tecnología que conecta tu negocio" },
+      { key: "site.tagline", label: "Eslogan", default: "Software para empresas que no pueden parar" },
       { key: "seo.title", label: "Título SEO", default: "Aldore | Desarrollo web, apps, chatbots e integraciones TI" },
       {
         key: "seo.description",
@@ -25,50 +25,50 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     id: "hero",
     title: "Portada (Hero)",
     fields: [
-      { key: "hero.badge", label: "Etiqueta superior", default: "Agencia de tecnología · Latinoamérica" },
-      { key: "hero.title", label: "Título principal", default: "Construimos la tecnología que hace crecer tu negocio" },
+      { key: "hero.badge", label: "Etiqueta superior", default: "Estudio de software · Bogotá, Colombia" },
+      { key: "hero.title", label: "Título principal", help: "Encierra una palabra entre *asteriscos* para resaltarla.", default: "Software bien hecho para empresas que *no pueden* parar." },
       {
         key: "hero.subtitle",
         label: "Subtítulo",
         type: "textarea",
         default:
-          "Páginas web que venden, aplicaciones a la medida, chatbots con inteligencia artificial e integraciones que conectan todos tus sistemas. Un solo equipo, de la idea a producción.",
+          "Hacemos páginas web, aplicaciones, chatbots e integraciones para empresas en Colombia y Latinoamérica. Somos un equipo pequeño: hablas directamente con quien escribe el código.",
       },
-      { key: "hero.ctaPrimary", label: "Botón principal", default: "Cotiza tu proyecto" },
+      { key: "hero.ctaPrimary", label: "Botón principal", default: "Cuéntanos tu proyecto" },
       { key: "hero.ctaSecondary", label: "Botón secundario", default: "Conoce Castorly" },
       { key: "hero.stat1Value", label: "Dato 1 – valor", default: "+120" },
       { key: "hero.stat1Label", label: "Dato 1 – texto", default: "proyectos entregados" },
-      { key: "hero.stat2Value", label: "Dato 2 – valor", default: "24/7" },
-      { key: "hero.stat2Label", label: "Dato 2 – texto", default: "soporte y monitoreo" },
-      { key: "hero.stat3Value", label: "Dato 3 – valor", default: "98%" },
-      { key: "hero.stat3Label", label: "Dato 3 – texto", default: "clientes satisfechos" },
+      { key: "hero.stat2Value", label: "Dato 2 – valor", default: "48 h" },
+      { key: "hero.stat2Label", label: "Dato 2 – texto", default: "para enviarte una propuesta" },
+      { key: "hero.stat3Value", label: "Dato 3 – valor", default: "1" },
+      { key: "hero.stat3Label", label: "Dato 3 – texto", default: "producto propio en producción: Castorly" },
     ],
   },
   {
     id: "secciones",
     title: "Títulos de secciones",
     fields: [
-      { key: "services.title", label: "Servicios – título", default: "Todo lo que tu empresa necesita en TI" },
+      { key: "services.title", label: "Servicios – título", default: "Lo que *hacemos*" },
       {
         key: "services.subtitle",
         label: "Servicios – subtítulo",
         type: "textarea",
-        default: "Diseñamos, desarrollamos, integramos y mantenemos. Tú te enfocas en tu negocio.",
+        default: "Seis frentes, un mismo equipo. Puedes contratarnos para uno solo o para todos.",
       },
-      { key: "products.title", label: "Productos – título", default: "Nuestros productos" },
-      { key: "products.subtitle", label: "Productos – subtítulo", type: "textarea", default: "Software listo para usar, creado por nuestro equipo." },
-      { key: "plans.title", label: "Planes – título", default: "Planes de páginas web" },
-      { key: "plans.subtitle", label: "Planes – subtítulo", type: "textarea", default: "Precios claros. Sin sorpresas. Todos incluyen hosting y certificado SSL el primer año." },
-      { key: "process.title", label: "Proceso – título", default: "Así trabajamos" },
+      { key: "products.title", label: "Productos – título", default: "Productos *propios*" },
+      { key: "products.subtitle", label: "Productos – subtítulo", type: "textarea", default: "Herramientas que construimos, usamos y mantenemos nosotros." },
+      { key: "plans.title", label: "Planes – título", default: "Páginas web con precio *cerrado*" },
+      { key: "plans.subtitle", label: "Planes – subtítulo", type: "textarea", default: "Sabes cuánto pagas antes de empezar. Hosting, dominio y SSL incluidos el primer año." },
+      { key: "process.title", label: "Proceso – título", default: "Sin sorpresas, de principio a fin" },
       {
         key: "process.steps",
         label: "Proceso – pasos (uno por línea, formato: Título | Descripción)",
         type: "textarea",
         default:
-          "Descubrimiento | Entendemos tu negocio, tus objetivos y tus usuarios.\nDiseño | Prototipos y diseño visual que puedes ver antes de construir.\nDesarrollo | Sprints cortos con entregas que pruebas cada semana.\nLanzamiento y soporte | Publicamos, medimos y seguimos mejorando contigo.",
+          "Llamada inicial | 30 minutos para entender qué necesitas. Si no somos los indicados, te lo decimos.\nPropuesta | En 48 horas recibes alcance, precio y fechas por escrito.\nConstrucción | Cada semana te mostramos avances en un enlace que abres desde el celular.\nEntrega y soporte | Publicamos, capacitamos a tu equipo y seguimos disponibles.",
       },
-      { key: "testimonials.title", label: "Testimonios – título", default: "Lo que dicen nuestros clientes" },
-      { key: "faq.title", label: "Preguntas frecuentes – título", default: "Preguntas frecuentes" },
+      { key: "testimonials.title", label: "Testimonios – título", default: "Clientes" },
+      { key: "faq.title", label: "Preguntas frecuentes – título", default: "Preguntas *frecuentes*" },
     ],
   },
   {
@@ -77,7 +77,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     description: "Bloque destacado de la portada y página /castorly. Los detalles del producto se editan en Productos.",
     fields: [
       { key: "castorly.badge", label: "Etiqueta", default: "Nuestra app" },
-      { key: "castorly.title", label: "Título", default: "Castorly: calma en cada llamada" },
+      { key: "castorly.title", label: "Título", default: "Castorly: *calma* en cada llamada" },
       {
         key: "castorly.text",
         label: "Texto",
@@ -95,8 +95,8 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     id: "cta",
     title: "Llamado a la acción final",
     fields: [
-      { key: "cta.title", label: "Título", default: "¿Tienes una idea? Hagámosla realidad." },
-      { key: "cta.text", label: "Texto", type: "textarea", default: "Cuéntanos tu proyecto y te enviamos una propuesta sin costo en menos de 48 horas." },
+      { key: "cta.title", label: "Título", default: "Cuéntanos qué *necesitas*" },
+      { key: "cta.text", label: "Texto", type: "textarea", default: "Respondemos en menos de 48 horas con una propuesta concreta y sin compromiso." },
     ],
   },
   {
@@ -112,7 +112,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
       { key: "social.linkedin", label: "LinkedIn (URL)", type: "url", default: "" },
       { key: "social.facebook", label: "Facebook (URL)", type: "url", default: "" },
       { key: "social.x", label: "X / Twitter (URL)", type: "url", default: "" },
-      { key: "footer.text", label: "Texto del pie de página", type: "textarea", default: "Desarrollo web, aplicaciones, chatbots e integraciones TI para empresas que quieren crecer." },
+      { key: "footer.text", label: "Texto del pie de página", type: "textarea", default: "Estudio de software en Bogotá. Páginas web, aplicaciones, chatbots e integraciones para empresas de Latinoamérica." },
     ],
   },
 ];

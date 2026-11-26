@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
-import Icon from "@/components/Icon";
 import ContactForm from "@/components/ContactForm";
 import { lines, paragraphs } from "@/lib/utils";
 
@@ -24,59 +23,64 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-700 via-brand-800 to-ink-900 py-20 text-white">
-        <div className="pointer-events-none absolute -right-20 -top-20 h-96 w-96 rounded-full bg-accent-500/25 blur-3xl" />
-        <div className="container-x relative grid items-center gap-10 lg:grid-cols-2">
-          <div>
-            <Link href="/#productos" className="text-sm text-slate-300 hover:text-white">← Productos</Link>
-            <h1 className="mt-6 text-4xl font-extrabold tracking-tight sm:text-6xl">{p.name}</h1>
-            <p className="mt-4 text-xl text-slate-200">{p.tagline}</p>
+      <section className="bg-ink-900 text-paper">
+        <div className="container-x grid items-end gap-10 pb-16 pt-14 sm:pt-20 lg:grid-cols-12">
+          <div className="lg:col-span-8">
+            <Link href="/#productos" className="eyebrow !text-paper/50 hover:!text-paper">← Productos</Link>
+            <h1 className="mt-10 font-serif text-6xl font-medium tracking-tight sm:text-8xl">
+              {p.name}<span className="text-brand-500">.</span>
+            </h1>
+            <p className="mt-5 max-w-xl font-serif text-2xl italic text-paper/80">{p.tagline}</p>
+          </div>
+          <div className="flex flex-col gap-3 lg:col-span-4 lg:items-end">
             {p.price && (
-              <p className="mt-6">
-                <span className="text-3xl font-bold">{p.price}</span>
-                {p.priceNote && <span className="ml-2 text-sm text-slate-300">{p.priceNote}</span>}
+              <p className="text-right">
+                <span className="font-serif text-3xl">{p.price}</span>
+                {p.priceNote && <span className="block text-sm text-paper/50">{p.priceNote}</span>}
               </p>
             )}
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="flex flex-wrap gap-3">
               {p.ctaUrl ? (
                 <>
-                  <a href={p.ctaUrl} target="_blank" rel="noopener noreferrer" className="btn bg-white text-brand-800 hover:bg-slate-100">{p.ctaLabel} ↗</a>
-                  <a href="#solicitar" className="btn-ghost">Hablar con un asesor</a>
+                  <a href={p.ctaUrl} target="_blank" rel="noopener noreferrer" className="btn-signal">{p.ctaLabel} ↗</a>
+                  <a href="#solicitar" className="btn-ghost text-paper">Hablar con un asesor</a>
                 </>
               ) : (
-                <a href="#solicitar" className="btn bg-white text-brand-800 hover:bg-slate-100">{p.ctaLabel} →</a>
+                <a href="#solicitar" className="btn-signal">{p.ctaLabel}</a>
               )}
             </div>
           </div>
-          {p.imageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={p.imageUrl} alt={p.name} className="mx-auto max-h-[440px] rounded-2xl shadow-2xl" />
-          )}
         </div>
+        {p.imageUrl && (
+          <div className="container-x pb-16">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={p.imageUrl} alt={p.name} className="w-full rounded-xl border border-white/10" />
+          </div>
+        )}
       </section>
       <section className="py-20">
-        <div className="container-x grid gap-12 lg:grid-cols-5">
-          <div className="space-y-5 text-lg leading-relaxed text-slate-700 lg:col-span-3">
+        <div className="container-x grid gap-14 lg:grid-cols-12">
+          <div className="space-y-6 text-lg leading-relaxed text-ink-700 lg:col-span-7">
             {paragraphs(p.description).map((t, i) => <p key={i}>{t}</p>)}
           </div>
           {feats.length > 0 && (
-            <div className="grid gap-3 lg:col-span-2">
-              {feats.map((f) => (
-                <div key={f} className="flex items-start gap-3 rounded-xl border border-slate-200 p-4">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-500/15 text-accent-600">
-                    <Icon name="check" className="h-4 w-4" />
-                  </span>
-                  <span className="text-sm font-medium text-slate-700">{f}</span>
-                </div>
-              ))}
-            </div>
+            <aside className="lg:col-span-4 lg:col-start-9">
+              <p className="eyebrow">Características</p>
+              <ul className="mt-4 border-t border-ink-900">
+                {feats.map((f) => (
+                  <li key={f} className="flex gap-3 border-b border-paper-line py-3 text-[15px]">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-brand-500" /> {f}
+                  </li>
+                ))}
+              </ul>
+            </aside>
           )}
         </div>
       </section>
-      <section id="solicitar" className="scroll-mt-20 bg-slate-50 py-20">
-        <div className="container-x max-w-3xl">
-          <h2 className="section-title text-center">Solicita una demo de {p.name}</h2>
-          <div className="card mt-10 hover:translate-y-0">
+      <section id="solicitar" className="scroll-mt-16 border-t border-paper-line bg-white/50 py-20">
+        <div className="container-x grid gap-12 lg:grid-cols-12">
+          <h2 className="section-title lg:col-span-5">¿Quieres {p.name} en tu empresa?</h2>
+          <div className="lg:col-span-7">
             <ContactForm services={[p.name]} defaultService={p.name} />
           </div>
         </div>
