@@ -9,9 +9,9 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     id: "marca",
     title: "Marca y SEO",
     fields: [
-      { key: "site.name", label: "Nombre de la empresa", default: "Nodara" },
+      { key: "site.name", label: "Nombre de la empresa", default: "Aldore" },
       { key: "site.tagline", label: "Eslogan", default: "Tecnología que conecta tu negocio" },
-      { key: "seo.title", label: "Título SEO", default: "Nodara | Desarrollo web, apps, chatbots e integraciones TI" },
+      { key: "seo.title", label: "Título SEO", default: "Aldore | Desarrollo web, apps, chatbots e integraciones TI" },
       {
         key: "seo.description",
         label: "Descripción SEO",
@@ -103,7 +103,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     id: "contacto",
     title: "Datos de contacto y redes",
     fields: [
-      { key: "contact.email", label: "Correo", default: "hola@nodara.co" },
+      { key: "contact.email", label: "Correo", default: "hola@aldore.co" },
       { key: "contact.phone", label: "Teléfono", default: "+57 300 000 0000" },
       { key: "contact.whatsapp", label: "WhatsApp (con indicativo)", default: "+573000000000" },
       { key: "contact.address", label: "Dirección / ciudad", default: "Bogotá, Colombia · Trabajo remoto en toda Latam" },

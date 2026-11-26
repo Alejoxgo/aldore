@@ -77,8 +77,8 @@ const products = [
     order: 0,
   },
   {
-    slug: "nodara-bot",
-    name: "Nodara Bot",
+    slug: "aldore-bot",
+    name: "Aldore Bot",
     tagline: "Chatbot de WhatsApp listo en 7 días.",
     description:
       "Un asistente virtual con IA que atiende a tus clientes en WhatsApp las 24 horas, responde preguntas frecuentes, toma pedidos y agenda citas.\n\nIncluye configuración, entrenamiento con la información de tu negocio y panel de conversaciones.",
@@ -89,8 +89,8 @@ const products = [
     order: 1,
   },
   {
-    slug: "nodara-web",
-    name: "Nodara Web",
+    slug: "aldore-web",
+    name: "Aldore Web",
     tagline: "Tu página web autoadministrable, lista en 10 días.",
     description:
       "Una página web profesional con panel de administración, hosting, dominio y certificado SSL incluidos. Ideal para pymes y emprendedores que necesitan presencia digital rápida y efectiva.",
@@ -154,7 +154,7 @@ async function seedIfEmpty(name, delegate, rows) {
 }
 
 async function main() {
-  const email = (process.env.ADMIN_EMAIL || "admin@nodara.co").toLowerCase();
+  const email = (process.env.ADMIN_EMAIL || "admin@aldore.co").toLowerCase();
   const password = process.env.ADMIN_PASSWORD || "CambiaEsta123!";
   if ((await prisma.user.count()) === 0) {
     await prisma.user.create({ data: { email, name: "Administrador", passwordHash: await bcrypt.hash(password, 12) } });

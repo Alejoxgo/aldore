@@ -4,13 +4,13 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: "file:/data/nodara.db"
+      DATABASE_URL: "file:/data/aldore.db"
       AUTH_SECRET: "${AUTH_SECRET:?Define AUTH_SECRET en el archivo .env}"
-      ADMIN_EMAIL: "${ADMIN_EMAIL:-admin@nodara.co}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL:-admin@aldore.co}"
       ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Define ADMIN_PASSWORD en el archivo .env}"
     volumes:
-      - nodara-data:/data
+      - aldore-data:/data
     restart: unless-stopped
 
 volumes:
-  nodara-data:
+  aldore-data:

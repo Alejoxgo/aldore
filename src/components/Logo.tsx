@@ -9,7 +9,7 @@ export default function Logo({ name, light = false }: { name: string; light?: bo
           </linearGradient>
         </defs>
         <rect width="32" height="32" rx="9" fill="url(#nbg)" />
-        <path d="M9 22V10l14 12V10" fill="none" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9.5 23 16 9l6.5 14M12 18h8" fill="none" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
       <span className={`text-lg font-extrabold tracking-tight ${light ? "text-white" : "text-ink-900"}`}>{name}</span>
     </span>
