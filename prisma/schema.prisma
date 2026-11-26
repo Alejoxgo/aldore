@@ -1,0 +1,99 @@
+// Para PostgreSQL cambia provider a "postgresql" y DATABASE_URL (ver README).
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Service {
+  id               Int      @id @default(autoincrement())
+  slug             String   @unique
+  title            String
+  shortDescription String
+  description      String
+  icon             String   @default("code")
+  features         String   @default("")
+  order            Int      @default(0)
+  published        Boolean  @default(true)
+  updatedAt        DateTime @updatedAt
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  name        String
+  tagline     String
+  description String
+  price       String   @default("")
+  priceNote   String   @default("")
+  features    String   @default("")
+  ctaLabel    String   @default("Quiero saber más")
+  ctaUrl      String   @default("")
+  imageUrl    String   @default("")
+  featured    Boolean  @default(false)
+  order       Int      @default(0)
+  published   Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+}
+
+model Plan {
+  id          Int      @id @default(autoincrement())
+  name        String
+  price       String
+  period      String   @default("")
+  description String   @default("")
+  features    String   @default("")
+  highlighted Boolean  @default(false)
+  order       Int      @default(0)
+  published   Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id        Int      @id @default(autoincrement())
+  name      String
+  role      String   @default("")
+  company   String   @default("")
+  quote     String
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+}
+
+model Faq {
+  id        Int      @id @default(autoincrement())
+  question  String
+  answer    String
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+}
+
+model Setting {
+  key   String @id
+  value String
+}
+
+model Lead {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String   @default("")
+  company   String   @default("")
+  service   String   @default("")
+  message   String
+  status    String   @default("nuevo")
+  notes     String   @default("")
+  createdAt DateTime @default(now())
+}
