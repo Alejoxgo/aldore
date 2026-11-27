@@ -142,6 +142,43 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     ],
   },
   {
+    id: "menu",
+    title: "Menú superior",
+    description: "Enlaces de la barra de navegación del sitio.",
+    fields: [
+      {
+        key: "nav.items",
+        label: "Enlaces del menú",
+        type: "textarea",
+        help: "Uno por línea con el formato Texto | enlace. Ej: Castorly | /castorly",
+        default: "Servicios | /#servicios\nCastorly | /castorly\nPlanes | /#planes\nPreguntas | /#faq",
+      },
+      { key: "nav.cta", label: "Botón destacado – texto", default: "Hablemos" },
+      { key: "nav.ctaUrl", label: "Botón destacado – enlace", type: "url", default: "/contacto" },
+      { key: "nav.login", label: "Botón de ingreso al panel – texto (vacío = ocultarlo)", default: "Ingresar" },
+    ],
+  },
+  {
+    id: "pie",
+    title: "Pie de página",
+    fields: [
+      { key: "footer.cta", label: "Frase grande", default: "¿Tienes un proyecto en mente?" },
+      { key: "footer.ctaLink", label: "Texto del enlace de la frase", default: "Escríbenos" },
+      { key: "footer.ctaUrl", label: "Enlace de la frase", type: "url", default: "/contacto" },
+      { key: "footer.text", label: "Texto bajo el logo", type: "textarea", default: "Estudio de software en Bogotá. Páginas web, aplicaciones, chatbots e integraciones para empresas de Latinoamérica." },
+      { key: "footer.servicesTitle", label: "Título de la columna de servicios", default: "Servicios", help: "La lista sale de la sección Servicios del panel." },
+      { key: "footer.contactTitle", label: "Título de la columna de contacto", default: "Contacto", help: "Los datos salen de «Datos de contacto y redes»." },
+      {
+        key: "footer.links",
+        label: "Enlaces extra (abajo)",
+        type: "textarea",
+        help: "Uno por línea: Texto | enlace. Ej: Política de privacidad | /privacidad",
+        default: "",
+      },
+      { key: "footer.copyright", label: "Texto final (junto al ©)", default: "" },
+    ],
+  },
+  {
     id: "contacto",
     title: "Datos de contacto y redes",
     fields: [
@@ -155,7 +192,6 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
       { key: "social.linkedin", label: "LinkedIn (URL)", type: "url", default: "" },
       { key: "social.facebook", label: "Facebook (URL)", type: "url", default: "" },
       { key: "social.x", label: "X / Twitter (URL)", type: "url", default: "" },
-      { key: "footer.text", label: "Texto del pie de página", type: "textarea", default: "Estudio de software en Bogotá. Páginas web, aplicaciones, chatbots e integraciones para empresas de Latinoamérica." },
     ],
   },
 ];

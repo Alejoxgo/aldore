@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "Client" (
+CREATE TABLE IF NOT EXISTS "Client" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
     "company" TEXT NOT NULL DEFAULT '',
@@ -12,7 +12,7 @@ CREATE TABLE "Client" (
 );
 
 -- CreateTable
-CREATE TABLE "Order" (
+CREATE TABLE IF NOT EXISTS "Order" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "title" TEXT NOT NULL,
     "clientId" INTEGER,
@@ -29,7 +29,7 @@ CREATE TABLE "Order" (
 );
 
 -- CreateTable
-CREATE TABLE "Employee" (
+CREATE TABLE IF NOT EXISTS "Employee" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
     "document" TEXT NOT NULL DEFAULT '',
@@ -47,7 +47,7 @@ CREATE TABLE "Employee" (
 );
 
 -- CreateTable
-CREATE TABLE "Payroll" (
+CREATE TABLE IF NOT EXISTS "Payroll" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "employeeId" INTEGER NOT NULL,
     "period" TEXT NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE "Payroll" (
 );
 
 -- CreateTable
-CREATE TABLE "StaffRequest" (
+CREATE TABLE IF NOT EXISTS "StaffRequest" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "employeeId" INTEGER,
     "type" TEXT NOT NULL DEFAULT 'vacaciones',
@@ -77,5 +77,5 @@ CREATE TABLE "StaffRequest" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Payroll_employeeId_period_key" ON "Payroll"("employeeId", "period");
+CREATE UNIQUE INDEX IF NOT EXISTS "Payroll_employeeId_period_key" ON "Payroll"("employeeId", "period");
 

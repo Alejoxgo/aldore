@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaD1 } from "@prisma/adapter-d1";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { SCHEMA_GUARD } from "./schema-guard";
 
 /**
  * Cliente de base de datos.
@@ -18,11 +19,28 @@ function nodeClient() {
   return globalForPrisma.prisma;
 }
 
+type D1Like = { prepare(sql: string): unknown; batch(stmts: unknown[]): Promise<unknown> };
+
+/** Crea (si faltan) las tablas más recientes. Así el sitio no se cae si las migraciones no se aplicaron. */
+function ensureSchema(db: D1Like) {
+  return db.batch(SCHEMA_GUARD.map((s) => db.prepare(s))).catch((e) => {
+    console.error("No se pudo verificar el esquema de D1", e);
+  });
+}
+
 function workerClient(): PrismaClient {
-  const env = getCloudflareContext().env as unknown as { DB: object };
+  const env = getCloudflareContext().env as unknown as { DB: D1Like };
   let client = d1Clients.get(env.DB);
   if (!client) {
-    client = new PrismaClient({ adapter: new PrismaD1(env.DB as never) });
+    const ready = ensureSchema(env.DB);
+    client = new PrismaClient({ adapter: new PrismaD1(env.DB as never) }).$extends({
+      query: {
+        async $allOperations({ args, query }) {
+          await ready;
+          return query(args);
+        },
+      },
+    }) as unknown as PrismaClient;
     d1Clients.set(env.DB, client);
   }
   return client;

@@ -26,3 +26,15 @@ export function whatsappLink(number: string, text?: string) {
   if (!n) return "";
   return `https://wa.me/${n}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
 }
+
+/** Lee líneas "Texto | enlace" (menús y enlaces editables desde el panel). */
+export function linkList(value: string | null | undefined): { label: string; href: string }[] {
+  return lines(value)
+    .map((l) => {
+      const [label, ...rest] = l.split("|");
+      return { label: label.trim(), href: rest.join("|").trim() || "#" };
+    })
+    .filter((l) => l.label);
+}
+
+export const isExternal = (href: string) => /^https?:\/\//.test(href);

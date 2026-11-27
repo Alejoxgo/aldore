@@ -3,34 +3,49 @@ import Link from "next/link";
 import { useState } from "react";
 import Logo from "./Logo";
 
-const nav = [
-  { href: "/#servicios", label: "Servicios" },
-  { href: "/castorly", label: "Castorly" },
-  { href: "/#planes", label: "Planes" },
-  { href: "/#faq", label: "Preguntas" },
-];
+type NavLink = { label: string; href: string };
 
-export default function Header({ name }: { name: string }) {
+/** Botón de ingreso: la puerta de la marca, que se "abre" al pasar el mouse. */
+function LoginButton({ label, className = "", onClick }: { label: string; className?: string; onClick?: () => void }) {
+  return (
+    <Link
+      href="/admin/login"
+      onClick={onClick}
+      className={`group inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] py-1.5 pl-2 pr-4 font-mono text-[13px] tracking-wide text-paper/80 transition hover:border-brand-500/70 hover:bg-brand-500/10 hover:text-paper ${className}`}
+    >
+      <span className="grid h-6 w-6 place-items-center rounded-full bg-white/[0.06] transition group-hover:bg-brand-500/20">
+        <svg viewBox="0 0 40 40" className="h-3.5 w-3.5" aria-hidden="true">
+          <path d="M5 38V21C5 11 12 5 20 2c8 3 15 9 15 19v17z" fill="none" stroke="currentColor" strokeWidth={3.5} />
+          <path d="M15 38V25c0-4 2-7 5-9 3 2 5 5 5 9v13z" fill="#e2471c" className="origin-bottom transition-transform duration-300 group-hover:scale-y-110" />
+        </svg>
+      </span>
+      {label}
+    </Link>
+  );
+}
+
+export default function Header({ name, links, cta, ctaUrl, login }: { name: string; links: NavLink[]; cta: string; ctaUrl: string; login: string }) {
   const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-ink-900/90 text-paper backdrop-blur">
-      <div className="container-x flex h-16 items-center justify-between">
+      <div className="container-x flex h-16 items-center justify-between gap-6">
         <Link href="/" aria-label={`${name}, inicio`}>
           <Logo name={name} light />
         </Link>
         <nav className="hidden items-center gap-8 md:flex">
-          {nav.map((n) => (
-            <Link key={n.href} href={n.href} className="text-[15px] text-paper/70 transition hover:text-paper">
+          {links.map((n) => (
+            <Link key={n.href + n.label} href={n.href} className="text-[15px] text-paper/70 transition hover:text-paper">
               {n.label}
             </Link>
           ))}
-          <Link href="/admin/login" className="inline-flex items-center gap-1.5 text-[15px] text-paper/70 transition hover:text-paper">
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
-            Ingresar
-          </Link>
-          <Link href="/contacto" className="btn-signal !py-2">
-            Hablemos
-          </Link>
+          <div className="flex items-center gap-3">
+            {login && <LoginButton label={login} />}
+            {cta && (
+              <Link href={ctaUrl || "/contacto"} className="btn-signal !py-2">
+                {cta}
+              </Link>
+            )}
+          </div>
         </nav>
         <button
           className="rounded-lg p-2 text-paper md:hidden"
@@ -46,17 +61,19 @@ export default function Header({ name }: { name: string }) {
       {open && (
         <nav className="border-t border-white/10 bg-ink-900 md:hidden">
           <div className="container-x flex flex-col py-3">
-            {nav.map((n) => (
-              <Link key={n.href} href={n.href} onClick={() => setOpen(false)} className="border-b border-white/10 py-3 font-display text-2xl">
+            {links.map((n) => (
+              <Link key={n.href + n.label} href={n.href} onClick={() => setOpen(false)} className="border-b border-white/10 py-3 font-display text-2xl">
                 {n.label}
               </Link>
             ))}
-            <Link href="/admin/login" onClick={() => setOpen(false)} className="border-b border-white/10 py-3 font-display text-2xl text-paper/70">
-              Ingresar
-            </Link>
-            <Link href="/contacto" onClick={() => setOpen(false)} className="btn-signal mt-4">
-              Hablemos
-            </Link>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              {cta && (
+                <Link href={ctaUrl || "/contacto"} onClick={() => setOpen(false)} className="btn-signal">
+                  {cta}
+                </Link>
+              )}
+              {login && <LoginButton label={login} onClick={() => setOpen(false)} className="!py-2.5" />}
+            </div>
           </div>
         </nav>
       )}
