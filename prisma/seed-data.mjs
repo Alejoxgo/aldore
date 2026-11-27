@@ -57,6 +57,119 @@ export const services = [
   },
 ];
 
+// Servicios agregados después del lanzamiento (también en migrations/0005_servicios_nuevos.sql).
+export const newServices = [
+  {
+    slug: "carta-digital",
+    title: "Carta digital con pedidos a la mesa",
+    icon: "cart",
+    shortDescription: "Tus clientes ven la carta y piden desde el QR de la mesa. El pedido te llega al instante.",
+    description:
+      "Llevamos tu carta al celular de tus clientes: escanean el QR o acercan el celular al sticker NFC de la mesa, ven fotos y precios actualizados y hacen el pedido sin esperar al mesero.\n\nLos pedidos llegan a una pantalla en cocina o caja y a tu WhatsApp. Cambias precios y platos agotados desde tu panel, sin reimprimir nada.",
+    features: "Carta con fotos y precios siempre al día\nPedidos desde la mesa por QR o NFC\nAviso a cocina, caja y WhatsApp\nPlatos agotados con un clic\nEstadísticas de lo que más se vende",
+  },
+  {
+    slug: "tarjetas-nfc",
+    title: "Tarjetas de presentación NFC",
+    icon: "smartphone",
+    shortDescription: "Una tarjeta que se acerca al celular y guarda tu contacto. Para todo tu equipo.",
+    description:
+      "Tarjetas físicas con chip NFC y QR, con el diseño de tu empresa. Al acercarlas al celular abren el perfil de la persona: datos de contacto, WhatsApp, redes y un botón para guardarlo en la agenda.\n\nSi alguien cambia de cargo o de número, se actualiza el perfil y la tarjeta sigue sirviendo.",
+    features: "Tarjeta física con NFC y QR\nPerfil digital por empleado\nGuardar contacto con un toque\nCambios sin reimprimir\nPaquetes para equipos",
+  },
+  {
+    slug: "fidelizacion",
+    title: "Tarjeta de fidelización digital",
+    icon: "sparkles",
+    shortDescription: "El clásico «la 10ª es gratis», pero en el celular. Sin tarjetas de papel que se pierden.",
+    description:
+      "Tus clientes acumulan sellos escaneando un QR en caja y reclaman su premio cuando completan la tarjeta. Tú ves quién vuelve, cada cuánto y puedes enviarles promociones por WhatsApp.\n\nIdeal para cafés, heladerías, panaderías, lavaderos y peluquerías.",
+    features: "Sellos con QR en caja\nPremios configurables\nBase de clientes que vuelven\nPromociones por WhatsApp\nSin app que descargar",
+  },
+  {
+    slug: "resenas-google",
+    title: "Más reseñas en Google",
+    icon: "chart",
+    shortDescription: "Stickers y tarjetas NFC que llevan directo a dejar la reseña de tu negocio en Google.",
+    description:
+      "La mayoría de clientes felices no deja reseña porque le da pereza buscarte. Con un sticker NFC o un QR en la mesa o el mostrador, llegan directo al formulario de reseña de tu perfil de Google en un toque.\n\nMás reseñas reales significan aparecer más arriba en Google Maps cuando alguien busca lo que vendes cerca.",
+    features: "Stickers y tarjetas NFC con QR\nEnlace directo a tu reseña de Google\nMaterial con tu marca\nConteo de toques\nCumple las políticas de Google",
+  },
+  {
+    slug: "mantenimiento-web",
+    title: "Plan de mantenimiento web",
+    icon: "support",
+    shortDescription: "Hosting, dominio, copias de seguridad y cambios mensuales por una cuota fija.",
+    description:
+      "Tu página siempre al día y sin preocupaciones: nos encargamos del hosting, el dominio, el certificado de seguridad, las copias de seguridad y las actualizaciones.\n\nCada mes incluye horas de cambios: nuevos productos, textos, fotos o secciones. Nos escribes por WhatsApp y lo hacemos.",
+    features: "Hosting, dominio y SSL\nCopias de seguridad diarias\nHoras de cambios cada mes\nMonitoreo de caídas\nSoporte por WhatsApp",
+  },
+  {
+    slug: "impresion-3d",
+    title: "Impresión 3D",
+    icon: "cube",
+    shortDescription: "Piezas, prototipos y productos con tu marca, impresos en 3D. Desde una unidad.",
+    description:
+      "Imprimimos en 3D lo que tu negocio necesite: prototipos de producto, repuestos y piezas a la medida, exhibidores, llaveros y regalos corporativos con tu logo.\n\nTambién hacemos los soportes de mesa para tu Puerta by Aldore: porta QR y porta NFC con la forma y los colores de tu marca. Si no tienes el diseño, lo modelamos contigo.",
+    features: "Prototipos y piezas a la medida\nSoportes de mesa para QR y NFC\nMerchandising y regalos con tu logo\nModelado 3D si no tienes el diseño\nDesde una unidad hasta producción por lotes",
+  },
+  {
+    slug: "agenda-online",
+    title: "Agenda online con recordatorios",
+    icon: "calendar",
+    shortDescription: "Tus clientes reservan solos, a cualquier hora, y les llega el recordatorio por WhatsApp.",
+    description:
+      "Una página de reservas con tus servicios, horarios y profesionales. El cliente elige el día y la hora, y la cita queda en tu agenda sin llamadas ni mensajes de ida y vuelta.\n\nUn día antes y una hora antes le llega el recordatorio por WhatsApp, con opción de confirmar o reprogramar. Menos citas perdidas, más tiempo para atender.",
+    features: "Reservas 24/7 desde el celular\nRecordatorios por WhatsApp\nVarios profesionales y sedes\nConfirmar o reprogramar con un toque\nIdeal para peluquerías, consultorios y spas",
+  },
+  {
+    slug: "catalogo-whatsapp",
+    title: "Catálogo con pedidos por WhatsApp",
+    icon: "cart",
+    shortDescription: "Una tienda sencilla: el cliente arma su pedido y te llega listo a WhatsApp.",
+    description:
+      "Tu catálogo de productos en una página rápida, con fotos, precios y categorías. El cliente agrega lo que quiere al carrito y el pedido te llega a WhatsApp ya armado, con cantidades, total y dirección.\n\nSin pasarela de pago ni comisiones por venta. Perfecto para empezar a vender en línea sin complicarte.",
+    features: "Catálogo con fotos y precios\nPedido completo directo a WhatsApp\nSin comisiones por venta\nCambias productos desde tu panel\nListo en pocos días",
+  },
+  {
+    slug: "facturacion-electronica",
+    title: "Facturación electrónica conectada",
+    icon: "receipt",
+    shortDescription: "Conectamos tu tienda, POS o sistema con Siigo o Alegra para que la factura salga sola.",
+    description:
+      "Cada venta debe tener su factura electrónica ante la DIAN, y hacerla a mano quita tiempo y genera errores. Conectamos tu tienda online, tu punto de venta o tu sistema con tu software de facturación (Siigo, Alegra u otros) para que la factura se genere y se envíe automáticamente.\n\nTambién sincronizamos clientes, productos e inventario para que todo cuadre.",
+    features: "Integración con Siigo, Alegra y otros\nFactura automática por cada venta\nSincronización de clientes e inventario\nMenos errores y menos digitación\nAcompañamiento en la puesta en marcha",
+  },
+  {
+    slug: "pantallas-digitales",
+    title: "Pantallas de menú y publicidad",
+    icon: "screen",
+    shortDescription: "Un TV en tu local con tu menú y promociones, que cambias desde el celular.",
+    description:
+      "Convertimos cualquier televisor en una pantalla para tu negocio: menú con precios, promociones del día, videos y redes sociales. Lo programas desde tu panel y puedes mostrar contenido distinto según la hora (desayunos, almuerzos, happy hour).\n\nIdeal para restaurantes, cafés, tiendas, gimnasios y salas de espera.",
+    features: "Menú y promociones en TV\nCambios desde el celular\nProgramación por horario\nVarias pantallas y sedes\nDiseño con tu marca",
+  },
+  {
+    slug: "automatizaciones",
+    title: "Automatizaciones para pymes",
+    icon: "rocket",
+    shortDescription: "Que las tareas repetitivas se hagan solas: formularios, Excel, correos y avisos por WhatsApp.",
+    description:
+      "Revisamos cómo trabajas y automatizamos lo que hoy se hace a mano: que los formularios de tu web lleguen a Excel o a tu CRM, que se envíen correos de seguimiento, que te avise por WhatsApp cuando llega un pedido o que se generen reportes cada semana.\n\nEmpezamos por lo que más tiempo te quita y te mostramos cuántas horas te ahorras.",
+    features: "Formularios a Excel, Google Sheets o CRM\nAvisos por WhatsApp y correo\nReportes automáticos\nConexión entre tus herramientas\nDiagnóstico gratis de procesos",
+  },
+  {
+    slug: "capacitaciones",
+    title: "Capacitaciones en herramientas digitales",
+    icon: "school",
+    shortDescription: "Talleres prácticos de IA, WhatsApp Business y Google para tu negocio o tu equipo.",
+    description:
+      "Talleres cortos y prácticos para que tú y tu equipo saquen provecho de las herramientas digitales: inteligencia artificial para el día a día, WhatsApp Business para vender, perfil de Google para aparecer en Maps y herramientas de productividad.\n\nPresenciales o virtuales, para grupos o personalizados, con material para seguir practicando.",
+    features: "Inteligencia artificial para el trabajo\nWhatsApp Business para vender\nGoogle Maps y perfil de empresa\nPresencial o virtual\nGrupos o personalizado",
+  },
+];
+
+
 export const products = [
   {
     slug: "castorly",

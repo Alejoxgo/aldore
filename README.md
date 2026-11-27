@@ -53,6 +53,8 @@ Ingresa a http://localhost:3000/admin con `ADMIN_EMAIL` / `ADMIN_PASSWORD` y cam
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Primer administrador; solo se usan si no existe ningún usuario |
 | `SITE_URL` | URL pública, por defecto `https://aldore.co` (SEO, sitemap) |
 | `SETUP_CODE` | Código para crear el primer administrador desde `/admin/login` cuando la base está vacía |
+| `GROQ_API_KEY` | (Opcional) Clave de Groq para que Aldo, el chat del sitio, responda con IA. Sin ella responde por palabras clave |
+| `GROQ_MODEL` | (Opcional) Modelo de Groq. Por defecto `llama-3.3-70b-versatile` |
 | `INSECURE_COOKIES` | Pon `true` solo si pruebas en producción **sin HTTPS** (no recomendado) |
 
 ## Despliegue
@@ -69,6 +71,7 @@ El proyecto está listo para Cloudflare con [OpenNext](https://opennext.js.org/c
 3. **Secretos** (Worker → Settings → Variables and Secrets, tipo *Secret*):
    - `AUTH_SECRET`: texto aleatorio de 32+ caracteres
    - `SETUP_CODE`: un código que solo tú conozcas, para crear el primer administrador
+   - `GROQ_API_KEY` (opcional): tu clave de Groq para que Aldo responda con IA
 4. **Primer administrador:** abre `https://aldore.co/admin/login`. Como la base está vacía, verás «Configura tu panel»: escribe el `SETUP_CODE`, tu nombre, correo y contraseña.
 5. **Dominio:** Worker → Settings → Domains & Routes → *Add* → Custom domain → `aldore.co` y `www.aldore.co`. Cloudflare crea los DNS y el certificado.
 

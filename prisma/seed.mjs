@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-import { services, products, plans, testimonials, faqs } from "./seed-data.mjs";
+import { services, newServices, products, plans, testimonials, faqs } from "./seed-data.mjs";
 
 async function seedIfEmpty(name, delegate, rows) {
   if ((await delegate.count()) > 0) {
@@ -25,7 +25,7 @@ async function main() {
     console.log("• Usuarios: ya existen, se omite.");
   }
 
-  await seedIfEmpty("Servicios", prisma.service, services.map((s, i) => ({ ...s, order: i })));
+  await seedIfEmpty("Servicios", prisma.service, [...services, ...newServices].map((s, i) => ({ ...s, order: i })));
   await seedIfEmpty("Productos", prisma.product, products);
   await seedIfEmpty("Planes", prisma.plan, plans);
   await seedIfEmpty("Testimonios", prisma.testimonial, testimonials);
