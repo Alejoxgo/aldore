@@ -52,11 +52,33 @@ Ingresa a http://localhost:3000/admin con `ADMIN_EMAIL` / `ADMIN_PASSWORD` y cam
 | `AUTH_SECRET` | Secreto de al menos 32 caracteres (`openssl rand -base64 48`) |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Primer administrador; solo se usan si no existe ningún usuario |
 | `SITE_URL` | URL pública, por defecto `https://aldore.co` (SEO, sitemap) |
+| `SETUP_CODE` | Código para crear el primer administrador desde `/admin/login` cuando la base está vacía |
 | `INSECURE_COOKIES` | Pon `true` solo si pruebas en producción **sin HTTPS** (no recomendado) |
 
 ## Despliegue
 
-### Opción A · VPS o servidor propio con Docker (recomendada con SQLite)
+### Opción recomendada · Cloudflare Workers + D1 (dominio aldore.co)
+
+El proyecto está listo para Cloudflare con [OpenNext](https://opennext.js.org/cloudflare) y la base de datos **D1**.
+
+1. **Crear la base D1:** Cloudflare → Storage & Databases → D1 → *Create* → nombre `aldore-db`. Copia su **Database ID** y pégalo en `wrangler.jsonc` (`database_id`).
+2. **Conectar el repositorio:** Workers & Pages → Create → Import a repository → `Alejoxgo/proyecto`:
+   - Project name: `aldore` (debe coincidir con `name` en `wrangler.jsonc`)
+   - Build command: `npm run cf:build`
+   - Deploy command: `npm run cf:deploy` (aplica las migraciones de D1 y publica)
+3. **Secretos** (Worker → Settings → Variables and Secrets, tipo *Secret*):
+   - `AUTH_SECRET`: texto aleatorio de 32+ caracteres
+   - `SETUP_CODE`: un código que solo tú conozcas, para crear el primer administrador
+4. **Primer administrador:** abre `https://aldore.co/admin/login`. Como la base está vacía, verás «Configura tu panel»: escribe el `SETUP_CODE`, tu nombre, correo y contraseña.
+5. **Dominio:** Worker → Settings → Domains & Routes → *Add* → Custom domain → `aldore.co` y `www.aldore.co`. Cloudflare crea los DNS y el certificado.
+
+Si el paso de migraciones falla por permisos, ejecuta el SQL de `migrations/0001_init.sql` y luego `migrations/0002_contenido_inicial.sql` en la consola de D1 y cambia el Deploy command a `npx opennextjs-cloudflare deploy`.
+
+Probar localmente con el runtime de Cloudflare: crea `.dev.vars` con `AUTH_SECRET` y `SETUP_CODE`, y ejecuta `npm run cf:preview`.
+
+Cambios de esquema: tras editar `schema.prisma`, crea una nueva migración en `migrations/` (puedes partir de `npx prisma migrate diff`).
+
+### Opción A · VPS o servidor propio con Docker (SQLite)
 
 ```bash
 cp .env.example .env     # define AUTH_SECRET y ADMIN_PASSWORD

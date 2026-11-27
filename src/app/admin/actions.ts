@@ -187,3 +187,41 @@ export async function changePassword(formData: FormData) {
   await prisma.user.update({ where: { id: session.uid }, data: { passwordHash: await bcrypt.hash(next, 12) } });
   redirect(`/admin/usuarios?ok=${encodeURIComponent("Contraseña actualizada")}`);
 }
+
+/* ---------------- Primer administrador ---------------- */
+
+export type SetupState = { error?: string };
+
+/**
+ * Crea el primer usuario administrador cuando la base está vacía (útil en Cloudflare D1).
+ * En producción exige el código SETUP_CODE configurado como secreto del entorno.
+ */
+export async function createFirstAdmin(_prev: SetupState, formData: FormData): Promise<SetupState> {
+  if ((await prisma.user.count()) > 0) return { error: "Ya existe un administrador. Inicia sesión." };
+
+  const expected = process.env.SETUP_CODE;
+  if (process.env.NODE_ENV === "production" && !expected) {
+    return { error: "Falta configurar la variable secreta SETUP_CODE en el servidor." };
+  }
+  if (expected && String(formData.get("code") ?? "") !== expected) {
+    return { error: "El código de configuración no es correcto." };
+  }
+
+  const name = String(formData.get("name") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "");
+  if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 10) {
+    return { error: "Escribe nombre, un correo válido y una contraseña de al menos 10 caracteres." };
+  }
+
+  const user = await prisma.user.create({ data: { name, email, passwordHash: await bcrypt.hash(password, 12) } });
+  const token = await signSession({ uid: user.id, email: user.email, name: user.name });
+  (await cookies()).set(SESSION_COOKIE, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production" && process.env.INSECURE_COOKIES !== "true",
+    path: "/",
+    maxAge: SESSION_MAX_AGE,
+  });
+  redirect("/admin");
+}
