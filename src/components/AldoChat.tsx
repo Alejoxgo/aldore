@@ -22,9 +22,11 @@ export type AldoKnowledge = {
   topics: AldoTopic[];
   faqs: { q: string; a: string }[];
   quick: string[];
+  /** true si el servidor tiene GROQ_API_KEY: el texto libre lo responde la IA. */
+  ai?: boolean;
 };
 
-type Msg = { from: "aldo" | "me"; text: string; topic?: AldoTopic; chips?: string[]; wa?: boolean };
+type Msg = { from: "aldo" | "me"; text: string; topic?: AldoTopic; chips?: string[]; wa?: boolean; link?: string };
 
 const norm = (s: string) =>
   s
@@ -89,6 +91,24 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
     say({ from: "aldo", text: t.answer, topic: t, chips: t.id === "precios" ? ["Hablar con una persona"] : ["¿Cuánto cuesta?", "Ver otros servicios", "Hablar con una persona"] });
   };
 
+  const askAi = async (text: string) => {
+    const history = [...msgs, { from: "me" as const, text }]
+      .filter((m) => m.text)
+      .slice(-10)
+      .map((m) => ({ role: m.from === "me" ? "user" : "assistant", content: m.text }));
+    setTyping(true);
+    try {
+      const r = await fetch("/api/aldo", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ messages: history }) });
+      if (!r.ok) throw new Error(String(r.status));
+      const d = (await r.json()) as { text: string; wa?: boolean; link?: string };
+      setTyping(false);
+      setMsgs((xs) => [...xs, { from: "aldo", text: d.text, wa: d.wa, link: d.link, chips: ["Ver otros servicios", "Hablar con una persona"] }]);
+    } catch {
+      setTyping(false);
+      keywordAnswer(text);
+    }
+  };
+
   const handle = (raw: string) => {
     const text = raw.trim();
     if (!text) return;
@@ -99,6 +119,8 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
     const byLabel = k.topics.find((t) => norm(t.label) === n);
     if (byLabel) return answerTopic(byLabel);
     if (n.includes("ver otros")) return say({ from: "aldo", text: "Esto es todo lo que hacemos. ¿Qué te interesa?", chips: k.topics.filter((t) => !["humano", "precios"].includes(t.id)).map((t) => t.label) });
+    const isPriceChip = n === norm("¿Cuánto cuesta?");
+    if (k.ai && !isPriceChip) return askAi(text);
     if (/(cuanto|precio|cuesta|valor|tarifa|cotiza)/.test(n)) {
       const current = k.topics.find((t) => t.label === interest);
       if (current?.price) return say({ from: "aldo", text: current.price, chips: ["Hablar con una persona", "Ver otros servicios"], wa: true });
@@ -106,6 +128,10 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
       if (p) return answerTopic(p);
     }
 
+    keywordAnswer(text);
+  };
+
+  const keywordAnswer = (text: string) => {
     const w = words(text);
     let best: { t?: AldoTopic; f?: { q: string; a: string }; score: number } = { score: 0 };
     for (const t of k.topics) {
@@ -157,10 +183,10 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
                     {m.topic.points.map((p) => <li key={p} className="flex gap-2"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-brand-500" />{p}</li>)}
                   </ul>
                 )}
-                {(m.topic?.href || m.wa) && (
+                {(m.topic?.href || m.link || m.wa) && (
                   <div className="flex flex-wrap gap-2">
-                    {m.topic?.href && (
-                      <Link href={m.topic.href} onClick={() => setOpen(false)} className="rounded-full border border-ink-900/20 bg-white px-3 py-1.5 text-[13px] font-medium text-ink-900 hover:border-ink-900">
+                    {(m.topic?.href || m.link) && (
+                      <Link href={(m.topic?.href || m.link)!} onClick={() => setOpen(false)} className="rounded-full border border-ink-900/20 bg-white px-3 py-1.5 text-[13px] font-medium text-ink-900 hover:border-ink-900">
                         Ver más →
                       </Link>
                     )}

@@ -113,6 +113,60 @@ export const newServices = [
       "Imprimimos en 3D lo que tu negocio necesite: prototipos de producto, repuestos y piezas a la medida, exhibidores, llaveros y regalos corporativos con tu logo.\n\nTambién hacemos los soportes de mesa para tu Puerta by Aldore: porta QR y porta NFC con la forma y los colores de tu marca. Si no tienes el diseño, lo modelamos contigo.",
     features: "Prototipos y piezas a la medida\nSoportes de mesa para QR y NFC\nMerchandising y regalos con tu logo\nModelado 3D si no tienes el diseño\nDesde una unidad hasta producción por lotes",
   },
+  {
+    slug: "agenda-online",
+    title: "Agenda online con recordatorios",
+    icon: "calendar",
+    shortDescription: "Tus clientes reservan solos, a cualquier hora, y les llega el recordatorio por WhatsApp.",
+    description:
+      "Una página de reservas con tus servicios, horarios y profesionales. El cliente elige el día y la hora, y la cita queda en tu agenda sin llamadas ni mensajes de ida y vuelta.\n\nUn día antes y una hora antes le llega el recordatorio por WhatsApp, con opción de confirmar o reprogramar. Menos citas perdidas, más tiempo para atender.",
+    features: "Reservas 24/7 desde el celular\nRecordatorios por WhatsApp\nVarios profesionales y sedes\nConfirmar o reprogramar con un toque\nIdeal para peluquerías, consultorios y spas",
+  },
+  {
+    slug: "catalogo-whatsapp",
+    title: "Catálogo con pedidos por WhatsApp",
+    icon: "cart",
+    shortDescription: "Una tienda sencilla: el cliente arma su pedido y te llega listo a WhatsApp.",
+    description:
+      "Tu catálogo de productos en una página rápida, con fotos, precios y categorías. El cliente agrega lo que quiere al carrito y el pedido te llega a WhatsApp ya armado, con cantidades, total y dirección.\n\nSin pasarela de pago ni comisiones por venta. Perfecto para empezar a vender en línea sin complicarte.",
+    features: "Catálogo con fotos y precios\nPedido completo directo a WhatsApp\nSin comisiones por venta\nCambias productos desde tu panel\nListo en pocos días",
+  },
+  {
+    slug: "facturacion-electronica",
+    title: "Facturación electrónica conectada",
+    icon: "receipt",
+    shortDescription: "Conectamos tu tienda, POS o sistema con Siigo o Alegra para que la factura salga sola.",
+    description:
+      "Cada venta debe tener su factura electrónica ante la DIAN, y hacerla a mano quita tiempo y genera errores. Conectamos tu tienda online, tu punto de venta o tu sistema con tu software de facturación (Siigo, Alegra u otros) para que la factura se genere y se envíe automáticamente.\n\nTambién sincronizamos clientes, productos e inventario para que todo cuadre.",
+    features: "Integración con Siigo, Alegra y otros\nFactura automática por cada venta\nSincronización de clientes e inventario\nMenos errores y menos digitación\nAcompañamiento en la puesta en marcha",
+  },
+  {
+    slug: "pantallas-digitales",
+    title: "Pantallas de menú y publicidad",
+    icon: "screen",
+    shortDescription: "Un TV en tu local con tu menú y promociones, que cambias desde el celular.",
+    description:
+      "Convertimos cualquier televisor en una pantalla para tu negocio: menú con precios, promociones del día, videos y redes sociales. Lo programas desde tu panel y puedes mostrar contenido distinto según la hora (desayunos, almuerzos, happy hour).\n\nIdeal para restaurantes, cafés, tiendas, gimnasios y salas de espera.",
+    features: "Menú y promociones en TV\nCambios desde el celular\nProgramación por horario\nVarias pantallas y sedes\nDiseño con tu marca",
+  },
+  {
+    slug: "automatizaciones",
+    title: "Automatizaciones para pymes",
+    icon: "rocket",
+    shortDescription: "Que las tareas repetitivas se hagan solas: formularios, Excel, correos y avisos por WhatsApp.",
+    description:
+      "Revisamos cómo trabajas y automatizamos lo que hoy se hace a mano: que los formularios de tu web lleguen a Excel o a tu CRM, que se envíen correos de seguimiento, que te avise por WhatsApp cuando llega un pedido o que se generen reportes cada semana.\n\nEmpezamos por lo que más tiempo te quita y te mostramos cuántas horas te ahorras.",
+    features: "Formularios a Excel, Google Sheets o CRM\nAvisos por WhatsApp y correo\nReportes automáticos\nConexión entre tus herramientas\nDiagnóstico gratis de procesos",
+  },
+  {
+    slug: "capacitaciones",
+    title: "Capacitaciones en herramientas digitales",
+    icon: "school",
+    shortDescription: "Talleres prácticos de IA, WhatsApp Business y Google para tu negocio o tu equipo.",
+    description:
+      "Talleres cortos y prácticos para que tú y tu equipo saquen provecho de las herramientas digitales: inteligencia artificial para el día a día, WhatsApp Business para vender, perfil de Google para aparecer en Maps y herramientas de productividad.\n\nPresenciales o virtuales, para grupos o personalizados, con material para seguir practicando.",
+    features: "Inteligencia artificial para el trabajo\nWhatsApp Business para vender\nGoogle Maps y perfil de empresa\nPresencial o virtual\nGrupos o personalizado",
+  },
 ];
 
 
