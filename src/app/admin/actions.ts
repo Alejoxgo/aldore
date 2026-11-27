@@ -74,8 +74,11 @@ export async function saveResource(resourceKey: string, id: number | null, formD
     const raw = formData.get(f.name);
     if (f.type === "checkbox") data[f.name] = raw === "on";
     else if (f.type === "number") data[f.name] = Number.parseInt(String(raw ?? "0"), 10) || 0;
+    else if (f.type === "money") data[f.name] = Number.parseInt(String(raw ?? "").replace(/[^0-9-]/g, ""), 10) || 0;
+    else if (f.type === "relation") data[f.name] = Number.parseInt(String(raw ?? ""), 10) || null;
     else data[f.name] = String(raw ?? "").replace(/\r\n/g, "\n").trim();
   }
+  if (res.beforeSave) await res.beforeSave(data);
   const slugField = res.fields.find((f) => f.type === "slug");
   if (slugField) {
     data[slugField.name] = slugify(String(data[slugField.name] || data[res.titleField] || "")) || `item-${Date.now()}`;
@@ -90,7 +93,12 @@ export async function saveResource(resourceKey: string, id: number | null, formD
     if (id) await delegate(res.model).update({ where: { id }, data });
     else await delegate(res.model).create({ data });
   } catch (e: unknown) {
-    const msg = (e as { code?: string }).code === "P2002" ? "Ya existe un registro con ese slug." : "No se pudo guardar.";
+    const msg =
+      (e as { code?: string }).code === "P2002"
+        ? res.model === "payroll"
+          ? "Ese empleado ya tiene nómina en ese periodo."
+          : "Ya existe un registro con ese slug."
+        : "No se pudo guardar.";
     redirect(`/admin/${res.key}/${id ?? "nuevo"}?error=${encodeURIComponent(msg)}`);
   }
   refreshSite();
@@ -224,4 +232,71 @@ export async function createFirstAdmin(_prev: SetupState, formData: FormData): P
     maxAge: SESSION_MAX_AGE,
   });
   redirect("/admin");
+}
+
+/* ---------------- Gestión del negocio ---------------- */
+
+/** Crea la nómina del periodo para todos los empleados activos que aún no la tengan. */
+export async function generatePayroll(formData: FormData) {
+  await requireAdmin();
+  const period = String(formData.get("period") ?? "");
+  if (!/^\d{4}-\d{2}$/.test(period)) redirect(`/admin/nomina?error=${encodeURIComponent("Elige un periodo válido.")}`);
+  const [employees, existing] = await Promise.all([
+    prisma.employee.findMany({ where: { active: true } }),
+    prisma.payroll.findMany({ where: { period }, select: { employeeId: true } }),
+  ]);
+  const done = new Set(existing.map((p) => p.employeeId));
+  const todo = employees.filter((e) => !done.has(e.id));
+  for (const e of todo) {
+    await prisma.payroll.create({ data: { employeeId: e.id, period, baseSalary: e.salary, net: e.salary } });
+  }
+  revalidatePath("/admin/nomina");
+  const msg = todo.length ? `Nómina de ${period} creada para ${todo.length} empleado(s).` : "Todos los empleados activos ya tienen nómina en ese periodo.";
+  redirect(`/admin/nomina?ok=${encodeURIComponent(msg)}`);
+}
+
+/** Marca un registro de nómina como pagado hoy. */
+export async function markPayrollPaid(id: number) {
+  await requireAdmin();
+  await prisma.payroll.update({ where: { id }, data: { status: "pagado", paidDate: new Date().toISOString().slice(0, 10) } });
+  revalidatePath("/admin/nomina");
+}
+
+/** Cambia el estado de un pedido o solicitud desde el listado. */
+export async function setStatus(resourceKey: string, id: number, formData: FormData) {
+  await requireAdmin();
+  const res = getResource(resourceKey);
+  if (!res?.statusField) throw new Error("Recurso sin estado");
+  const value = String(formData.get("status") ?? "");
+  const allowed = res.fields.find((f) => f.name === res.statusField)?.options?.some((o) => o.value === value);
+  if (!allowed) throw new Error("Estado inválido");
+  await delegate(res.model).update({ where: { id }, data: { [res.statusField]: value } });
+  revalidatePath(`/admin/${res.key}`);
+}
+
+/** Convierte una solicitud del sitio (lead) en cliente + pedido. */
+export async function leadToOrder(leadId: number) {
+  await requireAdmin();
+  const lead = await prisma.lead.findUnique({ where: { id: leadId } });
+  if (!lead) redirect("/admin/leads");
+  const existing = await prisma.order.findFirst({ where: { leadId } });
+  if (existing) redirect(`/admin/pedidos/${existing.id}`);
+  let client = lead.email ? await prisma.client.findFirst({ where: { email: lead.email } }) : null;
+  if (!client) {
+    client = await prisma.client.create({
+      data: { name: lead.name, company: lead.company, email: lead.email, phone: lead.phone },
+    });
+  }
+  const order = await prisma.order.create({
+    data: {
+      title: lead.service ? `${lead.service}${lead.company ? ` · ${lead.company}` : ""}` : `Pedido de ${lead.name}`,
+      clientId: client.id,
+      service: lead.service,
+      notes: lead.message,
+      leadId,
+      startDate: new Date().toISOString().slice(0, 10),
+    },
+  });
+  await prisma.lead.update({ where: { id: leadId }, data: { status: "ganado" } }).catch(() => {});
+  redirect(`/admin/pedidos/${order.id}?ok=${encodeURIComponent("Pedido creado desde la solicitud")}`);
 }

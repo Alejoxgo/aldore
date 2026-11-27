@@ -10,7 +10,10 @@ export const metadata: Metadata = { title: "Panel admin", robots: { index: false
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   const session = await requireAdmin();
-  const newLeads = await prisma.lead.count({ where: { status: "nuevo" } });
+  const [newLeads, pendingRequests] = await Promise.all([
+    prisma.lead.count({ where: { status: "nuevo" } }),
+    prisma.staffRequest.count({ where: { status: "pendiente" } }),
+  ]);
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white">
@@ -30,7 +33,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
       </header>
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 lg:grid-cols-[240px_1fr]">
         <aside>
-          <Sidebar newLeads={newLeads} />
+          <Sidebar newLeads={newLeads} pendingRequests={pendingRequests} />
         </aside>
         <main className="min-w-0">{children}</main>
       </div>

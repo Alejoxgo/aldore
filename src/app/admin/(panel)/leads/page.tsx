@@ -20,7 +20,7 @@ export default async function LeadsPage({ searchParams }: Props) {
     <div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-ink-900">Leads / contactos</h1>
+          <h1 className="text-2xl font-bold text-ink-900">Solicitudes web</h1>
           <p className="mt-1 text-sm text-slate-500">Mensajes recibidos desde los formularios del sitio.</p>
         </div>
         <a href="/api/admin/leads/export" className="btn-outline">Exportar CSV</a>
@@ -46,7 +46,7 @@ export default async function LeadsPage({ searchParams }: Props) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {leads.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-500">No hay leads con estos filtros.</td></tr>}
+            {leads.length === 0 && <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-500">No hay solicitudes con estos filtros.</td></tr>}
             {leads.map((l) => (
               <tr key={l.id} className="hover:bg-slate-50">
                 <td className="whitespace-nowrap px-4 py-3 text-slate-500">{fmt.format(l.createdAt)}</td>
