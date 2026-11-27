@@ -3,6 +3,7 @@ import { getSettings } from "@/lib/settings";
 import { IntegrationsDiagram, StackMarquee } from "@/components/TechSections";
 import Aldo from "@/components/Aldo";
 import ContactForm from "@/components/ContactForm";
+import { PuertaBlock } from "@/components/PuertaSections";
 import { CastorlyBlock, Emph, FaqList, Hero, Plans, Process, ProductsList, ServicesList, Testimonials } from "@/components/Sections";
 
 export default async function HomePage() {
@@ -23,6 +24,7 @@ export default async function HomePage() {
       <StackMarquee s={s} />
       <ServicesList services={services} s={s} />
       <CastorlyBlock s={s} product={castorly} />
+      <PuertaBlock s={s} />
       <ProductsList products={products} s={s} />
       <IntegrationsDiagram s={s} />
       <Process s={s} />
@@ -45,7 +47,7 @@ export default async function HomePage() {
             </dl>
           </div>
           <div className="lg:col-span-7">
-            <ContactForm services={[...services.map((x) => x.title), ...products.map((p) => p.name)]} />
+            <ContactForm services={[...services.map((x) => x.title), ...products.map((p) => p.name), "Puerta (QR / NFC)"]} />
           </div>
         </div>
       </section>

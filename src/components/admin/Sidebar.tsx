@@ -14,6 +14,7 @@ const groups = [
       { href: "/admin/leads", label: "Solicitudes web", icon: "✉" },
       { href: "/admin/pedidos", label: "Pedidos", icon: "▤" },
       { href: "/admin/clientes", label: "Clientes", icon: "◎" },
+      { href: "/admin/puertas", label: "Puertas (QR / NFC)", icon: "⌂" },
     ],
   },
   {
