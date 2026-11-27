@@ -5,7 +5,10 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
-import { SESSION_COOKIE, SESSION_MAX_AGE, signSession } from "@/lib/session";
+import { SESSION_COOKIE, SESSION_MAX_AGE, authSecretReady, signSession } from "@/lib/session";
+
+const NO_SECRET =
+  "Falta configurar la variable secreta AUTH_SECRET (mínimo 32 caracteres) en el servidor. Agrégala en Cloudflare → aldore → Settings → Variables and Secrets.";
 import { getResource } from "@/lib/resources";
 import { SETTING_KEYS } from "@/lib/settings";
 import { slugify } from "@/lib/utils";
@@ -25,6 +28,7 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   }
 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (!authSecretReady()) return { error: NO_SECRET, email };
   const password = String(formData.get("password") ?? "");
   const user = await prisma.user.findUnique({ where: { email } });
   const ok = user ? await bcrypt.compare(password, user.passwordHash) : false;
@@ -205,6 +209,7 @@ export type SetupState = { error?: string };
  * En producción exige el código SETUP_CODE configurado como secreto del entorno.
  */
 export async function createFirstAdmin(_prev: SetupState, formData: FormData): Promise<SetupState> {
+  if (!authSecretReady()) return { error: NO_SECRET };
   if ((await prisma.user.count()) > 0) return { error: "Ya existe un administrador. Inicia sesión." };
 
   const expected = process.env.SETUP_CODE;
