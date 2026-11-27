@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import { lines } from "@/lib/utils";
-import Terminal from "./Terminal";
+import HeroDoor from "./HeroDoor";
 import Aldo from "./Aldo";
 import type { Settings } from "@/lib/settings";
 import type { Faq, Plan, Product, Service, Testimonial } from "@prisma/client";
@@ -39,49 +39,40 @@ const Arrow = ({ className = "h-5 w-5" }: { className?: string }) => (
 );
 
 export function Hero({ s }: { s: Settings }) {
-  const stats = [1, 2, 3].map((i) => [s[`hero.stat${i}Value`], s[`hero.stat${i}Label`]]).filter(([v]) => v);
-  const script = lines(s["hero.terminal"]).map((l) =>
-    l.startsWith("$")
-      ? { kind: "cmd" as const, text: l.replace(/^\$\s*/, "") }
-      : l.startsWith("✓")
-        ? { kind: "ok" as const, text: l.replace(/^✓\s*/, "") }
-        : { kind: "info" as const, text: l },
-  );
+  const promises = [1, 2, 3].map((i) => [s[`hero.stat${i}Value`], s[`hero.stat${i}Label`]]).filter(([v]) => v);
   return (
-    <section className="relative overflow-hidden bg-ink-900 text-paper">
-      <div className="tech-grid pointer-events-none absolute inset-0" />
-      <div className="pointer-events-none absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-brand-500/10 blur-[120px]" />
-      <div className="container-x relative grid grid-cols-1 items-center gap-14 pb-20 pt-16 sm:pt-24 lg:grid-cols-12">
-        <div className="min-w-0 lg:col-span-6">
-          <h1 className="font-display text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-[3.9rem]">
+    <section className="relative overflow-hidden border-b border-paper-line bg-paper">
+      <div className="container-x grid grid-cols-1 items-center gap-20 pb-16 pt-28 sm:pt-32 lg:grid-cols-12 lg:gap-12 lg:pb-24 lg:pt-24">
+        <div className="min-w-0 lg:col-span-7">
+          {s["hero.kicker"] && (
+            <p className="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-ink-500">
+              <span className="h-px w-8 bg-brand-500" /> {s["hero.kicker"]}
+            </p>
+          )}
+          <h1 className="mt-6 font-display text-[2.7rem] font-semibold leading-[1] tracking-[-0.035em] text-ink-900 sm:text-6xl lg:text-[4.4rem]">
             <Emph text={s["hero.title"]} />
           </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-paper/70">{s["hero.subtitle"]}</p>
+          <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-700">{s["hero.subtitle"]}</p>
           <div className="mt-9 flex flex-wrap gap-3">
             <Link href="/contacto" className="btn-signal">
               {s["hero.ctaPrimary"]} <Arrow className="h-4 w-4" />
             </Link>
-            <Link href="/castorly" className="btn-ghost text-paper">{s["hero.ctaSecondary"]}</Link>
+            <Link href="/#servicios" className="btn-outline">{s["hero.ctaSecondary"]}</Link>
           </div>
-          {stats.length > 0 && (
-            <dl className="mt-14 grid grid-cols-3 items-start gap-6 border-t border-white/10 pt-8">
-              {stats.map(([v, l]) => (
-                <div key={l}>
-                  <dt className="font-display text-3xl text-paper sm:text-4xl">{v}</dt>
-                  <dd className="mt-2 font-mono text-xs leading-snug text-paper/50">{l}</dd>
+          {promises.length > 0 && (
+            <dl className="mt-14 grid grid-cols-3 gap-4 border-t border-ink-900/15 pt-8 sm:gap-6">
+              {promises.map(([v, l]) => (
+                <div key={l} className="min-w-0">
+                  <dt className="font-display text-lg font-semibold leading-tight text-ink-900 sm:text-2xl">{v}</dt>
+                  <dd className="mt-1 text-xs leading-snug text-ink-500 sm:text-sm">{l}</dd>
                 </div>
               ))}
             </dl>
           )}
         </div>
-        {script.length > 0 && (
-          <div className="relative min-w-0 pt-20 lg:col-span-6">
-            <div className="pointer-events-none absolute right-6 top-[-14px] z-10 sm:right-10">
-              <Aldo pose="base" onDark className="h-[104px] w-[104px]" title="Aldo, el búho de Aldore, sobre la terminal" />
-            </div>
-            <Terminal script={script} />
-          </div>
-        )}
+        <div className="min-w-0 lg:col-span-5">
+          <HeroDoor caption={s["hero.caption"]} />
+        </div>
       </div>
     </section>
   );
