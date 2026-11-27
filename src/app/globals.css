@@ -76,3 +76,12 @@ body { @apply bg-paper font-sans text-ink-900 antialiased; }
   .aldo *, .aldo-hover:hover .aldo .aldo-body { animation: none !important; }
   .aldo-peek, .aldo-pop { animation: none !important; }
 }
+
+/* Portada: los mensajes del chat de ejemplo aparecen en orden y el ciclo se repite cada 9 s */
+.hero-msg { opacity: 0; animation: hero-msg 9s ease-out infinite both; }
+@keyframes hero-msg {
+  0% { opacity: 0; transform: translateY(8px); }
+  6%, 88% { opacity: 1; transform: none; }
+  96%, 100% { opacity: 0; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .hero-msg { animation: none; opacity: 1; } }

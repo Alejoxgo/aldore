@@ -25,22 +25,24 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     id: "hero",
     title: "Portada (Hero)",
     fields: [
-      { key: "hero.title", label: "Título principal", help: "Encierra una palabra entre *asteriscos* para resaltarla.", default: "Software bien hecho para empresas que *no pueden* parar." },
+      { key: "hero.kicker", label: "Línea pequeña sobre el título (vacío = sin línea)", default: "Estudio de software" },
+      { key: "hero.title", label: "Título principal", help: "Encierra una palabra entre *asteriscos* para resaltarla.", default: "Abrimos la puerta *digital* de tu negocio." },
       {
         key: "hero.subtitle",
         label: "Subtítulo",
         type: "textarea",
         default:
-          "Hacemos páginas web, aplicaciones, chatbots e integraciones para empresas en Colombia y Latinoamérica. Somos un equipo pequeño: hablas directamente con quien escribe el código.",
+          "Páginas web, apps, chatbots de WhatsApp e integraciones, hechos a la medida por un equipo pequeño. Hablas directo con quien escribe el código y sabes el precio antes de empezar.",
       },
       { key: "hero.ctaPrimary", label: "Botón principal", default: "Cuéntanos tu proyecto" },
-      { key: "hero.ctaSecondary", label: "Botón secundario", default: "Conoce Castorly" },
-      { key: "hero.stat1Value", label: "Dato 1 – valor", default: "+120" },
-      { key: "hero.stat1Label", label: "Dato 1 – texto", default: "proyectos entregados" },
-      { key: "hero.stat2Value", label: "Dato 2 – valor", default: "48 h" },
-      { key: "hero.stat2Label", label: "Dato 2 – texto", default: "para enviarte una propuesta" },
-      { key: "hero.stat3Value", label: "Dato 3 – valor", default: "1" },
-      { key: "hero.stat3Label", label: "Dato 3 – texto", default: "producto propio en producción: Castorly" },
+      { key: "hero.ctaSecondary", label: "Botón secundario", default: "Ver lo que hacemos" },
+      { key: "hero.caption", label: "Texto bajo la puerta", default: "Ejemplo: chatbot de citas por WhatsApp" },
+      { key: "hero.stat1Value", label: "Compromiso 1 – título", default: "48 horas" },
+      { key: "hero.stat1Label", label: "Compromiso 1 – texto", default: "para enviarte una propuesta concreta" },
+      { key: "hero.stat2Value", label: "Compromiso 2 – título", default: "Precio cerrado" },
+      { key: "hero.stat2Label", label: "Compromiso 2 – texto", default: "lo sabes antes de empezar, sin sorpresas" },
+      { key: "hero.stat3Value", label: "Compromiso 3 – título", default: "Es tuyo" },
+      { key: "hero.stat3Label", label: "Compromiso 3 – texto", default: "el código, el dominio y los datos" },
     ],
   },
   {
@@ -81,13 +83,6 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
         label: "Tecnologías (una por línea)",
         type: "textarea",
         default: "Next.js\nReact\nReact Native\nNode.js\nPython\nPostgreSQL\nDocker\nAWS\nGoogle Cloud\nWhatsApp Business API\nOpenAI\nClaude\nn8n\nREST · Webhooks",
-      },
-      {
-        key: "hero.terminal",
-        label: "Terminal de la portada (una línea por renglón; empieza con $ para comandos y ✓ para resultados)",
-        type: "textarea",
-        default:
-          "$ aldore new tienda-online --stack next,postgres\n✓ Proyecto creado · diseño aprobado por el cliente\n$ aldore connect erp --webhooks\n✓ 1.284 productos sincronizados\n$ aldore bot train --canal whatsapp\n✓ Bot entrenado con 312 preguntas frecuentes\n$ aldore deploy --prod\n▲ Publicado en 41 s → https://tu-empresa.co",
       },
       { key: "integrations.title", label: "Integraciones – título", default: "Tus sistemas, hablando entre sí." },
       {
