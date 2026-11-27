@@ -57,6 +57,65 @@ export const services = [
   },
 ];
 
+// Servicios agregados después del lanzamiento (también en migrations/0005_servicios_nuevos.sql).
+export const newServices = [
+  {
+    slug: "carta-digital",
+    title: "Carta digital con pedidos a la mesa",
+    icon: "cart",
+    shortDescription: "Tus clientes ven la carta y piden desde el QR de la mesa. El pedido te llega al instante.",
+    description:
+      "Llevamos tu carta al celular de tus clientes: escanean el QR o acercan el celular al sticker NFC de la mesa, ven fotos y precios actualizados y hacen el pedido sin esperar al mesero.\n\nLos pedidos llegan a una pantalla en cocina o caja y a tu WhatsApp. Cambias precios y platos agotados desde tu panel, sin reimprimir nada.",
+    features: "Carta con fotos y precios siempre al día\nPedidos desde la mesa por QR o NFC\nAviso a cocina, caja y WhatsApp\nPlatos agotados con un clic\nEstadísticas de lo que más se vende",
+  },
+  {
+    slug: "tarjetas-nfc",
+    title: "Tarjetas de presentación NFC",
+    icon: "smartphone",
+    shortDescription: "Una tarjeta que se acerca al celular y guarda tu contacto. Para todo tu equipo.",
+    description:
+      "Tarjetas físicas con chip NFC y QR, con el diseño de tu empresa. Al acercarlas al celular abren el perfil de la persona: datos de contacto, WhatsApp, redes y un botón para guardarlo en la agenda.\n\nSi alguien cambia de cargo o de número, se actualiza el perfil y la tarjeta sigue sirviendo.",
+    features: "Tarjeta física con NFC y QR\nPerfil digital por empleado\nGuardar contacto con un toque\nCambios sin reimprimir\nPaquetes para equipos",
+  },
+  {
+    slug: "fidelizacion",
+    title: "Tarjeta de fidelización digital",
+    icon: "sparkles",
+    shortDescription: "El clásico «la 10ª es gratis», pero en el celular. Sin tarjetas de papel que se pierden.",
+    description:
+      "Tus clientes acumulan sellos escaneando un QR en caja y reclaman su premio cuando completan la tarjeta. Tú ves quién vuelve, cada cuánto y puedes enviarles promociones por WhatsApp.\n\nIdeal para cafés, heladerías, panaderías, lavaderos y peluquerías.",
+    features: "Sellos con QR en caja\nPremios configurables\nBase de clientes que vuelven\nPromociones por WhatsApp\nSin app que descargar",
+  },
+  {
+    slug: "resenas-google",
+    title: "Más reseñas en Google",
+    icon: "chart",
+    shortDescription: "Stickers y tarjetas NFC que llevan directo a dejar la reseña de tu negocio en Google.",
+    description:
+      "La mayoría de clientes felices no deja reseña porque le da pereza buscarte. Con un sticker NFC o un QR en la mesa o el mostrador, llegan directo al formulario de reseña de tu perfil de Google en un toque.\n\nMás reseñas reales significan aparecer más arriba en Google Maps cuando alguien busca lo que vendes cerca.",
+    features: "Stickers y tarjetas NFC con QR\nEnlace directo a tu reseña de Google\nMaterial con tu marca\nConteo de toques\nCumple las políticas de Google",
+  },
+  {
+    slug: "mantenimiento-web",
+    title: "Plan de mantenimiento web",
+    icon: "support",
+    shortDescription: "Hosting, dominio, copias de seguridad y cambios mensuales por una cuota fija.",
+    description:
+      "Tu página siempre al día y sin preocupaciones: nos encargamos del hosting, el dominio, el certificado de seguridad, las copias de seguridad y las actualizaciones.\n\nCada mes incluye horas de cambios: nuevos productos, textos, fotos o secciones. Nos escribes por WhatsApp y lo hacemos.",
+    features: "Hosting, dominio y SSL\nCopias de seguridad diarias\nHoras de cambios cada mes\nMonitoreo de caídas\nSoporte por WhatsApp",
+  },
+  {
+    slug: "impresion-3d",
+    title: "Impresión 3D",
+    icon: "cube",
+    shortDescription: "Piezas, prototipos y productos con tu marca, impresos en 3D. Desde una unidad.",
+    description:
+      "Imprimimos en 3D lo que tu negocio necesite: prototipos de producto, repuestos y piezas a la medida, exhibidores, llaveros y regalos corporativos con tu logo.\n\nTambién hacemos los soportes de mesa para tu Puerta by Aldore: porta QR y porta NFC con la forma y los colores de tu marca. Si no tienes el diseño, lo modelamos contigo.",
+    features: "Prototipos y piezas a la medida\nSoportes de mesa para QR y NFC\nMerchandising y regalos con tu logo\nModelado 3D si no tienes el diseño\nDesde una unidad hasta producción por lotes",
+  },
+];
+
+
 export const products = [
   {
     slug: "castorly",

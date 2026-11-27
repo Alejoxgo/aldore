@@ -72,7 +72,7 @@ export default async function PuertaLanding() {
               {plans.map((p, i) => (
                 <div key={p.name} className={`flex min-w-0 flex-col rounded-2xl border p-7 ${i === 1 ? "border-ink-900 bg-ink-900 text-paper" : "border-paper-line bg-white"}`}>
                   <h3 className="font-display text-2xl">{p.name}</h3>
-                  <p className="mt-4 font-display text-4xl">{p.price}</p>
+                  <p className="mt-4 font-display text-3xl">{p.price}</p>
                   {p.note && <p className={`text-sm ${i === 1 ? "text-paper/60" : "text-ink-500"}`}>{p.note}</p>}
                   <ul className="mt-6 flex-1 space-y-2 text-[15px]">
                     {p.features.map((f) => (
@@ -83,6 +83,7 @@ export default async function PuertaLanding() {
                 </div>
               ))}
             </div>
+            {s["puerta.plansNote"] && <p className="mt-6 text-center font-mono text-sm text-ink-500">{s["puerta.plansNote"]}</p>}
           </div>
         </section>
       )}

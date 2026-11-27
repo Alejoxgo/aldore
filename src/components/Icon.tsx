@@ -27,6 +27,7 @@ const paths: Record<string, React.ReactNode> = {
   ),
   check: <path d="m5 12 5 5 9-10" />,
   sparkles: <path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3ZM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z" />,
+  cube: <><path d="M12 2.8 20 7.3v9.4l-8 4.5-8-4.5V7.3z" /><path d="M4 7.3l8 4.5 8-4.5M12 11.8v9.4" /></>,
 };
 
 export const ICON_NAMES = Object.keys(paths).filter((n) => n !== "check");
