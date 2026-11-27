@@ -1,28 +1,16 @@
-# Opción con servidor propio: sitio + PostgreSQL local.
-# Si prefieres usar Supabase, borra el servicio "db" y pon tu DATABASE_URL de Supabase.
 services:
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: aldore
-      POSTGRES_PASSWORD: "${DB_PASSWORD:?Define DB_PASSWORD en el archivo .env}"
-      POSTGRES_DB: aldore
-    volumes:
-      - aldore-db:/var/lib/postgresql/data
-    restart: unless-stopped
-
   web:
     build: .
-    depends_on: [db]
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: "postgresql://aldore:${DB_PASSWORD}@db:5432/aldore?schema=aldore"
+      DATABASE_URL: "file:/data/aldore.db"
       AUTH_SECRET: "${AUTH_SECRET:?Define AUTH_SECRET en el archivo .env}"
-      SETUP_CODE: "${SETUP_CODE:-}"
       ADMIN_EMAIL: "${ADMIN_EMAIL:-admin@aldore.co}"
       ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Define ADMIN_PASSWORD en el archivo .env}"
+    volumes:
+      - aldore-data:/data
     restart: unless-stopped
 
 volumes:
-  aldore-db:
+  aldore-data:

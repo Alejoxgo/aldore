@@ -25,18 +25,17 @@ Los cambios se ven en el sitio de inmediato.
 ## Stack
 
 - **Next.js 15** (App Router, Server Actions) + **React 19** + **TypeScript**
-- **Prisma 6** con **PostgreSQL** (Supabase en producción)
-- **Cloudflare Workers** vía OpenNext (también corre en Node/Docker)
+- **Prisma 6** con **SQLite** (cambiable a PostgreSQL)
 - **Tailwind CSS**
 - Autenticación propia: contraseñas con bcrypt, sesión en cookie `httpOnly` firmada (JWT con `jose`), middleware que protege `/admin` y `/api/admin`, y límite de intentos de login.
 
 ## Instalación local
 
-Requisitos: Node.js 20 o superior y un PostgreSQL (local, Docker o un proyecto de Supabase).
+Requisitos: Node.js 20 o superior.
 
 ```bash
 npm install
-cp .env.example .env          # edita DATABASE_URL, AUTH_SECRET, ADMIN_EMAIL y ADMIN_PASSWORD
+cp .env.example .env          # edita AUTH_SECRET, ADMIN_EMAIL y ADMIN_PASSWORD
 npm run setup                 # crea la base de datos y carga el contenido inicial
 npm run dev                   # http://localhost:3000
 ```
@@ -49,7 +48,7 @@ Ingresa a http://localhost:3000/admin con `ADMIN_EMAIL` / `ADMIN_PASSWORD` y cam
 
 | Variable | Descripción |
 |---|---|
-| `DATABASE_URL` | URL `postgresql://…` con `?schema=aldore` (en Supabase, la del *Transaction pooler*) |
+| `DATABASE_URL` | `file:./dev.db` para SQLite o una URL `postgresql://…` |
 | `AUTH_SECRET` | Secreto de al menos 32 caracteres (`openssl rand -base64 48`) |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Primer administrador; solo se usan si no existe ningún usuario |
 | `SITE_URL` | URL pública, por defecto `https://aldore.co` (SEO, sitemap) |
@@ -58,38 +57,35 @@ Ingresa a http://localhost:3000/admin con `ADMIN_EMAIL` / `ADMIN_PASSWORD` y cam
 
 ## Despliegue
 
-### Opción recomendada · Cloudflare Workers + Supabase (dominio aldore.co)
+### Opción recomendada · Cloudflare Workers + D1 (dominio aldore.co)
 
-El sitio corre en **Cloudflare Workers** (con [OpenNext](https://opennext.js.org/cloudflare)) y guarda los datos en **Supabase** (PostgreSQL), en un esquema propio llamado `aldore`, separado de Castorly y fuera de la API pública de Supabase.
+El proyecto está listo para Cloudflare con [OpenNext](https://opennext.js.org/cloudflare) y la base de datos **D1**.
 
-1. **Crear las tablas en Supabase:** abre tu proyecto → **SQL Editor** → pega todo el archivo [`supabase/aldore.sql`](supabase/aldore.sql) → **Run**. Se hace una sola vez.
-2. **Copiar la conexión:** Supabase → botón **Connect** → *Transaction pooler* (puerto `6543`). Copia la URI, reemplaza `[YOUR-PASSWORD]` por la contraseña de la base y agrega al final `?schema=aldore`. Ejemplo:
-   `postgresql://postgres.xxxx:CLAVE@aws-0-us-east-1.pooler.supabase.com:6543/postgres?schema=aldore`
-3. **Conectar el repositorio en Cloudflare:** Workers & Pages → Create → Import a repository:
-   - Project name: `aldore` (igual a `name` en `wrangler.jsonc`)
+1. **Crear la base D1:** Cloudflare → Storage & Databases → D1 → *Create* → nombre `aldore-db`. Copia su **Database ID** y pégalo en `wrangler.jsonc` (`database_id`).
+2. **Conectar el repositorio:** Workers & Pages → Create → Import a repository → `Alejoxgo/proyecto`:
+   - Project name: `aldore` (debe coincidir con `name` en `wrangler.jsonc`)
    - Build command: `npm run cf:build`
-   - Deploy command: `npm run cf:deploy`
-   - Preview command: `npx wrangler versions upload`
-4. **Secretos** del Worker (Settings → Variables and Secrets, tipo *Secret*):
-   - `DATABASE_URL`: la cadena del paso 2
+   - Deploy command: `npm run cf:deploy` (aplica las migraciones de D1 y publica)
+3. **Secretos** (Worker → Settings → Variables and Secrets, tipo *Secret*):
    - `AUTH_SECRET`: texto aleatorio de 32+ caracteres
-   - `SETUP_CODE`: un código que solo tú conozcas
-   Después de agregarlos, vuelve a desplegar (Deployments → *Retry* o un nuevo push).
-5. **Primer administrador:** abre `https://aldore.co/admin/login`. Como no hay usuarios verás «Configura tu panel»: escribe el `SETUP_CODE`, tu nombre, correo y contraseña.
-6. **Dominio:** Worker → Settings → Domains & Routes → *Add* → Custom domain → `aldore.co` y `www.aldore.co`.
+   - `SETUP_CODE`: un código que solo tú conozcas, para crear el primer administrador
+4. **Primer administrador:** abre `https://aldore.co/admin/login`. Como la base está vacía, verás «Configura tu panel»: escribe el `SETUP_CODE`, tu nombre, correo y contraseña.
+5. **Dominio:** Worker → Settings → Domains & Routes → *Add* → Custom domain → `aldore.co` y `www.aldore.co`. Cloudflare crea los DNS y el certificado.
 
-Probar localmente con el runtime de Cloudflare: crea `.dev.vars` con `DATABASE_URL`, `AUTH_SECRET` y `SETUP_CODE`, y ejecuta `npm run cf:preview`.
+Si el paso de migraciones falla por permisos, ejecuta el SQL de `migrations/0001_init.sql` y luego `migrations/0002_contenido_inicial.sql` en la consola de D1 y cambia el Deploy command a `npx opennextjs-cloudflare deploy`.
 
-Cambios de esquema: edita `prisma/schema.prisma` y aplica el cambio en Supabase (por ejemplo con `npx prisma db push` apuntando a la URL directa, puerto 5432) o con SQL en el editor. `npm run db:sql` regenera `supabase/aldore.sql` para instalaciones nuevas.
+Probar localmente con el runtime de Cloudflare: crea `.dev.vars` con `AUTH_SECRET` y `SETUP_CODE`, y ejecuta `npm run cf:preview`.
 
-### Opción A · VPS o servidor propio con Docker (PostgreSQL incluido)
+Cambios de esquema: tras editar `schema.prisma`, crea una nueva migración en `migrations/` (puedes partir de `npx prisma migrate diff`).
+
+### Opción A · VPS o servidor propio con Docker (SQLite)
 
 ```bash
-cp .env.example .env     # define AUTH_SECRET, ADMIN_PASSWORD y DB_PASSWORD
+cp .env.example .env     # define AUTH_SECRET y ADMIN_PASSWORD
 docker compose up -d --build
 ```
 
-La base de datos PostgreSQL queda en el volumen `aldore-db`, así que sobrevive a reinicios y actualizaciones. Pon delante un proxy con HTTPS (Caddy, Nginx + Certbot, Cloudflare). Ejemplo con Caddy:
+La base de datos queda en el volumen `aldore-data`, así que sobrevive a reinicios y actualizaciones. Pon delante un proxy con HTTPS (Caddy, Nginx + Certbot, Cloudflare). Ejemplo con Caddy:
 
 ```
 aldore.co {
@@ -102,13 +98,17 @@ Para actualizar: `git pull && docker compose up -d --build`.
 ### Opción B · Railway / Render / Fly.io
 
 1. Crea el servicio desde este repositorio (detectan el `Dockerfile`).
-2. Define `DATABASE_URL` (Supabase o el Postgres del proveedor, con `?schema=aldore`), `AUTH_SECRET`, `ADMIN_EMAIL` y `ADMIN_PASSWORD`.
+2. Agrega un **volumen persistente** montado en `/data` y define `DATABASE_URL=file:/data/aldore.db`.
+3. Define `AUTH_SECRET`, `ADMIN_EMAIL` y `ADMIN_PASSWORD`.
 
 ### Opción C · Vercel (con PostgreSQL)
 
-1. Define en Vercel `DATABASE_URL` (la de Postgres), `AUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
-2. Desde tu equipo, con esa `DATABASE_URL` en `.env`, ejecuta una vez `npm run setup` para crear las tablas y el contenido.
-3. Despliega. El comando de build (`npm run build`) ya ejecuta `prisma generate`.
+Vercel no tiene disco persistente, así que usa PostgreSQL (Neon, Supabase, Vercel Postgres):
+
+1. En `prisma/schema.prisma` cambia `provider = "sqlite"` por `provider = "postgresql"`.
+2. Define en Vercel `DATABASE_URL` (la de Postgres), `AUTH_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
+3. Desde tu equipo, con esa `DATABASE_URL` en `.env`, ejecuta una vez `npm run setup` para crear las tablas y el contenido.
+4. Despliega. El comando de build (`npm run build`) ya ejecuta `prisma generate`.
 
 ### Servidor Node sin Docker
 
@@ -123,10 +123,7 @@ PORT=3000 npm start      # usa pm2 o systemd para mantenerlo arriba
 
 ```
 prisma/schema.prisma          Modelos: User, Service, Product, Plan, Testimonial, Faq, Setting, Lead
-prisma/seed.mjs               Contenido inicial y usuario admin en Node (idempotente)
-prisma/seed-data.mjs          Datos de ejemplo compartidos
-supabase/aldore.sql           SQL para crear el esquema "aldore" en Supabase (generado con npm run db:sql)
-wrangler.jsonc                Configuración del Worker de Cloudflare
+prisma/seed.mjs               Contenido inicial y usuario admin (idempotente)
 src/app/(site)/               Sitio público
 src/app/admin/                Login, panel y server actions del admin
 src/lib/settings.ts           Lista de textos editables (agrega un campo aquí y aparece en el panel)

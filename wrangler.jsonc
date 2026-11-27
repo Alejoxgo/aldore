@@ -6,6 +6,13 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   "observability": { "enabled": true },
-  // Secretos (Settings → Variables and Secrets): DATABASE_URL, AUTH_SECRET, SETUP_CODE
-  "vars": { "SITE_URL": "https://aldore.co" }
+  "vars": { "SITE_URL": "https://aldore.co" },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "aldore-db",
+      "database_id": "b163d03c-3370-482c-907c-13b6b8ed1426",
+      "migrations_dir": "migrations"
+    }
+  ]
 }
