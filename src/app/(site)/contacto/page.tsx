@@ -15,7 +15,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
     prisma.service.findMany({ where: { published: true }, orderBy: { order: "asc" }, select: { title: true } }),
     prisma.product.findMany({ where: { published: true }, orderBy: { order: "asc" }, select: { name: true } }),
   ]);
-  const options = [...services.map((x) => x.title), ...products.map((p) => p.name)];
+  const options = [...services.map((x) => x.title), ...products.map((p) => p.name), "Puerta (QR / NFC)"];
   if (servicio && !options.includes(servicio)) options.push(servicio);
   const wa = whatsappLink(s["contact.whatsapp"], "Hola, quiero cotizar un proyecto.");
 

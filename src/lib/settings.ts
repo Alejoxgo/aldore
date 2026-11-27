@@ -142,6 +142,44 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     ],
   },
   {
+    id: "puerta",
+    title: "Puerta by Aldore (QR / NFC)",
+    description: "Sección de la portada y página /puerta. Las páginas de cada cliente se crean en Puertas.",
+    fields: [
+      { key: "puerta.badge", label: "Etiqueta", default: "Nuevo · Puerta by Aldore" },
+      { key: "puerta.title", label: "Título", help: "Encierra una palabra entre *asteriscos* para resaltarla.", default: "Tu negocio, a *un toque*." },
+      {
+        key: "puerta.text",
+        label: "Texto",
+        type: "textarea",
+        default:
+          "Un sticker NFC o un código QR en cada mesa, mostrador o vitrina. Tus clientes lo tocan con el celular y ven tu carta, te dejan reseña en Google, te escriben por WhatsApp, se conectan al WiFi y conocen tus medios de pago. Sin descargar nada.",
+      },
+      {
+        key: "puerta.uses",
+        label: "Para quién (uno por línea)",
+        type: "textarea",
+        default: "Restaurantes y cafés\nBares y discotecas\nTiendas y almacenes\nPeluquerías y spas\nConsultorios y clínicas\nHoteles y eventos",
+      },
+      {
+        key: "puerta.steps",
+        label: "Cómo funciona (Título | texto, uno por línea)",
+        type: "textarea",
+        default:
+          "Diseñamos tu Puerta | Con tu logo, tus colores y los botones que necesitas.\nLa ponemos en tu local | Te entregamos los QR impresos y los stickers NFC listos para pegar.\nMides y cambias cuando quieras | Ves cuántas personas la abren y cambiamos la carta o los enlaces sin reimprimir nada.",
+      },
+      {
+        key: "puerta.plans",
+        label: "Planes (Nombre | precio | nota | incluye; separado; por punto y coma)",
+        type: "textarea",
+        default:
+          "QR | $90.000 | pago único | Página Puerta con tu marca; Hasta 6 botones; QR en alta calidad para imprimir; Cambios ilimitados el primer mes\nQR + NFC | $190.000 | pago único | Todo lo del plan QR; 10 stickers NFC personalizados; Estadísticas de visitas y toques; Instalación en Medellín y Bogotá\nMultisede | A la medida | según puntos | Varias sedes o puntos de venta; Stickers y QR por mesa o punto; Estadísticas por sede; Soporte prioritario",
+      },
+      { key: "puerta.cta", label: "Texto del botón", default: "Quiero mi Puerta" },
+      { key: "puerta.demo", label: "Dirección de la Puerta de demostración", type: "url", default: "/p/demo", help: "Crea en Puertas una con la dirección demo para que el botón «Ver demo» funcione." },
+    ],
+  },
+  {
     id: "menu",
     title: "Menú superior",
     description: "Enlaces de la barra de navegación del sitio.",
@@ -151,7 +189,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
         label: "Enlaces del menú",
         type: "textarea",
         help: "Uno por línea con el formato Texto | enlace. Ej: Castorly | /castorly",
-        default: "Servicios | /#servicios\nCastorly | /castorly\nPlanes | /#planes\nPreguntas | /#faq",
+        default: "Servicios | /#servicios\nCastorly | /castorly\nPuerta | /puerta\nPlanes | /#planes\nPreguntas | /#faq",
       },
       { key: "nav.cta", label: "Botón destacado – texto", default: "Hablemos" },
       { key: "nav.ctaUrl", label: "Botón destacado – enlace", type: "url", default: "/contacto" },

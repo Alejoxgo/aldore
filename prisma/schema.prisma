@@ -180,3 +180,22 @@ model StaffRequest {
   status      String    @default("pendiente")
   createdAt   DateTime  @default(now())
 }
+
+// ---------- Puerta by Aldore: páginas de un toque (QR / NFC) para clientes ----------
+model LinkPage {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
+  name      String
+  subtitle  String   @default("")
+  logoUrl   String   @default("")
+  color     String   @default("#e2471c")
+  theme     String   @default("oscuro")
+  buttons   String   @default("")
+  wifiName  String   @default("")
+  wifiPass  String   @default("")
+  clientId  Int?
+  published Boolean  @default(true)
+  views     Int      @default(0)
+  clicks    Int      @default(0)
+  createdAt DateTime @default(now())
+}

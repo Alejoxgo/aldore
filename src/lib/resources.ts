@@ -23,7 +23,7 @@ export type ColumnFormat = "money" | "status" | "relation" | "bool" | "date";
 
 export type ResourceConfig = {
   key: string;
-  model: "service" | "product" | "plan" | "testimonial" | "faq" | "client" | "order" | "employee" | "payroll" | "staffRequest";
+  model: "service" | "product" | "plan" | "testimonial" | "faq" | "client" | "order" | "employee" | "payroll" | "staffRequest" | "linkPage";
   label: string;
   singular: string;
   description: string;
@@ -36,6 +36,8 @@ export type ResourceConfig = {
   statusField?: string;
   /** Columnas de dinero que se suman al pie del listado. */
   totals?: string[];
+  /** Valores iniciales de un registro nuevo. */
+  defaults?: Record<string, string>;
   /** Ajusta los datos antes de guardar (cálculos, valores por defecto). */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   beforeSave?: (data: Record<string, any>) => Promise<void> | void;
@@ -362,7 +364,67 @@ export const BUSINESS_RESOURCES: ResourceConfig[] = [
   },
 ];
 
-RESOURCES.push(...BUSINESS_RESOURCES);
+export const PUERTA_RESOURCE: ResourceConfig = {
+  key: "puertas",
+  model: "linkPage",
+  label: "Puertas",
+  singular: "puerta",
+  description: "Páginas de un toque para tus clientes (QR o NFC). Cada una queda en aldore.co/p/su-nombre.",
+  titleField: "name",
+  sort: [{ createdAt: "desc" }],
+  columns: [
+    { name: "name", label: "Negocio" },
+    { name: "slug", label: "Dirección" },
+    { name: "clientId", label: "Cliente", format: "relation" },
+    { name: "views", label: "Visitas" },
+    { name: "clicks", label: "Toques" },
+    { name: "published", label: "Publicada" },
+  ],
+  fields: [
+    { name: "name", label: "Nombre del negocio", type: "text", required: true, half: true },
+    { name: "slug", label: "Dirección (aldore.co/p/…)", type: "slug", half: true, help: "Se genera del nombre si lo dejas vacío. Ej: padre-nuestro-sabaneta" },
+    { name: "subtitle", label: "Texto bajo el nombre", type: "text", half: true, help: "Ej: Sabaneta · Cocina de autor" },
+    { name: "clientId", label: "Cliente (para tu control)", type: "relation", relation: { model: "client", labelField: "name" }, half: true },
+    { name: "logoUrl", label: "Logo (URL de la imagen)", type: "url", help: "Si lo dejas vacío se muestran las iniciales." },
+    { name: "color", label: "Color de la marca", type: "text", half: true, help: "Código de color, ej: #e2471c" },
+    {
+      name: "theme",
+      label: "Fondo",
+      type: "select",
+      half: true,
+      options: [
+        { value: "oscuro", label: "Oscuro" },
+        { value: "claro", label: "Claro" },
+      ],
+    },
+    {
+      name: "buttons",
+      label: "Botones",
+      type: "textarea",
+      rows: 8,
+      help:
+        "Uno por línea: ícono | título | subtítulo | enlace. Íconos: carta, resena, whatsapp, wifi, pago, instagram, facebook, tiktok, mapa, web, llamar, reservar, link. Para WhatsApp o llamar basta el número. Para el WiFi escribe wifi como enlace.",
+    },
+    { name: "wifiName", label: "WiFi – nombre de la red", type: "text", half: true },
+    { name: "wifiPass", label: "WiFi – clave", type: "text", half: true },
+    { name: "published", label: "Publicada (visible)", type: "checkbox" },
+  ],
+  defaults: {
+    color: "#e2471c",
+    buttons: [
+      "carta | Nuestra carta | Mira lo que tenemos hoy | https://",
+      "resena | ¿Cómo te fue hoy? | Déjanos tu reseña | https://g.page/r/",
+      "whatsapp | Escríbenos por WhatsApp | Pedidos y reservas | +57",
+      "wifi | Conéctate a nuestro WiFi | Toca para ver la clave | wifi",
+      "pago | Nuestros métodos de pago | Nequi, Daviplata y tarjetas | https://",
+    ].join("\n"),
+  },
+  beforeSave(data) {
+    if (!/^#[0-9a-fA-F]{3,8}$/.test(String(data.color || ""))) data.color = "#e2471c";
+  },
+};
+
+RESOURCES.push(...BUSINESS_RESOURCES, PUERTA_RESOURCE);
 
 /** Etiqueta legible de un valor de select (estado, tipo…). */
 export function optionLabel(res: ResourceConfig, field: string, value: string) {

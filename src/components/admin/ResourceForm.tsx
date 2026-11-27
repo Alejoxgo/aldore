@@ -31,6 +31,7 @@ export default async function ResourceForm({ res, item, initial }: Props) {
   const defaultFor = (f: ResourceField) => {
     if (item) return item[f.name] ?? "";
     if (initial?.[f.name] !== undefined) return initial[f.name];
+    if (res.defaults?.[f.name] !== undefined) return res.defaults[f.name];
     if (f.type === "month") return currentPeriod();
     if (f.type === "number" || f.type === "money") return 0;
     if (f.type === "select") return f.options?.[0]?.value ?? "";

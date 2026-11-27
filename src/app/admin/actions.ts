@@ -101,7 +101,9 @@ export async function saveResource(resourceKey: string, id: number | null, formD
       (e as { code?: string }).code === "P2002"
         ? res.model === "payroll"
           ? "Ese empleado ya tiene nómina en ese periodo."
-          : "Ya existe un registro con ese slug."
+          : res.model === "linkPage"
+            ? "Esa dirección ya la usa otra Puerta. Elige otra."
+            : "Ya existe un registro con ese slug."
         : "No se pudo guardar.";
     redirect(`/admin/${res.key}/${id ?? "nuevo"}?error=${encodeURIComponent(msg)}`);
   }

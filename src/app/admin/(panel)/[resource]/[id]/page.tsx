@@ -5,6 +5,7 @@ import { getResource } from "@/lib/resources";
 import ResourceForm from "@/components/admin/ResourceForm";
 import Flash from "@/components/admin/Flash";
 import RelatedRecords from "@/components/admin/RelatedRecords";
+import PuertaShare from "@/components/admin/PuertaShare";
 
 type Props = { params: Promise<{ resource: string; id: string }>; searchParams: Promise<{ error?: string; ok?: string }> };
 
@@ -17,7 +18,7 @@ export default async function EditResource({ params, searchParams }: Props) {
   const item = await (prisma as any)[res.model].findUnique({ where: { id: numId } });
   if (!item) notFound();
   const { error, ok } = await searchParams;
-  const publicUrl = res.model === "service" ? `/servicios/${item.slug}` : res.model === "product" ? `/productos/${item.slug}` : null;
+  const publicUrl = res.model === "service" ? `/servicios/${item.slug}` : res.model === "product" ? `/productos/${item.slug}` : res.model === "linkPage" ? `/p/${item.slug}` : null;
   return (
     <div className="max-w-3xl">
       <Link href={`/admin/${res.key}`} className="text-sm text-slate-500 hover:text-brand-700">← {res.label}</Link>
@@ -26,6 +27,7 @@ export default async function EditResource({ params, searchParams }: Props) {
         {publicUrl && <Link href={publicUrl} target="_blank" className="text-sm font-medium text-brand-600">Ver en el sitio ↗</Link>}
       </div>
       <Flash ok={ok} error={error} />
+      {res.model === "linkPage" && <PuertaShare slug={item.slug} views={item.views} clicks={item.clicks} />}
       <ResourceForm res={res} item={item} />
       <RelatedRecords model={res.model} id={numId} />
     </div>
