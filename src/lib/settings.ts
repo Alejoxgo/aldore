@@ -122,7 +122,16 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
       { key: "castorly.cta", label: "Texto del botón", default: "Conocer Castorly" },
       { key: "castorly.url", label: "Enlace a la app", type: "url", default: "https://castorly.co" },
       { key: "castorly.urlLabel", label: "Texto del botón de la app", default: "Ir a castorly.co" },
-      { key: "castorly.imageUrl", label: "Imagen / captura (URL, opcional)", type: "url", default: "" },
+      { key: "castorly.imageUrl", label: "Captura principal (URL)", type: "url", help: "Puede ser una ruta del sitio como /castorly/panel.png o una URL completa.", default: "" },
+      { key: "castorly.mascotUrl", label: "Imagen de la mascota (el castor)", type: "url", help: "PNG o SVG con fondo transparente. Aparece junto a la captura.", default: "" },
+      { key: "castorly.mascotName", label: "Nombre de la mascota", default: "Cástor" },
+      {
+        key: "castorly.gallery",
+        label: "Galería de capturas",
+        type: "textarea",
+        help: "Una imagen por línea. Opcional: agrega una descripción después de una barra, por ejemplo /castorly/tickets.png | Bandeja de tickets",
+        default: "",
+      },
     ],
   },
   {

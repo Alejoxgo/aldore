@@ -137,6 +137,7 @@ export function ServicesList({ services, s }: { services: Service[]; s: Settings
 export function CastorlyBlock({ s, product }: { s: Settings; product: Product | null }) {
   const feats = lines(product?.features).slice(0, 6);
   const image = s["castorly.imageUrl"] || product?.imageUrl;
+  const mascot = s["castorly.mascotUrl"];
   return (
     <section id="castorly" className="scroll-mt-16 bg-ink-900 py-24 text-paper">
       <div className="container-x grid grid-cols-1 items-center gap-14 lg:grid-cols-12">
@@ -164,16 +165,60 @@ export function CastorlyBlock({ s, product }: { s: Settings; product: Product | 
             )}
           </div>
         </div>
-        <div className="lg:col-span-7">
+        <div className="relative lg:col-span-7">
           {image ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt="Castorly" className="w-full rounded-xl border border-white/10" />
+            <img src={image} alt="Castorly por dentro" className="w-full rounded-xl border border-white/10 shadow-2xl shadow-black/40" />
           ) : (
             <DeskMock />
           )}
+          {mascot && (
+            <figure className="pointer-events-none absolute -bottom-10 -left-4 w-28 sm:-left-10 sm:w-36">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={mascot} alt={s["castorly.mascotName"] || "Mascota de Castorly"} className="w-full drop-shadow-2xl" />
+            </figure>
+          )}
         </div>
       </div>
+      <CastorlyGallery value={s["castorly.gallery"]} />
     </section>
+  );
+}
+
+/** Lee la galería del panel: una imagen por línea, con descripción opcional tras "|". */
+export function parseGallery(value?: string) {
+  return lines(value).map((l) => {
+    const [src, ...rest] = l.split("|");
+    return { src: src.trim(), caption: rest.join("|").trim() };
+  }).filter((g) => g.src);
+}
+
+export function CastorlyGallery({ value, light = false }: { value?: string; light?: boolean }) {
+  const items = parseGallery(value);
+  if (!items.length) return null;
+  return (
+    <div className="container-x mt-20">
+      <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((g) => (
+          <li key={g.src} className="min-w-0">
+            <figure>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={g.src}
+                alt={g.caption || "Captura de Castorly"}
+                loading="lazy"
+                className={`aspect-[16/10] w-full rounded-lg border object-cover object-top ${light ? "border-paper-line bg-white" : "border-white/10 bg-white/5"}`}
+              />
+              {g.caption && (
+                <figcaption className={`mt-3 font-mono text-xs uppercase tracking-wider ${light ? "text-ink-500" : "text-paper/50"}`}>
+                  {g.caption}
+                </figcaption>
+              )}
+            </figure>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
