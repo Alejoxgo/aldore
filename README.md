@@ -51,6 +51,7 @@ Ingresa a http://localhost:3000/admin con `ADMIN_EMAIL` / `ADMIN_PASSWORD` y cam
 | `DATABASE_URL` | `file:./dev.db` para SQLite o una URL `postgresql://…` |
 | `AUTH_SECRET` | Secreto de al menos 32 caracteres (`openssl rand -base64 48`) |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Primer administrador; solo se usan si no existe ningún usuario |
+| `SITE_URL` | URL pública, por defecto `https://aldore.co` (SEO, sitemap) |
 | `INSECURE_COOKIES` | Pon `true` solo si pruebas en producción **sin HTTPS** (no recomendado) |
 
 ## Despliegue

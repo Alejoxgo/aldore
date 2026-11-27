@@ -8,6 +8,8 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
   return {
+    metadataBase: new URL(process.env.SITE_URL || "https://aldore.co"),
+    alternates: { canonical: "/" },
     title: { default: s["seo.title"], template: `%s | ${s["site.name"]}` },
     description: s["seo.description"],
     openGraph: { title: s["seo.title"], description: s["seo.description"], type: "website", locale: "es_CO" },
