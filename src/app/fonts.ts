@@ -1,3 +1,4 @@
-import "@fontsource-variable/fraunces/opsz.css";
-import "@fontsource-variable/inter-tight/index.css";
-import "@fontsource/jetbrains-mono/400.css";
+import "@fontsource-variable/space-grotesk/index.css"; // títulos
+import "@fontsource-variable/geist/index.css"; // texto
+import "@fontsource-variable/jetbrains-mono/index.css"; // etiquetas y código
+import "@fontsource-variable/fraunces/opsz.css"; // solo el logotipo

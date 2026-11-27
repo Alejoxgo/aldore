@@ -112,7 +112,7 @@ src/components/               Componentes del sitio y del panel
 
 - **Logo:** arco ojival (la «A» de Aldore y una puerta) con la entrada en bermellón. Archivos: `public/logo-mark.svg` y `src/app/icon.svg` (favicon). Componente: `src/components/Logo.tsx`.
 - **Colores:** papel `#f4f1ea`, tinta `#16130f`, bermellón `#e2471c`.
-- **Tipografías:** Fraunces (títulos), Inter Tight (texto) y JetBrains Mono (etiquetas), servidas localmente con Fontsource.
+- **Tipografías:** Space Grotesk (títulos), Geist (texto), JetBrains Mono (etiquetas y código) y Fraunces solo en el logotipo, servidas localmente con Fontsource.
 - En los títulos editables puedes encerrar una palabra entre `*asteriscos*` para resaltarla en cursiva.
 
 ## Personalización rápida

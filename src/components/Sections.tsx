@@ -13,7 +13,7 @@ export function Emph({ text }: { text: string }) {
     <>
       {parts.map((p, i) =>
         i % 2 ? (
-          <em key={i} className="font-serif font-normal italic tracking-normal text-brand-500">{p}</em>
+          <em key={i} className="not-italic text-brand-500">{p}</em>
         ) : (
           <Fragment key={i}>{p}</Fragment>
         ),

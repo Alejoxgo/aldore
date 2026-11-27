@@ -17,9 +17,10 @@ export default {
         ink: { 900: "#16130f", 800: "#221e19", 700: "#3a342c", 500: "#6b6358", 400: "#8f8679" },
       },
       fontFamily: {
-        sans: ['"Inter Tight Variable"', "system-ui", "sans-serif"],
+        sans: ['"Geist Variable"', "system-ui", "sans-serif"],
+        grotesk: ['"Space Grotesk Variable"', "system-ui", "sans-serif"],
         serif: ['"Fraunces Variable"', "Georgia", "serif"],
-        mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+        mono: ['"JetBrains Mono Variable"', "ui-monospace", "monospace"],
       },
     },
   },

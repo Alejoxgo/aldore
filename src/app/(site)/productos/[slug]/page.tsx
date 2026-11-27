@@ -30,7 +30,7 @@ export default async function ProductPage({ params }: Props) {
             <h1 className="mt-10 font-display text-6xl font-medium tracking-tight sm:text-8xl">
               {p.name}<span className="text-brand-500">.</span>
             </h1>
-            <p className="mt-5 max-w-xl font-serif text-2xl italic text-paper/80">{p.tagline}</p>
+            <p className="mt-5 max-w-xl font-mono text-lg text-paper/70">{p.tagline}</p>
           </div>
           <div className="flex flex-col gap-3 lg:col-span-4 lg:items-end">
             {p.price && (
