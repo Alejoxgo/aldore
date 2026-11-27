@@ -6,14 +6,6 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   "observability": { "enabled": true },
-  "vars": { "SITE_URL": "https://aldore.co" },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "aldore-db",
-      // Reemplaza por el ID que te muestra Cloudflare al crear la base D1 "aldore-db".
-      "database_id": "REEMPLAZAR_CON_ID_DE_D1",
-      "migrations_dir": "migrations"
-    }
-  ]
+  // Secretos (Settings → Variables and Secrets): DATABASE_URL, AUTH_SECRET, SETUP_CODE
+  "vars": { "SITE_URL": "https://aldore.co" }
 }

@@ -1,6 +1,6 @@
-// Para PostgreSQL cambia provider a "postgresql" y DATABASE_URL (ver README).
+// PostgreSQL (Supabase). Las tablas viven en el esquema "aldore" (ver ?schema=aldore en DATABASE_URL).
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
