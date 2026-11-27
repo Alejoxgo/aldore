@@ -4,6 +4,10 @@ import { SignJWT, jwtVerify } from "jose";
 export const SESSION_COOKIE = "nb_session";
 export const SESSION_MAX_AGE = 60 * 60 * 8; // 8 horas
 
+export function authSecretReady() {
+  return (process.env.AUTH_SECRET ?? "").length >= 32;
+}
+
 function secret() {
   const s = process.env.AUTH_SECRET;
   if (!s || s.length < 32) {
