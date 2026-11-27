@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { lines } from "@/lib/utils";
 import Terminal from "./Terminal";
+import Aldo from "./Aldo";
 import type { Settings } from "@/lib/settings";
 import type { Faq, Plan, Product, Service, Testimonial } from "@prisma/client";
 
@@ -81,7 +82,10 @@ export function Hero({ s }: { s: Settings }) {
           )}
         </div>
         {script.length > 0 && (
-          <div className="min-w-0 lg:col-span-6">
+          <div className="relative min-w-0 pt-20 lg:col-span-6">
+            <div className="pointer-events-none absolute right-6 top-[-14px] z-10 sm:right-10">
+              <Aldo pose="base" onDark className="h-[104px] w-[104px]" title="Aldo, el búho de Aldore, sobre la terminal" />
+            </div>
             <Terminal script={script} />
           </div>
         )}

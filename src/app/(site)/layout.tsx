@@ -14,7 +14,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Header name={s["site.name"]} />
       <main>{children}</main>
       <Footer s={s} services={services} />
-      <WhatsAppButton number={s["contact.whatsapp"]} />
+      <WhatsAppButton number={s["contact.whatsapp"]} bubble={s["aldo.bubble"]} />
     </>
   );
 }

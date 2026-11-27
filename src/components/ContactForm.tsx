@@ -1,5 +1,6 @@
 "use client";
 import { useActionState } from "react";
+import Aldo from "./Aldo";
 import { submitContact, type ContactState } from "@/app/actions/contact";
 
 const initial: ContactState = { ok: false, message: "" };
@@ -9,9 +10,12 @@ export default function ContactForm({ services, defaultService = "" }: { service
 
   if (state.ok) {
     return (
-      <div className="border-t border-ink-900 pt-8">
-        <p className="font-display text-3xl text-ink-900">Gracias.</p>
+      <div className="flex items-center gap-6 border-t border-ink-900 pt-8">
+        <Aldo pose="happy" className="h-28 w-28 shrink-0" />
+        <div>
+        <p className="font-display text-3xl text-ink-900">Mensaje recibido</p>
         <p className="mt-3 text-lg text-ink-700">{state.message}</p>
+        </div>
       </div>
     );
   }

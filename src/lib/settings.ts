@@ -142,6 +142,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
       { key: "contact.whatsapp", label: "WhatsApp (con indicativo)", default: "+573000000000" },
       { key: "contact.address", label: "Dirección / ciudad", default: "Bogotá, Colombia · Trabajo remoto en toda Latam" },
       { key: "contact.hours", label: "Horario", default: "Lunes a viernes, 8:00 a. m. – 6:00 p. m." },
+      { key: "aldo.bubble", label: "Mensaje de Aldo (burbuja junto al botón de WhatsApp; vacío = sin burbuja)", default: "¡Hola! Soy Aldo 🦉 ¿Hablamos por WhatsApp?" },
       { key: "social.instagram", label: "Instagram (URL)", type: "url", default: "" },
       { key: "social.linkedin", label: "LinkedIn (URL)", type: "url", default: "" },
       { key: "social.facebook", label: "Facebook (URL)", type: "url", default: "" },

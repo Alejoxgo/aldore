@@ -43,3 +43,36 @@ body { @apply bg-paper font-sans text-ink-900 antialiased; }
 @media (prefers-reduced-motion: reduce) {
   .marquee-track, .flow, .pulse-ring { animation: none; }
 }
+
+/* ---------- Aldo, el búho ---------- */
+.aldo { overflow: visible; }
+.aldo .aldo-body { animation: aldo-breathe 3.6s ease-in-out infinite; transform-box: view-box; transform-origin: 60px 120px; }
+.aldo .aldo-shadow { animation: aldo-shadow 3.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.aldo .aldo-blink { animation: aldo-blink 5s infinite; transform-box: view-box; transform-origin: 60px 46px; }
+.aldo .aldo-pupils { transform: translate(var(--px, 0px), var(--py, 0px)); transition: transform .18s ease-out; }
+.aldo .aldo-wave { animation: aldo-wave 1.6s ease-in-out infinite; transform-box: view-box; transform-origin: 96px 74px; }
+.aldo .aldo-sparks { animation: aldo-sparks 1.6s ease-in-out infinite; }
+.aldo .aldo-head { animation: aldo-tilt 7s ease-in-out infinite; transform-box: view-box; transform-origin: 60px 100px; }
+.aldo .aldo-bubble { animation: aldo-float 2.8s ease-in-out infinite; }
+.aldo .aldo-typing { animation: aldo-type .35s steps(2) infinite; }
+.aldo .aldo-cursor { animation: aldo-cursor 1s steps(2) infinite; }
+.aldo-hover:hover .aldo .aldo-body { animation: aldo-hop .5s ease-out; }
+
+@keyframes aldo-breathe { 0%,100% { transform: translateY(0) scale(1,1); } 50% { transform: translateY(-1.5px) scale(1.015,.99); } }
+@keyframes aldo-shadow { 0%,100% { transform: scaleX(1); } 50% { transform: scaleX(.92); } }
+@keyframes aldo-blink { 0%,46%,50%,96%,100% { transform: scaleY(1); } 48%,98% { transform: scaleY(.1); } }
+@keyframes aldo-wave { 0%,100% { transform: rotate(0deg); } 25% { transform: rotate(-14deg); } 75% { transform: rotate(10deg); } }
+@keyframes aldo-sparks { 0%,100% { opacity: .2; } 50% { opacity: 1; } }
+@keyframes aldo-tilt { 0%,80%,100% { transform: rotate(0); } 86% { transform: rotate(-6deg); } 92% { transform: rotate(4deg); } }
+@keyframes aldo-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes aldo-type { to { transform: translateY(1.5px); } }
+@keyframes aldo-cursor { 50% { opacity: .3; } }
+@keyframes aldo-hop { 0% { transform: translateY(0); } 40% { transform: translateY(-8px); } 100% { transform: translateY(0); } }
+
+@keyframes aldo-peek { from { transform: translateY(110%); } to { transform: translateY(0); } }
+@keyframes aldo-pop { from { opacity: 0; transform: translateY(6px) scale(.96); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .aldo *, .aldo-hover:hover .aldo .aldo-body { animation: none !important; }
+  .aldo-peek, .aldo-pop { animation: none !important; }
+}
