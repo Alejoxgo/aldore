@@ -24,6 +24,10 @@ export default function Header({ name }: { name: string }) {
               {n.label}
             </Link>
           ))}
+          <Link href="/admin/login" className="inline-flex items-center gap-1.5 text-[15px] text-paper/70 transition hover:text-paper">
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
+            Ingresar
+          </Link>
           <Link href="/contacto" className="btn-signal !py-2">
             Hablemos
           </Link>
@@ -47,6 +51,9 @@ export default function Header({ name }: { name: string }) {
                 {n.label}
               </Link>
             ))}
+            <Link href="/admin/login" onClick={() => setOpen(false)} className="border-b border-white/10 py-3 font-display text-2xl text-paper/70">
+              Ingresar
+            </Link>
             <Link href="/contacto" onClick={() => setOpen(false)} className="btn-signal mt-4">
               Hablemos
             </Link>

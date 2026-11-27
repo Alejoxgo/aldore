@@ -53,14 +53,7 @@ export function Hero({ s }: { s: Settings }) {
       <div className="pointer-events-none absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-brand-500/10 blur-[120px]" />
       <div className="container-x relative grid grid-cols-1 items-center gap-14 pb-20 pt-16 sm:pt-24 lg:grid-cols-12">
         <div className="min-w-0 lg:col-span-6">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs text-paper/70">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-            </span>
-            {s["hero.badge"]}
-          </p>
-          <h1 className="mt-7 font-display text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-[3.9rem]">
+          <h1 className="font-display text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-[3.9rem]">
             <Emph text={s["hero.title"]} />
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-paper/70">{s["hero.subtitle"]}</p>

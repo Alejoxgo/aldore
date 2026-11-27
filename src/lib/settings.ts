@@ -25,7 +25,6 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     id: "hero",
     title: "Portada (Hero)",
     fields: [
-      { key: "hero.badge", label: "Etiqueta superior", default: "Estudio de software · Bogotá, Colombia" },
       { key: "hero.title", label: "Título principal", help: "Encierra una palabra entre *asteriscos* para resaltarla.", default: "Software bien hecho para empresas que *no pueden* parar." },
       {
         key: "hero.subtitle",

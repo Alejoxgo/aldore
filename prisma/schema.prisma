@@ -98,3 +98,85 @@ model Lead {
   notes     String   @default("")
   createdAt DateTime @default(now())
 }
+
+// ---------- Gestión del negocio ----------
+// Las fechas de negocio se guardan como texto "AAAA-MM-DD" (y el periodo de nómina como "AAAA-MM").
+// Los valores en dinero son pesos enteros (COP).
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  name      String
+  company   String   @default("")
+  taxId     String   @default("")
+  email     String   @default("")
+  phone     String   @default("")
+  city      String   @default("")
+  notes     String   @default("")
+  createdAt DateTime @default(now())
+  orders    Order[]
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  title     String
+  clientId  Int?
+  client    Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  service   String   @default("")
+  status    String   @default("cotizacion")
+  amount    Int      @default(0)
+  paid      Int      @default(0)
+  startDate String   @default("")
+  dueDate   String   @default("")
+  notes     String   @default("")
+  leadId    Int?
+  createdAt DateTime @default(now())
+}
+
+model Employee {
+  id           Int           @id @default(autoincrement())
+  name         String
+  document     String        @default("")
+  email        String        @default("")
+  phone        String        @default("")
+  position     String        @default("")
+  contractType String        @default("indefinido")
+  salary       Int           @default(0)
+  startDate    String        @default("")
+  bank         String        @default("")
+  bankAccount  String        @default("")
+  active       Boolean       @default(true)
+  notes        String        @default("")
+  createdAt    DateTime      @default(now())
+  payrolls     Payroll[]
+  requests     StaffRequest[]
+}
+
+model Payroll {
+  id         Int      @id @default(autoincrement())
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  period     String
+  baseSalary Int      @default(0)
+  bonuses    Int      @default(0)
+  deductions Int      @default(0)
+  net        Int      @default(0)
+  status     String   @default("pendiente")
+  paidDate   String   @default("")
+  notes      String   @default("")
+  createdAt  DateTime @default(now())
+
+  @@unique([employeeId, period])
+}
+
+model StaffRequest {
+  id          Int       @id @default(autoincrement())
+  employeeId  Int?
+  employee    Employee? @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+  type        String    @default("vacaciones")
+  title       String
+  description String    @default("")
+  startDate   String    @default("")
+  endDate     String    @default("")
+  status      String    @default("pendiente")
+  createdAt   DateTime  @default(now())
+}

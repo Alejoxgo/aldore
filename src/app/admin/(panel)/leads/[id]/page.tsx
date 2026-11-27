@@ -5,7 +5,7 @@ import { LEAD_STATUSES } from "@/lib/leads";
 import { whatsappLink } from "@/lib/utils";
 import Flash from "@/components/admin/Flash";
 import ConfirmButton from "@/components/admin/ConfirmButton";
-import { deleteLead, updateLead } from "../../../actions";
+import { deleteLead, leadToOrder, updateLead } from "../../../actions";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ ok?: string }> };
 
@@ -15,12 +15,22 @@ export default async function LeadDetail({ params, searchParams }: Props) {
   const lead = await prisma.lead.findUnique({ where: { id } });
   if (!lead) notFound();
   const { ok } = await searchParams;
+  const order = await prisma.order.findFirst({ where: { leadId: id }, select: { id: true } });
   const wa = lead.phone ? whatsappLink(lead.phone, `Hola ${lead.name}, te escribimos por tu solicitud.`) : "";
 
   return (
     <div className="max-w-3xl">
-      <Link href="/admin/leads" className="text-sm text-slate-500 hover:text-brand-700">← Leads</Link>
-      <h1 className="mb-6 mt-2 text-2xl font-bold text-ink-900">{lead.name}</h1>
+      <Link href="/admin/leads" className="text-sm text-slate-500 hover:text-brand-700">← Solicitudes web</Link>
+      <div className="mb-6 mt-2 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold text-ink-900">{lead.name}</h1>
+        {order ? (
+          <Link href={`/admin/pedidos/${order.id}`} className="btn-outline">Ver pedido →</Link>
+        ) : (
+          <form action={leadToOrder.bind(null, lead.id)}>
+            <button className="btn-primary">Convertir en pedido</button>
+          </form>
+        )}
+      </div>
       <Flash ok={ok} />
       <div className="grid gap-6">
         <div className="rounded-2xl border border-slate-200 bg-white p-6">

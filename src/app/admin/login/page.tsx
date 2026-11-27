@@ -5,10 +5,14 @@ import { prisma } from "@/lib/db";
 import Logo from "@/components/Logo";
 import Aldo from "@/components/Aldo";
 import { getSettings } from "@/lib/settings";
+import { getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export const metadata: Metadata = { title: "Ingreso al panel", robots: { index: false } };
 
 export default async function LoginPage() {
+  if (await getSession()) redirect("/admin");
   const [s, users] = await Promise.all([getSettings(), prisma.user.count()]);
   const setup = users === 0;
   return (
@@ -22,6 +26,7 @@ export default async function LoginPage() {
           </p>
           {setup ? <SetupForm needsCode={Boolean(process.env.SETUP_CODE) || process.env.NODE_ENV === "production"} /> : <LoginForm />}
         </div>
+        <Link href="/" className="mt-6 block text-center text-sm text-paper/50 hover:text-paper">← Volver al sitio</Link>
       </div>
     </div>
   );
