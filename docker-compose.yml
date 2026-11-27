@@ -1,0 +1,16 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "file:/data/aldore.db"
+      AUTH_SECRET: "${AUTH_SECRET:?Define AUTH_SECRET en el archivo .env}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL:-admin@aldore.co}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Define ADMIN_PASSWORD en el archivo .env}"
+    volumes:
+      - aldore-data:/data
+    restart: unless-stopped
+
+volumes:
+  aldore-data:
