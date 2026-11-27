@@ -1,4 +1,135 @@
--- Contenido inicial de ejemplo (editable luego desde el panel).
+-- Aldore · esquema de base de datos para Supabase (PostgreSQL)
+-- Pega este archivo completo en Supabase → SQL Editor → Run. Solo se ejecuta una vez.
+-- Las tablas quedan en el esquema "aldore", separadas de Castorly y fuera de la API pública de Supabase.
+
+CREATE SCHEMA IF NOT EXISTS aldore;
+SET search_path TO aldore;
+
+-- CreateTable
+CREATE TABLE "User" (
+    "id" SERIAL NOT NULL,
+    "email" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "passwordHash" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Service" (
+    "id" SERIAL NOT NULL,
+    "slug" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "shortDescription" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "icon" TEXT NOT NULL DEFAULT 'code',
+    "features" TEXT NOT NULL DEFAULT '',
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "published" BOOLEAN NOT NULL DEFAULT true,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Service_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Product" (
+    "id" SERIAL NOT NULL,
+    "slug" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "tagline" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "price" TEXT NOT NULL DEFAULT '',
+    "priceNote" TEXT NOT NULL DEFAULT '',
+    "features" TEXT NOT NULL DEFAULT '',
+    "ctaLabel" TEXT NOT NULL DEFAULT 'Quiero saber más',
+    "ctaUrl" TEXT NOT NULL DEFAULT '',
+    "imageUrl" TEXT NOT NULL DEFAULT '',
+    "featured" BOOLEAN NOT NULL DEFAULT false,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "published" BOOLEAN NOT NULL DEFAULT true,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Plan" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "price" TEXT NOT NULL,
+    "period" TEXT NOT NULL DEFAULT '',
+    "description" TEXT NOT NULL DEFAULT '',
+    "features" TEXT NOT NULL DEFAULT '',
+    "highlighted" BOOLEAN NOT NULL DEFAULT false,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "published" BOOLEAN NOT NULL DEFAULT true,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Plan_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Testimonial" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "role" TEXT NOT NULL DEFAULT '',
+    "company" TEXT NOT NULL DEFAULT '',
+    "quote" TEXT NOT NULL,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "published" BOOLEAN NOT NULL DEFAULT true,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Testimonial_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Faq" (
+    "id" SERIAL NOT NULL,
+    "question" TEXT NOT NULL,
+    "answer" TEXT NOT NULL,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "published" BOOLEAN NOT NULL DEFAULT true,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Faq_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Setting" (
+    "key" TEXT NOT NULL,
+    "value" TEXT NOT NULL,
+
+    CONSTRAINT "Setting_pkey" PRIMARY KEY ("key")
+);
+
+-- CreateTable
+CREATE TABLE "Lead" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "phone" TEXT NOT NULL DEFAULT '',
+    "company" TEXT NOT NULL DEFAULT '',
+    "service" TEXT NOT NULL DEFAULT '',
+    "message" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'nuevo',
+    "notes" TEXT NOT NULL DEFAULT '',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Lead_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Service_slug_key" ON "Service"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Product_slug_key" ON "Product"("slug");
+
+-- Contenido inicial de ejemplo (editable desde el panel). No crea usuarios:
+-- el primer administrador se crea en /admin/login con el SETUP_CODE.
 INSERT INTO "Service" ("slug", "title", "icon", "shortDescription", "description", "features", "order", "updatedAt") VALUES ('desarrollo-web', 'Páginas web y tiendas online', 'code', 'Sitios rápidos, modernos y optimizados para Google que convierten visitas en clientes.', 'Diseñamos y desarrollamos páginas web corporativas, landing pages y tiendas online pensadas para vender. Cada sitio es rápido, se ve perfecto en el celular y está optimizado para aparecer en Google.
 
 Incluimos panel de administración para que actualices tu contenido sin depender de nadie, integración con WhatsApp, analítica y pasarelas de pago.', 'Diseño a la medida y responsive
@@ -50,7 +181,7 @@ Gestión de tickets
 Base de conocimiento y artículos
 Cástor, asistente que te acompaña en cada caso
 Verificación en dos pasos
-Cuentas aprobadas por el administrador', '', '', 'Solicitar acceso', 'https://castorly.co/register', 1, 0, CURRENT_TIMESTAMP);
+Cuentas aprobadas por el administrador', '', '', 'Solicitar acceso', 'https://castorly.co/register', true, 0, CURRENT_TIMESTAMP);
 INSERT INTO "Product" ("slug", "name", "tagline", "description", "features", "price", "priceNote", "ctaLabel", "order", "updatedAt") VALUES ('aldore-bot', 'Aldore Bot', 'Chatbot de WhatsApp listo en 7 días.', 'Un asistente virtual con IA que atiende a tus clientes en WhatsApp las 24 horas, responde preguntas frecuentes, toma pedidos y agenda citas.
 
 Incluye configuración, entrenamiento con la información de tu negocio y panel de conversaciones.', 'WhatsApp oficial
@@ -71,7 +202,7 @@ Panel de administración
 Blog y SEO on-page
 Integración con Google Analytics
 Hosting y dominio por 1 año
-3 meses de soporte', 1, 1, CURRENT_TIMESTAMP);
+3 meses de soporte', true, 1, CURRENT_TIMESTAMP);
 INSERT INTO "Plan" ("name", "price", "period", "description", "features", "order", "updatedAt") VALUES ('E-commerce', '$6.900.000', 'COP · desde', 'Tienda online lista para vender.', 'Catálogo ilimitado
 Pasarela de pagos
 Gestión de inventario y pedidos
@@ -86,3 +217,13 @@ INSERT INTO "Faq" ("question", "answer", "order", "updatedAt") VALUES ('¿Puedo 
 INSERT INTO "Faq" ("question", "answer", "order", "updatedAt") VALUES ('¿Qué es Castorly?', 'Es nuestra plataforma para equipos de Service Desk: reúne llamadas, tickets, base de conocimiento y a Cástor, un asistente que te acompaña en cada caso. Puedes solicitar acceso en castorly.co.', 2, CURRENT_TIMESTAMP);
 INSERT INTO "Faq" ("question", "answer", "order", "updatedAt") VALUES ('¿Trabajan con empresas fuera de mi ciudad?', 'Sí, trabajamos 100 % remoto con clientes en toda Latinoamérica y coordinamos reuniones por videollamada.', 3, CURRENT_TIMESTAMP);
 INSERT INTO "Faq" ("question", "answer", "order", "updatedAt") VALUES ('¿Ofrecen soporte después de la entrega?', 'Todos los proyectos incluyen un periodo de soporte y garantía. Además ofrecemos planes de mantenimiento mensual.', 4, CURRENT_TIMESTAMP);
+
+-- Que la API pública de Supabase (anon/authenticated) no pueda leer estas tablas.
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+    REVOKE ALL ON SCHEMA aldore FROM anon, authenticated;
+    REVOKE ALL ON ALL TABLES IN SCHEMA aldore FROM anon, authenticated;
+  END IF;
+END $$;
+
+RESET search_path;

@@ -10,7 +10,7 @@ export default async function LeadsPage({ searchParams }: Props) {
   const where = {
     ...(estado ? { status: estado } : {}),
     ...(q
-      ? { OR: [{ name: { contains: q } }, { email: { contains: q } }, { company: { contains: q } }, { message: { contains: q } }] }
+      ? { OR: [{ name: { contains: q, mode: "insensitive" as const } }, { email: { contains: q, mode: "insensitive" as const } }, { company: { contains: q, mode: "insensitive" as const } }, { message: { contains: q, mode: "insensitive" as const } }] }
       : {}),
   };
   const leads = await prisma.lead.findMany({ where, orderBy: { createdAt: "desc" }, take: 500 });

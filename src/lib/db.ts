@@ -1,29 +1,42 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaD1 } from "@prisma/adapter-d1";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 /**
- * Cliente de base de datos.
- * - En Cloudflare Workers usa D1 (binding "DB") con el adaptador de Prisma.
- * - En Node (local, Docker, VPS) usa DATABASE_URL (SQLite o PostgreSQL).
+ * Cliente de base de datos (PostgreSQL / Supabase).
+ * - En Node (local, Docker, VPS) usa el motor normal de Prisma con DATABASE_URL.
+ * - En Cloudflare Workers usa el adaptador "pg" y crea un cliente por petición,
+ *   porque Workers no permite compartir conexiones entre peticiones.
  */
 
 const isWorker = typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
-const d1Clients = new WeakMap<object, PrismaClient>();
+const perRequest = new WeakMap<object, PrismaClient>();
 
 function nodeClient() {
   if (!globalForPrisma.prisma) globalForPrisma.prisma = new PrismaClient();
   return globalForPrisma.prisma;
 }
 
+/** Separa el parámetro ?schema= (propio de Prisma) de la URL de conexión. */
+export function parseDatabaseUrl(raw: string) {
+  const url = new URL(raw);
+  const schema = url.searchParams.get("schema") || "public";
+  url.searchParams.delete("schema");
+  return { connectionString: url.toString(), schema };
+}
+
 function workerClient(): PrismaClient {
-  const env = getCloudflareContext().env as unknown as { DB: object };
-  let client = d1Clients.get(env.DB);
+  const { env, ctx } = getCloudflareContext();
+  const key = ctx as unknown as object;
+  let client = perRequest.get(key);
   if (!client) {
-    client = new PrismaClient({ adapter: new PrismaD1(env.DB as never) });
-    d1Clients.set(env.DB, client);
+    const raw = (env as unknown as Record<string, string | undefined>).DATABASE_URL ?? process.env.DATABASE_URL;
+    if (!raw) throw new Error("Falta la variable secreta DATABASE_URL.");
+    const { connectionString, schema } = parseDatabaseUrl(raw);
+    client = new PrismaClient({ adapter: new PrismaPg({ connectionString, max: 1 }, { schema }) });
+    perRequest.set(key, client);
   }
   return client;
 }
