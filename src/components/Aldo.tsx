@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useEffect, useRef } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 export type AldoPose = "base" | "wave" | "think" | "code" | "happy" | "fly" | "cheer" | "sleep" | "love" | "read" | "dance" | "search";
 
@@ -49,6 +49,7 @@ export default function Aldo({
   still?: boolean;
 }) {
   const ref = useRef<SVGSVGElement>(null);
+  const [boop, setBoop] = useState(0);
   const season = useContext(AldoSeason);
   const items = wear ?? season;
   if (still) follow = false;
@@ -115,7 +116,9 @@ export default function Aldo({
     <svg
       ref={ref}
       viewBox="0 -14 124 144"
-      className={`aldo aldo-pose-${pose} ${still ? "aldo-still" : ""} ${className}`}
+      className={`aldo aldo-pose-${pose} ${still ? "aldo-still" : ""} ${follow ? "" : "aldo-look"} ${boop ? "aldo-boop" : ""} ${className}`}
+      onPointerDown={still ? undefined : () => { setBoop(0); requestAnimationFrame(() => setBoop(Date.now())); }}
+      onAnimationEnd={(e) => { if (e.animationName === "aldo-boop") setBoop(0); }}
       role="img"
       aria-label={title}
     >
@@ -163,6 +166,7 @@ export default function Aldo({
             </g>
           )}
           <path d="M55 57h10l-5 8z" fill={V} />
+          <AldoWearBody items={items} />
         </g>
 
         {/* alas */}
@@ -220,8 +224,6 @@ export default function Aldo({
           <path d="M85 57l14 14" stroke={V} strokeWidth="6" strokeLinecap="round" />
         </g>
       )}
-      <AldoWearBody items={items} />
-
       {pose === "code" ? (
         <g>
           <path className="aldo-typing" d="M24 86c-8 6-6 14 6 14M96 86c8 6 6 14-6 14" stroke={P} strokeWidth="10" fill="none" strokeLinecap="round" />
@@ -264,7 +266,7 @@ function AldoWearHead({ items }: { items: AldoWear[] }) {
         <g>
           <path d="M36 27c4-18 22-30 44-28 14 1 22 8 26 16l-8 4c-4-6-10-9-18-9-8 0-16 6-20 17z" fill="#d12a2a" />
           <rect x="30" y="22" width="60" height="9" rx="4.5" fill="#fff" />
-          <circle cx="104" cy="17" r="6" fill="#fff" />
+          <circle className="aldo-pompom" cx="104" cy="17" r="6" fill="#fff" />
         </g>
       )}
       {has("witch") && (
@@ -301,7 +303,7 @@ function AldoWearHead({ items }: { items: AldoWear[] }) {
         <g>
           <path d="M33 28c0-16 12-25 27-25s27 9 27 25z" fill="#0f766e" />
           <rect x="31" y="22" width="58" height="9" rx="3" fill="#115e59" />
-          <circle cx="60" cy="1" r="6" fill="#f4f1ea" />
+          <circle className="aldo-pompom" cx="60" cy="1" r="6" fill="#f4f1ea" />
         </g>
       )}
     </g>
@@ -322,7 +324,7 @@ function AldoWearBody({ items }: { items: AldoWear[] }) {
       {has("scarf") && (
         <g>
           <path d="M28 64c20 8 44 8 64 0v9c-20 8-44 8-64 0z" fill="#d12a2a" />
-          <path d="M74 70h10v24l-5-3-5 3z" fill="#b91c1c" />
+          <path className="aldo-scarf-tail" d="M74 70h10v24l-5-3-5 3z" fill="#b91c1c" />
           <path d="M34 68h4M46 71h4M58 72h4M70 71h4" stroke="#fff" strokeWidth="2" opacity=".6" />
         </g>
       )}

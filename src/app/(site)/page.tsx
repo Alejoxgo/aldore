@@ -35,8 +35,7 @@ export default async function HomePage() {
           <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-green-600/10 blur-3xl" aria-hidden />
           <div className="container-x relative grid items-center gap-12 lg:grid-cols-12">
             <div className="lg:col-span-5">
-              {s["xmas.kicker"] && <p className="eyebrow flex items-center gap-3"><span className="h-px w-8 bg-ink-900/20" />{s["xmas.kicker"]}</p>}
-              <h2 className="section-title mt-5"><Emph text={s["xmas.title"]} /></h2>
+              <h2 className="section-title"><Emph text={s["xmas.title"]} /></h2>
               <p className="mt-5 text-lg leading-relaxed text-ink-700">{s["xmas.text"]}</p>
             </div>
             <div className="lg:col-span-7">

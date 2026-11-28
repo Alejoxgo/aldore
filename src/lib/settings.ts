@@ -191,7 +191,6 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     title: "Árbol de Navidad",
     description: "Sale en Inicio solo cuando está activa la temática de Navidad.",
     fields: [
-      { key: "xmas.kicker", label: "Línea pequeña sobre el título", default: "Modo Navidad" },
       { key: "xmas.title", label: "Título", help: "Encierra una palabra entre *asteriscos* para resaltarla.", default: "Ayúdale a Aldo a *decorar el árbol*." },
       { key: "xmas.text", label: "Texto", type: "textarea", default: "Arrastra las bolitas de la repisa a los ganchos del árbol. Aldo también va colgando las suyas. Cuando esté lleno, se enciende la estrella." },
       { key: "xmas.done", label: "Mensaje cuando el árbol queda lleno", default: "¡Quedó precioso! Feliz Navidad de parte de Aldore." },
