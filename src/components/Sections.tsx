@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { lines } from "@/lib/utils";
 import HeroDoor from "./HeroDoor";
+import Carousel from "./Carousel";
 import Aldo from "./Aldo";
 import type { Settings } from "@/lib/settings";
 import type { Faq, Plan, Product, Service, Testimonial } from "@prisma/client";
@@ -177,31 +178,14 @@ export function parseGallery(value?: string) {
   }).filter((g) => g.src);
 }
 
-export function CastorlyGallery({ value, light = false }: { value?: string; light?: boolean }) {
+export function CastorlyGallery({ value, tone = "dark" }: { value?: string; tone?: "dark" | "light" | "castorly" }) {
   const items = parseGallery(value);
   if (!items.length) return null;
   return (
     <div className="container-x mt-20">
-      <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((g) => (
-          <li key={g.src} className="min-w-0">
-            <figure>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={g.src}
-                alt={g.caption || "Captura de Castorly"}
-                loading="lazy"
-                className={`aspect-[16/10] w-full rounded-lg border object-cover object-top ${light ? "border-paper-line bg-white" : "border-white/10 bg-white/5"}`}
-              />
-              {g.caption && (
-                <figcaption className={`mt-3 font-mono text-xs uppercase tracking-wider ${light ? "text-ink-500" : "text-paper/50"}`}>
-                  {g.caption}
-                </figcaption>
-              )}
-            </figure>
-          </li>
-        ))}
-      </ul>
+      <div className="mx-auto max-w-5xl">
+        <Carousel slides={items} tone={tone} label="Capturas de Castorly" />
+      </div>
     </div>
   );
 }

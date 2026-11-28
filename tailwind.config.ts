@@ -20,6 +20,7 @@ export default {
         sans: ['"Geist Variable"', "system-ui", "sans-serif"],
         grotesk: ['"Space Grotesk Variable"', "system-ui", "sans-serif"],
         serif: ['"Fraunces Variable"', "Georgia", "serif"],
+        castorly: ['"Plus Jakarta Sans Variable"', "system-ui", "sans-serif"],
         mono: ['"JetBrains Mono Variable"', "ui-monospace", "monospace"],
       },
     },

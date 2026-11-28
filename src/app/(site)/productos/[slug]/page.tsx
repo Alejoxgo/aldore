@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import ContactForm from "@/components/ContactForm";
 import { lines, paragraphs } from "@/lib/utils";
 import { getSettings } from "@/lib/settings";
-import { CastorlyGallery } from "@/components/Sections";
+import CastorlyPage from "@/components/CastorlyPage";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -22,8 +22,7 @@ export default async function ProductPage({ params }: Props) {
   const p = await load((await params).slug);
   if (!p) notFound();
   const feats = lines(p.features);
-  const s = p.slug === "castorly" ? await getSettings() : null;
-  const mascot = s?.["castorly.mascotUrl"];
+  if (p.slug === "castorly") return <CastorlyPage p={p} s={await getSettings()} />;
 
   return (
     <>
@@ -55,17 +54,12 @@ export default async function ProductPage({ params }: Props) {
             </div>
           </div>
         </div>
-        {(p.imageUrl || s?.["castorly.imageUrl"]) && (
-          <div className="container-x relative pb-16">
+        {p.imageUrl && (
+          <div className="container-x pb-16">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={p.imageUrl || s?.["castorly.imageUrl"]} alt={p.name} className="w-full rounded-xl border border-white/10" />
-            {mascot && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={mascot} alt={s?.["castorly.mascotName"] || "Mascota"} className="pointer-events-none absolute -top-16 right-6 w-28 drop-shadow-2xl sm:right-10 sm:w-40" />
-            )}
+            <img src={p.imageUrl} alt={p.name} className="w-full rounded-xl border border-white/10" />
           </div>
         )}
-        {s && <div className="pb-16"><CastorlyGallery value={s["castorly.gallery"]} /></div>}
       </section>
       <section className="py-20">
         <div className="container-x grid grid-cols-1 gap-14 lg:grid-cols-12">
