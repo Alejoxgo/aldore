@@ -39,7 +39,7 @@ export default async function ResourceForm({ res, item, initial }: Props) {
   };
 
   return (
-    <form action={action} className="grid gap-5 rounded-2xl border border-slate-200 bg-white p-6 sm:grid-cols-2">
+    <form action={action} className="grid gap-5 rounded-2xl border border-black/[0.06] bg-white shadow-[0_1px_2px_rgba(0,0,0,.04)] p-6 sm:grid-cols-2">
       {res.fields.map((f) => {
         const value = defaultFor(f);
         const id = `f-${f.name}`;

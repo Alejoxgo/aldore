@@ -23,7 +23,7 @@ export default async function EditResource({ params, searchParams }: Props) {
     <div className="max-w-3xl">
       <Link href={`/admin/${res.key}`} className="text-sm text-slate-500 hover:text-brand-700">← {res.label}</Link>
       <div className="mb-6 mt-2 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-ink-900">Editar: {item[res.titleField]}</h1>
+        <h1 className="font-display text-3xl text-ink-900">Editar: {item[res.titleField]}</h1>
         {publicUrl && <Link href={publicUrl} target="_blank" className="text-sm font-medium text-brand-600">Ver en el sitio ↗</Link>}
       </div>
       <Flash ok={ok} error={error} />

@@ -46,6 +46,22 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     ],
   },
   {
+    id: "avisos",
+    title: "Avisos por correo",
+    description: "Se envían cuando alguien escribe desde el sitio. Necesitan la clave RESEND_API_KEY en Cloudflare; sin ella no se envía nada.",
+    fields: [
+      { key: "notify.email", label: "Correo que recibe los avisos", help: "Puedes poner varios separados por coma. Si lo dejas vacío se usa el correo de contacto.", default: "" },
+      { key: "notify.from", label: "Remitente", help: "Debe ser de tu dominio verificado en Resend.", default: "Aldore <avisos@aldore.co>" },
+      {
+        key: "notify.autoReply",
+        label: "Respuesta automática al cliente",
+        type: "textarea",
+        help: "Se envía a quien llenó el formulario. Déjalo vacío para no enviarla.",
+        default: "Hola {nombre}, recibimos tu mensaje y ya lo estamos revisando. Te respondemos en menos de 48 horas hábiles. Si es urgente, escríbenos por WhatsApp.",
+      },
+    ],
+  },
+  {
     id: "secciones",
     title: "Títulos de secciones",
     fields: [

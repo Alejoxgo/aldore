@@ -14,7 +14,7 @@ export default async function NewResource({ params, searchParams }: Props) {
   return (
     <div className="max-w-3xl">
       <Link href={`/admin/${res.key}`} className="text-sm text-slate-500 hover:text-brand-700">← {res.label}</Link>
-      <h1 className="mb-6 mt-2 text-2xl font-bold text-ink-900">Nuevo {res.singular}</h1>
+      <h1 className="mb-6 mt-2 font-display text-3xl text-ink-900">Nuevo {res.singular}</h1>
       <Flash error={error} />
       <ResourceForm res={res} initial={initial} />
     </div>

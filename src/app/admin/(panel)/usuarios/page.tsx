@@ -11,11 +11,11 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
   return (
     <div className="max-w-3xl space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-ink-900">Usuarios administradores</h1>
+        <h1 className="font-display text-3xl text-ink-900">Usuarios administradores</h1>
         <p className="mt-1 text-sm text-slate-500">Personas con acceso a este panel.</p>
       </div>
       <Flash ok={ok} error={error} />
-      <div className="divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white">
+      <div className="divide-y divide-slate-100 rounded-2xl border border-black/[0.06] bg-white shadow-[0_1px_2px_rgba(0,0,0,.04)]">
         {users.map((u) => (
           <div key={u.id} className="flex items-center justify-between gap-4 p-4">
             <div>
@@ -30,14 +30,14 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
           </div>
         ))}
       </div>
-      <form action={createUser} className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 sm:grid-cols-3">
+      <form action={createUser} className="grid gap-4 rounded-2xl border border-black/[0.06] bg-white shadow-[0_1px_2px_rgba(0,0,0,.04)] p-6 sm:grid-cols-3">
         <h2 className="font-semibold text-ink-900 sm:col-span-3">Agregar administrador</h2>
         <input name="name" placeholder="Nombre" className="input" required />
         <input name="email" type="email" placeholder="Correo" className="input" required />
         <input name="password" type="password" placeholder="Contraseña (mín. 8)" minLength={8} className="input" required />
         <div className="sm:col-span-3"><button className="btn-primary">Crear usuario</button></div>
       </form>
-      <form action={changePassword} className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 sm:grid-cols-2">
+      <form action={changePassword} className="grid gap-4 rounded-2xl border border-black/[0.06] bg-white shadow-[0_1px_2px_rgba(0,0,0,.04)] p-6 sm:grid-cols-2">
         <h2 className="font-semibold text-ink-900 sm:col-span-2">Cambiar mi contraseña</h2>
         <input name="current" type="password" placeholder="Contraseña actual" className="input" required />
         <input name="next" type="password" placeholder="Nueva contraseña (mín. 8)" minLength={8} className="input" required />
