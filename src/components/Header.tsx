@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Logo from "./Logo";
+import type { Lang } from "@/lib/langs";
 
 type NavLink = { label: string; href: string };
 
@@ -42,28 +43,28 @@ function LoginButton({ label, user, className = "", onClick }: { label: string; 
   );
 }
 
-/** Cambia entre español e inglés en la misma página (recarga completa para traer los textos del idioma). */
-function LangSwitch({ lang, className = "" }: { lang: "es" | "en"; className?: string }) {
-  const path = (usePathname() || "/").replace(/^\/(en|es)(?=\/|$)/, "") || "/";
-  const opt = (l: "es" | "en") => (
-    <a
-      href={`/${l}${path === "/" ? "" : path}`}
-      hrefLang={l}
-      aria-current={lang === l ? "true" : undefined}
-      className={`rounded-full px-2 py-0.5 transition ${lang === l ? "bg-paper text-ink-900" : "text-paper/60 hover:text-paper"}`}
-    >
-      {l.toUpperCase()}
-    </a>
-  );
+/** Cambia el idioma en la misma página (recarga completa para traer los textos del idioma). */
+function LangSwitch({ lang, langs, className = "" }: { lang: Lang; langs: Lang[]; className?: string }) {
+  const path = (usePathname() || "/").replace(/^\/(en|es|pt)(?=\/|$)/, "") || "/";
+  if (langs.length < 2) return null;
   return (
     <div className={`inline-flex items-center rounded-full border border-white/15 p-0.5 font-mono text-[11px] ${className}`} aria-label="Idioma / Language">
-      {opt("es")}
-      {opt("en")}
+      {langs.map((l) => (
+        <a
+          key={l}
+          href={`/${l}${path === "/" ? "" : path}`}
+          hrefLang={l}
+          aria-current={lang === l ? "true" : undefined}
+          className={`rounded-full px-2 py-0.5 transition ${lang === l ? "bg-paper text-ink-900" : "text-paper/60 hover:text-paper"}`}
+        >
+          {l.toUpperCase()}
+        </a>
+      ))}
     </div>
   );
 }
 
-export default function Header({ name, links, cta, ctaUrl, login, user = null, lang = "es" }: { name: string; links: NavLink[]; cta: string; ctaUrl: string; login: string; user?: string | null; lang?: "es" | "en" }) {
+export default function Header({ name, links, cta, ctaUrl, login, user = null, lang = "es", langs = ["es", "en"], decor = null }: { name: string; links: NavLink[]; cta: string; ctaUrl: string; login: string; user?: string | null; lang?: Lang; langs?: Lang[]; decor?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-ink-900/90 text-paper backdrop-blur">
@@ -78,7 +79,7 @@ export default function Header({ name, links, cta, ctaUrl, login, user = null, l
             </Link>
           ))}
           <div className="flex items-center gap-3">
-            <LangSwitch lang={lang} />
+            <LangSwitch lang={lang} langs={langs} />
             {(login || user) && <LoginButton label={login} user={user} />}
             {cta && (
               <Link href={ctaUrl || "/contacto"} className="btn-signal !py-2">
@@ -113,11 +114,12 @@ export default function Header({ name, links, cta, ctaUrl, login, user = null, l
                 </Link>
               )}
               {(login || user) && <LoginButton label={login} user={user} onClick={() => setOpen(false)} className="!py-2.5" />}
-              <LangSwitch lang={lang} className="ml-auto" />
+              <LangSwitch lang={lang} langs={langs} className="ml-auto" />
             </div>
           </div>
         </nav>
       )}
+      {decor}
     </header>
   );
 }

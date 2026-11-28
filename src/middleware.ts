@@ -3,17 +3,27 @@ import { SESSION_COOKIE, sessionCookieOptions, touchSession } from "@/lib/sessio
 
 const LANG_COOKIE = "lang";
 
-/** Sitio público: /en/... muestra la página en inglés y lo recuerda; /es/... vuelve al español. */
-function publicSite(req: NextRequest) {
+/** Sitio público: /en/... o /pt/... muestran la página en ese idioma y lo recuerdan; /es/... vuelve al español. */
+async function publicSite(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const m = pathname.match(/^\/(en|es)(\/.*)?$/);
+  // Vista previa (borrador del editor visual o una temática) solo para quien tiene sesión en el panel.
+  const base = new Headers(req.headers);
+  base.delete("x-draft");
+  base.delete("x-theme-preview");
+  const wantsDraft = req.nextUrl.searchParams.get("vista") === "borrador";
+  const theme = req.nextUrl.searchParams.get("tema");
+  if ((wantsDraft || theme) && (await touchSession(req.cookies.get(SESSION_COOKIE)?.value))) {
+    if (wantsDraft) base.set("x-draft", "1");
+    if (theme && /^[a-z]{2,12}$/.test(theme)) base.set("x-theme-preview", theme);
+  }
+  const m = pathname.match(/^\/(en|es|pt)(\/.*)?$/);
   const year = 60 * 60 * 24 * 365;
   if (m) {
     const lang = m[1];
     const rest = m[2] || "/";
-    const headers = new Headers(req.headers);
+    const headers = base;
     headers.set("x-lang", lang);
-    // /es/... redirige a la ruta normal; /en/... se queda con su prefijo (mejor para compartir y para Google).
+    // /es/... redirige a la ruta normal; /en/... y /pt/... se quedan con su prefijo (mejor para compartir y para Google).
     if (lang === "es") {
       const url = req.nextUrl.clone();
       url.pathname = rest;
@@ -24,18 +34,19 @@ function publicSite(req: NextRequest) {
     const url = req.nextUrl.clone();
     url.pathname = rest;
     const res = NextResponse.rewrite(url, { request: { headers } });
-    res.cookies.set(LANG_COOKIE, "en", { path: "/", maxAge: year, sameSite: "lax" });
+    res.cookies.set(LANG_COOKIE, lang, { path: "/", maxAge: year, sameSite: "lax" });
     return res;
   }
-  const headers = new Headers(req.headers);
-  headers.set("x-lang", req.cookies.get(LANG_COOKIE)?.value === "en" ? "en" : "es");
+  const headers = base;
+  const saved = req.cookies.get(LANG_COOKIE)?.value;
+  headers.set("x-lang", saved === "en" || saved === "pt" ? saved : "es");
   return NextResponse.next({ request: { headers } });
 }
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const isAdmin = pathname.startsWith("/admin") || pathname.startsWith("/api/admin");
-  if (!isAdmin) return publicSite(req);
+  if (!isAdmin) return await publicSite(req);
   // El panel siempre en español: se ignora cualquier cabecera de idioma que llegue de afuera.
   const clean = new Headers(req.headers);
   clean.delete("x-lang");

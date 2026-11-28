@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
+import { enabledLangs } from "@/lib/langs";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...services.map((s) => ({ url: `${base}/servicios/${s.slug}`, lastModified: s.updatedAt, priority: 0.7 })),
     ...products.map((p) => ({ url: `${base}/productos/${p.slug}`, lastModified: p.updatedAt, priority: 0.7 })),
   ];
-  // Versión en inglés de cada página (/en/...).
-  const en = es.map((e) => ({ ...e, url: e.url.replace(base, `${base}/en`).replace(/\/en\/$/, "/en"), priority: Math.max(0.3, (e.priority ?? 0.5) - 0.2) }));
-  return [...es, ...en];
+  // Versión traducida de cada página (/en/..., /pt/...) según los idiomas activos.
+  const row = await prisma.setting.findUnique({ where: { key: "site.langs" } }).catch(() => null);
+  const other = enabledLangs(row?.value).filter((l) => l !== "es");
+  const tr = other.flatMap((l) => es.map((e) => ({ ...e, url: e.url.replace(base, `${base}/${l}`).replace(new RegExp(`/${l}/$`), `/${l}`), priority: Math.max(0.3, (e.priority ?? 0.5) - 0.2) })));
+  return [...es, ...tr];
 }

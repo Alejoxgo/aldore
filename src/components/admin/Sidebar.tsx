@@ -40,7 +40,9 @@ export const ADMIN_NAV = [
   {
     title: "Sitio web",
     items: [
+      { href: "/admin/editor", label: "Editor visual", icon: "spark" },
       { href: "/admin/contenido", label: "Textos del sitio", icon: "text" },
+      { href: "/admin/tematicas", label: "Temáticas", icon: "star" },
       { href: "/admin/blog", label: "Blog", icon: "pen" },
       { href: "/admin/servicios", label: "Servicios", icon: "grid" },
       { href: "/admin/productos", label: "Productos", icon: "box" },
@@ -53,7 +55,7 @@ export const ADMIN_NAV = [
     title: "Ajustes",
     items: [
       { href: "/admin/usuarios", label: "Usuarios del panel", icon: "key" },
-      { href: "/admin/idiomas", label: "Idiomas (inglés)", icon: "globe" },
+      { href: "/admin/idiomas", label: "Idioma del sitio", icon: "globe" },
     ],
   },
 ];

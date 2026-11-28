@@ -460,11 +460,33 @@ export async function leadToOrder(leadId: number) {
   redirect(`/admin/pedidos/${order.id}?ok=${encodeURIComponent("Pedido creado desde la solicitud")}`);
 }
 
-/* ---------------- Idiomas (traducción con Groq) ---------------- */
+/* ---------------- Idioma del sitio (traducción con Groq) ---------------- */
 
-/** Traduce de una vez todos los textos del sitio que aún no estén en inglés. */
-export async function translateEverything() {
+/** Activa o apaga los idiomas extranjeros del sitio (inglés, portugués). */
+export async function saveLanguages(formData: FormData) {
+  await requireOwner();
+  const { FOREIGN } = await import("@/lib/langs");
+  const list = formData.getAll("langs").map(String).filter((l) => (FOREIGN as string[]).includes(l));
+  await prisma.setting.upsert({ where: { key: "site.langs" }, create: { key: "site.langs", value: list.join(", ") || "ninguno" }, update: { value: list.join(", ") || "ninguno" } });
+  refreshSite();
+  redirect(`/admin/idiomas?ok=${encodeURIComponent(list.length ? "Idiomas guardados" : "El sitio queda solo en español")}`);
+}
+
+/** Prueba la clave de Groq con una frase corta (sirve tanto para las traducciones como para el chat de Aldo). */
+export async function testGroq() {
   await requireAdmin();
+  const { groqPing } = await import("@/lib/i18n");
+  const r = await groqPing();
+  redirect(`/admin/idiomas?${r.ok ? "ok" : "error"}=${encodeURIComponent(r.ok ? `Groq funciona (${r.ms} ms). Prueba: «Abrimos la puerta digital de tu negocio.» → «${r.detail}». El chat de Aldo usa esta misma clave.` : `Groq no funciona: ${r.detail}`)}`);
+}
+
+/** Traduce de una vez todos los textos del sitio que falten en el idioma elegido (o en todos los activos). */
+export async function translateEverything(formData: FormData) {
+  await requireAdmin();
+  const { activeForeign } = await import("@/lib/i18n");
+  const want = String(formData.get("lang") ?? "all");
+  const active = await activeForeign();
+  const targets = want === "all" ? active : active.filter((l) => l === want);
   const { translateNow, pieces, groqReady } = await import("@/lib/i18n");
   if (!groqReady()) redirect(`/admin/idiomas?error=${encodeURIComponent("Falta la clave GROQ_API_KEY en Cloudflare.")}`);
   const { getRawSettings } = await import("@/lib/settings");
@@ -487,8 +509,14 @@ export async function translateEverything() {
     ...faqs.flatMap((x) => [x.question, x.answer].flatMap(pieces)),
     ...posts.flatMap((x) => [x.title, x.excerpt, x.content, x.tags, x.author].flatMap(pieces)),
   ];
-  const n = await translateNow(texts, "en");
-  redirect(`/admin/idiomas?ok=${encodeURIComponent(n ? `Listo: ${n} textos nuevos traducidos al inglés.` : "Todo ya estaba traducido (o Groq no respondió; revisa los registros).")}`);
+  const { LANG_NAMES } = await import("@/lib/langs");
+  const done: string[] = [];
+  for (const l of targets) {
+    const n = await translateNow(texts, l);
+    done.push(`${n} al ${LANG_NAMES[l].toLowerCase()}`);
+  }
+  refreshSite();
+  redirect(`/admin/idiomas?ok=${encodeURIComponent(targets.length ? `Listo: textos nuevos traducidos ${done.join(" y ")}. Si sale 0, ya estaba todo traducido.` : "No hay idiomas activos para traducir.")}`);
 }
 
 /** Corrige a mano una traducción. Queda marcada para que Groq no la cambie. */
@@ -498,7 +526,8 @@ export async function saveTranslation(id: number, formData: FormData) {
   if (text) await prisma.translation.update({ where: { id }, data: { text, manual: true } });
   refreshSite();
   const q = String(formData.get("q") ?? "");
-  redirect(`/admin/idiomas?ok=${encodeURIComponent("Traducción guardada")}${q ? `&q=${encodeURIComponent(q)}` : ""}`);
+  const lang = String(formData.get("lang") ?? "en");
+  redirect(`/admin/idiomas?lang=${lang}&ok=${encodeURIComponent("Traducción guardada")}${q ? `&q=${encodeURIComponent(q)}` : ""}`);
 }
 
 /** Borra una traducción para que Groq la vuelva a hacer en la próxima visita. */

@@ -246,3 +246,16 @@ body { @apply bg-paper font-sans text-ink-900 antialiased; }
 }
 @media (prefers-reduced-motion: reduce) { .season-layer { display: none; } }
 .season-banner { background: linear-gradient(90deg, var(--s1), var(--s2, var(--s1)), var(--s3, var(--s1))); }
+
+/* ---------- Adornos de temporada bajo el menú ---------- */
+.season-decor { position: absolute; left: 0; right: 0; top: 100%; height: 38px; display: flex; overflow: hidden; pointer-events: none; }
+.season-decor > svg { flex: none; overflow: visible; }
+.decor-bulb { animation: decor-blink 1.6s ease-in-out infinite; filter: drop-shadow(0 0 5px currentColor); }
+.decor-bulb.decor-b2 { animation-delay: .8s; }
+@keyframes decor-blink { 0%, 100% { opacity: 1; } 50% { opacity: .35; filter: none; } }
+.decor-swing, .decor-spider { transform-box: view-box; transform-origin: 32px 12px; animation: decor-swing 3.2s ease-in-out infinite; animation-delay: inherit; }
+.season-decor > svg:nth-child(odd) .decor-swing { animation-direction: reverse; }
+@keyframes decor-swing { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+.decor-spider { animation-name: decor-drop; animation-duration: 4s; }
+@keyframes decor-drop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+@media (prefers-reduced-motion: reduce) { .decor-bulb, .decor-swing, .decor-spider { animation: none; } }

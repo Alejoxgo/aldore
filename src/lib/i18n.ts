@@ -3,25 +3,37 @@ import { cache } from "react";
 import { headers } from "next/headers";
 import { after } from "next/server";
 import { prisma } from "./db";
+import { enabledLangs, FOREIGN, isLang, LANG_ENGLISH, type Lang } from "./langs";
 
 /**
- * Sitio en inglés con traducción automática (Groq).
+ * Sitio en inglés y portugués con traducción automática (Groq).
  *
- * - El idioma lo decide el middleware (/en/... o la cookie `lang`) y llega como cabecera `x-lang`.
+ * - El idioma lo decide el middleware (/en/..., /pt/... o la cookie `lang`) y llega como cabecera `x-lang`.
  *   El panel nunca recibe esa cabecera: allí todo sigue en español.
  * - Cada texto en español se traduce una sola vez y se guarda en la tabla Translation.
  * - Al guardar algo en el panel se traduce de inmediato (ver `translateNow`). Si al mostrar una
  *   página falta algún texto, se muestra en español y se traduce justo después de responder.
  */
 
-export type Lang = "es" | "en";
-export const LANGS: Lang[] = ["es", "en"];
+export type { Lang } from "./langs";
+export { LANGS } from "./langs";
 
 export async function getLang(): Promise<Lang> {
   try {
-    return (await headers()).get("x-lang") === "en" ? "en" : "es";
+    const v = (await headers()).get("x-lang");
+    return isLang(v) ? v : "es";
   } catch {
     return "es";
+  }
+}
+
+/** Idiomas extranjeros activos según el ajuste "site.langs" del panel. */
+export async function activeForeign(): Promise<Exclude<Lang, "es">[]> {
+  try {
+    const row = await prisma.setting.findUnique({ where: { key: "site.langs" } });
+    return enabledLangs(row?.value).filter((l): l is Exclude<Lang, "es"> => l !== "es");
+  } catch {
+    return [...FOREIGN];
   }
 }
 
@@ -134,15 +146,17 @@ export async function trOne<T extends Record<string, unknown>>(r: T | null, fiel
 
 /* ---------------- Groq ---------------- */
 
-const SYSTEM = `You translate website copy for Aldore, a software studio in Medellín, Colombia, from Spanish to natural, professional English (US).
+const SYSTEM = (lang: Lang) => `You translate website copy for Aldore, a software studio in Medellín, Colombia, from Spanish to natural, professional ${LANG_ENGLISH[lang]}.
 Rules:
 - Return ONLY JSON: {"t": [ ...translations in the same order... ]} with exactly as many items as you received.
 - Keep brand and product names as they are: Aldore, Aldo, Castorly, Castorly Meet, Puerta, Cástor, WhatsApp, Wompi, Mercado Pago.
 - Keep any markup exactly: *asterisks* around words (put them around the equivalent English words), markdown (#, ##, -, 1., >, **, [text](url)), emojis, URLs, emails, numbers, prices like $1.200.000 and "COP".
-- Keep Colombian places as they are (Medellín, Colombia, Latinoamérica → Latin America).
+- Keep Colombian places as they are (Medellín, Colombia; translate Latinoamérica normally).
 - Short UI labels stay short. Do not add quotes or explanations.`;
 
-async function groqBatch(texts: string[]): Promise<string[] | null> {
+let lastGroqError = "";
+
+async function groqBatch(texts: string[], lang: Lang): Promise<string[] | null> {
   const key = process.env.GROQ_API_KEY;
   if (!key) return null;
   const body = JSON.stringify({
@@ -150,7 +164,7 @@ async function groqBatch(texts: string[]): Promise<string[] | null> {
     temperature: 0.2,
     response_format: { type: "json_object" },
     messages: [
-      { role: "system", content: SYSTEM },
+      { role: "system", content: SYSTEM(lang) },
       { role: "user", content: JSON.stringify({ t: texts }) },
     ],
   });
@@ -167,7 +181,9 @@ async function groqBatch(texts: string[]): Promise<string[] | null> {
       continue;
     }
     if (!r?.ok) {
-      console.error("Groq traducción", r?.status, await r?.text().catch(() => ""));
+      const body = (await r?.text().catch(() => "")) || "";
+      lastGroqError = r ? `HTTP ${r.status}: ${body.slice(0, 200)}` : "No se pudo conectar con Groq.";
+      console.error("Groq traducción", r?.status, body);
       return null;
     }
     const data = (await r.json().catch(() => null)) as { choices?: { message?: { content?: string } }[] } | null;
@@ -175,6 +191,7 @@ async function groqBatch(texts: string[]): Promise<string[] | null> {
       const out = JSON.parse(data?.choices?.[0]?.message?.content || "{}").t;
       if (Array.isArray(out) && out.length === texts.length) return out.map((x) => String(x ?? ""));
     } catch {}
+    lastGroqError = "Groq respondió en un formato inesperado.";
     console.error("Groq traducción: respuesta inválida");
     return null;
   }
@@ -185,7 +202,7 @@ async function groqBatch(texts: string[]): Promise<string[] | null> {
  * Traduce y guarda los textos que todavía no tengan traducción. Devuelve cuántos tradujo.
  * No toca las traducciones corregidas a mano.
  */
-export async function translateNow(texts: string[], lang: Lang = "en"): Promise<number> {
+export async function translateNow(texts: string[], lang: Lang): Promise<number> {
   if (lang === "es" || !groqReady()) return 0;
   const uniq = [...new Set(texts.map((x) => x.trim()).filter(translatable))];
   if (!uniq.length) return 0;
@@ -202,7 +219,7 @@ export async function translateNow(texts: string[], lang: Lang = "en"): Promise<
   let size = 0;
   const flush = async () => {
     if (!batch.length) return;
-    const out = await groqBatch(batch.map((x) => x.s));
+    const out = await groqBatch(batch.map((x) => x.s), lang);
     if (out) {
       for (let i = 0; i < batch.length; i++) {
         const text = out[i].trim();
@@ -232,9 +249,22 @@ export function translateLater(values: string[]) {
   if (!groqReady()) return;
   const texts = values.flatMap((v) => (typeof v === "string" ? pieces(v) : []));
   if (!texts.length) return;
+  const run = async () => {
+    for (const l of await activeForeign()) await translateNow(texts, l).catch((e) => console.error("Traducción al guardar", l, e));
+  };
   try {
-    after(() => translateNow(texts, "en").catch((e) => console.error("Traducción al guardar", e)));
+    after(run);
   } catch {
-    void translateNow(texts, "en").catch(() => {});
+    void run().catch(() => {});
   }
+}
+
+/** Prueba rápida de la clave de Groq: traduce una frase corta sin guardarla. */
+export async function groqPing(): Promise<{ ok: boolean; detail: string; ms: number }> {
+  const t0 = Date.now();
+  if (!groqReady()) return { ok: false, detail: "No hay GROQ_API_KEY configurada en el servidor.", ms: 0 };
+  lastGroqError = "";
+  const out = await groqBatch(["Abrimos la puerta digital de tu negocio."], "en").catch(() => null);
+  const ms = Date.now() - t0;
+  return out?.[0] ? { ok: true, detail: out[0], ms } : { ok: false, detail: lastGroqError || "Groq no respondió. Revisa que la clave sea correcta y esté vigente.", ms };
 }

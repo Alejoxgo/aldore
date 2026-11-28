@@ -175,7 +175,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
   {
     id: "temporada",
     title: "Temáticas de temporada",
-    description: "Decora el sitio según la época: Aldo se pone el accesorio de la fecha, aparece una franja con un mensaje y caen detalles (nieve, corazones, confeti…).",
+    description: "Decora el sitio según la época: bajo el menú cuelgan adornos (luces de Navidad, banderines, corazones…), Aldo se pone el accesorio de la fecha y caen detalles suaves. Para verlas y activarlas con vista previa usa Panel → Temáticas.",
     fields: [
       {
         key: "theme.mode",
@@ -183,8 +183,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
         help: "auto (según la fecha en Colombia) · ninguna · navidad · anionuevo · halloween · amor · patria · madres",
         default: "auto",
       },
-      { key: "theme.message", label: "Mensaje de la franja superior (vacío = el de la temática)", default: "" },
-      { key: "theme.effects", label: "Animación que cae (sí / no)", default: "sí" },
+      { key: "theme.effects", label: "Detalles que caen: nieve, confeti, corazones (sí / no)", default: "sí" },
     ],
   },
   {
@@ -419,6 +418,19 @@ export const SETTING_KEYS = new Set(SETTINGS_GROUPS.flatMap((g) => g.fields.map(
 
 export type Settings = Record<string, string>;
 
+/** Prefijo de los cambios sin publicar del editor visual (se guardan en la misma tabla Setting). */
+export const DRAFT = "draft:";
+
+/** ¿Esta visita es la vista previa del borrador? */
+export async function draftMode() {
+  try {
+    const { headers } = await import("next/headers");
+    return (await headers()).get("x-draft") === "1";
+  } catch {
+    return false;
+  }
+}
+
 /** Textos que nunca se traducen: datos técnicos o que solo ve el panel. */
 const NO_TRANSLATE = /^(notify\.|seo\.keywords|social\.|contact\.(email|phone)|site\.name|seed\.|theme\.(mode|effects))/;
 
@@ -427,7 +439,13 @@ export async function getRawSettings(): Promise<Settings> {
   const defaults: Settings = {};
   for (const g of SETTINGS_GROUPS) for (const f of g.fields) defaults[f.key] = f.default;
   const rows = await prisma.setting.findMany();
-  for (const r of rows) defaults[r.key] = r.value;
+  const drafts: [string, string][] = [];
+  for (const r of rows) {
+    if (r.key.startsWith(DRAFT)) drafts.push([r.key.slice(DRAFT.length), r.value]);
+    else defaults[r.key] = r.value;
+  }
+  // Vista previa del editor visual: solo un usuario del panel con sesión ve el borrador (lo marca el middleware).
+  if (drafts.length && (await draftMode())) for (const [k, v] of drafts) defaults[k] = v;
   return defaults;
 }
 

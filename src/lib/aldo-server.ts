@@ -25,6 +25,6 @@ export async function loadAldo() {
   const { lang, tx } = await getT();
   const built = buildAldo(s, services, products, plans, faqs);
   // Los textos que vienen de la base y los ajustes ya llegan traducidos; aquí se traducen las respuestas fijas de Aldo.
-  const knowledge = { ...(lang === "en" ? deepTr(built, tx) : built), ai: Boolean(process.env.GROQ_API_KEY), lang };
+  const knowledge = { ...(lang !== "es" ? deepTr(built, tx) : built), ai: Boolean(process.env.GROQ_API_KEY), lang };
   return { s, services, knowledge };
 }
