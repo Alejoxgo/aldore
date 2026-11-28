@@ -119,6 +119,9 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
       { key: "castorly.imageUrl", label: "Captura principal (URL)", type: "url", help: "Puede ser una ruta del sitio como /castorly/panel.png o una URL completa.", default: "/castorly/tickets.webp" },
       { key: "castorly.mascotUrl", label: "Imagen de la mascota (el castor)", type: "url", help: "PNG o SVG con fondo transparente. Aparece junto a la captura.", default: "/castorly/castor.png" },
       { key: "castorly.mascotName", label: "Nombre de la mascota", default: "Cástor" },
+      { key: "castorly.pageTitle", label: "Título de la página de Castorly", help: "Lo que va entre asteriscos sale con el degradado de Castorly.", default: "Calma en cada llamada. *Con Cástor.*" },
+      { key: "castorly.pageChips", label: "Etiquetas de la página de Castorly", type: "textarea", help: "Una por línea.", default: "Llamadas y tickets\nAsistente IA\nHorarios y turnos\nIntegración Webex" },
+      { key: "castorly.galleryTitle", label: "Título del carrusel", default: "Así se ve Castorly por dentro" },
       {
         key: "castorly.gallery",
         label: "Galería de capturas",
