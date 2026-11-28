@@ -5,13 +5,15 @@ import { getSettings } from "@/lib/settings";
 import { StackMarquee } from "@/components/TechSections";
 import Aldo from "@/components/Aldo";
 import { CasesBlock } from "@/components/CaseSections";
+import XmasTree from "@/components/XmasTree";
+import { currentSeason } from "@/lib/season";
 import ContactForm from "@/components/ContactForm";
 import { PuertaBlock } from "@/components/PuertaSections";
 import { AldoBand, CastorlyBlock, Emph, FaqList, Hero, Plans, Process, ProductsList, ServicesList, Testimonials } from "@/components/Sections";
 
 export default async function HomePage() {
   const pub = { where: { published: true }, orderBy: { order: "asc" as const } };
-  const [s, services, products, plans, testimonials, faqs, cases] = await Promise.all([
+  const [s, services, products, plans, testimonials, faqs, cases, season] = await Promise.all([
     getSettings(),
     prisma.service.findMany(pub),
     prisma.product.findMany(pub),
@@ -19,6 +21,7 @@ export default async function HomePage() {
     prisma.testimonial.findMany(pub),
     prisma.faq.findMany(pub),
     prisma.caseStudy.findMany({ where: { published: true }, orderBy: [{ order: "asc" }, { id: "desc" }], take: 3 }),
+    currentSeason(),
   ]);
   const castorly = products.find((p) => p.slug === "castorly") ?? null;
 
@@ -26,6 +29,22 @@ export default async function HomePage() {
     <>
       <Hero s={s} />
       <StackMarquee s={s} />
+      {season === "navidad" && (
+        <section id="navidad" className="relative overflow-hidden border-b border-paper-line py-20 sm:py-24">
+          <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-red-500/10 blur-3xl" aria-hidden />
+          <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-green-600/10 blur-3xl" aria-hidden />
+          <div className="container-x relative grid items-center gap-12 lg:grid-cols-12">
+            <div className="lg:col-span-5">
+              {s["xmas.kicker"] && <p className="eyebrow flex items-center gap-3"><span className="h-px w-8 bg-ink-900/20" />{s["xmas.kicker"]}</p>}
+              <h2 className="section-title mt-5"><Emph text={s["xmas.title"]} /></h2>
+              <p className="mt-5 text-lg leading-relaxed text-ink-700">{s["xmas.text"]}</p>
+            </div>
+            <div className="lg:col-span-7">
+              <XmasTree done={s["xmas.done"]} />
+            </div>
+          </div>
+        </section>
+      )}
       <ServicesList services={services} s={s} />
       <CastorlyBlock s={s} product={castorly} />
       <PuertaBlock s={s} />

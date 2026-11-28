@@ -37,3 +37,10 @@ export function activeSeason(mode: string): SeasonId | null {
   if (v in SEASONS) return v as SeasonId;
   return autoSeason();
 }
+
+/** Temática que se está mostrando en esta petición (la vista previa ?tema=… manda sobre el ajuste). */
+export async function currentSeason(): Promise<SeasonId | null> {
+  const [{ headers }, { getRawSettings }] = await Promise.all([import("next/headers"), import("@/lib/settings")]);
+  const [h, raw] = await Promise.all([headers(), getRawSettings()]);
+  return activeSeason(h.get("x-theme-preview") || raw["theme.mode"]);
+}

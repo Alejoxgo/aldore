@@ -1,5 +1,8 @@
 // Textos fijos de la interfaz pública que se traducen con Groq (generado a partir de los componentes; agrega aquí los nuevos).
 export const UI_STRINGS: string[] = [
+ "Volver a decorar",
+ "Que Aldo lo termine",
+ "Arrastra una bolita a un gancho del árbol.",
  "Aldo, el búho de Aldore. Tócalo y sale volando",
  "escribiendo…",
  "Baila",
