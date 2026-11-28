@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import DoorTransition from "@/components/DoorTransition";
 import AldoChat from "@/components/AldoChat";
 import { loadAldo } from "@/lib/aldo-server";
 import { linkList } from "@/lib/utils";
@@ -39,6 +40,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         decor={seasonId ? <SeasonDecor kind={seasonId} /> : null}
       />
       <main>{children}</main>
+      <DoorTransition />
       <Footer s={s} services={services} lang={knowledge.lang} langs={enabledLangs(raw["site.langs"])} />
       <AldoChat k={knowledge} />
       {(draft || preview) && <PreviewLinks params={draft ? "vista=borrador" : `tema=${preview}`} />}

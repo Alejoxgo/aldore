@@ -53,13 +53,22 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
   const [interest, setInterest] = useState<string>("");
   const listRef = useRef<HTMLDivElement>(null);
 
+  // El globo de Aldo aparece, se queda unos segundos y se va; vuelve un par de veces con otro mensaje.
+  const [tip, setTip] = useState(0);
+  const [leaving, setLeaving] = useState(false);
   useEffect(() => {
     let dismissed = false;
     try { dismissed = sessionStorage.getItem("aldo-bubble") === "0"; } catch {}
     if (dismissed || !k.bubble) return;
-    const t = setTimeout(() => setTeaser(true), 3500);
-    return () => clearTimeout(t);
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    [3500, 30000, 70000].forEach((at, i) => {
+      timers.push(setTimeout(() => { setTip(i); setLeaving(false); setTeaser(true); }, at));
+      timers.push(setTimeout(() => setLeaving(true), at + 8000));
+      timers.push(setTimeout(() => setTeaser(false), at + 8500));
+    });
+    return () => timers.forEach(clearTimeout);
   }, [k.bubble]);
+  const tips = [k.bubble, tr("¿Tienes una idea? Te ayudo a cotizarla en un minuto."), tr("Pregúntame lo que quieras sobre Aldore 🦉")];
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
@@ -243,18 +252,29 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
 
       <div className="flex items-end gap-2">
         {teaser && !open && (
-          <div className="relative mb-12 max-w-[220px] rounded-2xl rounded-br-sm border border-paper-line bg-white px-4 py-3 text-sm text-ink-900 shadow-lg [animation:aldo-pop_.35s_ease-out]">
+          <div className={`aldo-tab relative mb-11 max-w-[250px] ${leaving ? "aldo-tab-out" : ""}`}>
             <button
               onClick={() => {
                 setTeaser(false);
                 try { sessionStorage.setItem("aldo-bubble", "0"); } catch {}
               }}
-              aria-label="Cerrar mensaje"
-              className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-ink-900 text-xs text-paper"
+              aria-label={tr("Cerrar mensaje")}
+              className="absolute -right-2 -top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white/20 bg-ink-900 text-xs text-paper hover:bg-brand-500"
             >
               ×
             </button>
-            <button onClick={start} className="block text-left">{k.bubble}</button>
+            <button onClick={start} className="group block overflow-hidden rounded-2xl rounded-br-sm bg-ink-900 text-left text-paper shadow-xl shadow-black/30 ring-1 ring-white/10">
+              <span className="flex items-center gap-2 border-b border-white/10 px-4 pb-2 pt-2.5 font-mono text-[10px] uppercase tracking-[0.18em] text-paper/50">
+                <svg viewBox="0 0 40 40" className="h-3.5 w-3.5" aria-hidden="true">
+                  <path d="M5 38V21C5 11 12 5 20 2c8 3 15 9 15 19v17z" fill="none" stroke="currentColor" strokeWidth={3.5} />
+                  <path d="M15 38V25c0-4 2-7 5-9 3 2 5 5 5 9v13z" fill="#e2471c" />
+                </svg>
+                Aldo · {tr("en línea")}
+                <span className="ml-auto h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+              </span>
+              <span className="block px-4 py-3 text-[14px] leading-snug">{tips[tip] || k.bubble}</span>
+              <span className="block h-0.5 origin-left bg-brand-500 [animation:aldo-tab-time_8s_linear_both]" />
+            </button>
           </div>
         )}
         <button

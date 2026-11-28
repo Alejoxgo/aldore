@@ -188,5 +188,9 @@ export const UI_STRINGS: string[] = [
  "¡Claro! Te paso con el equipo por WhatsApp.",
  "Horario:",
  "Aldo está escribiendo",
- "Mensaje para Aldo"
+ "Mensaje para Aldo",
+ "¿Tienes una idea? Te ayudo a cotizarla en un minuto.",
+ "Pregúntame lo que quieras sobre Aldore 🦉",
+ "en línea",
+ "Cerrar mensaje"
 ];

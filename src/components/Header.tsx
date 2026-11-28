@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import Logo from "./Logo";
 import type { Lang } from "@/lib/langs";
 
@@ -44,15 +45,17 @@ function LoginButton({ label, user, className = "", onClick }: { label: string; 
 
 export default function Header({ name, links, cta, ctaUrl, login, user = null, lang = "es", langs = ["es", "en"], decor = null }: { name: string; links: NavLink[]; cta: string; ctaUrl: string; login: string; user?: string | null; lang?: Lang; langs?: Lang[]; decor?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const path = (usePathname() || "/").replace(/^\/(en|pt)(?=\/|$)/, "") || "/";
+  const here = (href: string) => (href !== "/" && (path === href || path.startsWith(href + "/")) ? "page" : undefined);
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-ink-900/90 text-paper backdrop-blur">
       <div className="container-x flex h-16 items-center justify-between gap-6">
-        <Link href="/" aria-label={`${name}, inicio`}>
+        <Link href="/" data-door={name} aria-label={`${name}, inicio`}>
           <Logo name={name} light />
         </Link>
         <nav className="hidden items-center gap-6 md:flex xl:gap-8">
           {links.map((n) => (
-            <Link key={n.href + n.label} href={n.href} className="text-[15px] text-paper/70 transition hover:text-paper">
+            <Link key={n.href + n.label} href={n.href} data-door={n.label} aria-current={here(n.href)} className="nav-door text-[15px] text-paper/70 hover:text-paper aria-[current=page]:text-paper">
               {n.label}
             </Link>
           ))}
@@ -80,7 +83,7 @@ export default function Header({ name, links, cta, ctaUrl, login, user = null, l
         <nav className="border-t border-white/10 bg-ink-900 md:hidden">
           <div className="container-x flex flex-col py-3">
             {links.map((n) => (
-              <Link key={n.href + n.label} href={n.href} onClick={() => setOpen(false)} className="border-b border-white/10 py-3 font-display text-2xl">
+              <Link key={n.href + n.label} href={n.href} data-door={n.label} onClick={() => setOpen(false)} className="border-b border-white/10 py-3 font-display text-2xl">
                 {n.label}
               </Link>
             ))}
