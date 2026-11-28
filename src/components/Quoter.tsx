@@ -1,4 +1,5 @@
 "use client";
+import { celebrate } from "@/lib/celebrate";
 
 import TC, { useTr } from "@/components/TC";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
@@ -51,6 +52,7 @@ export default function Quoter({ cfg }: { cfg: QuoteConfig }) {
   const [extras, setExtras] = useState<string[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [state, action, pending] = useActionState(submitQuote, initial);
+  useEffect(() => { if (state.ok) celebrate(); }, [state.ok]);
 
   const q = useMemo(() => computeQuote(cfg, { type, size, speed, extras }), [cfg, type, size, speed, extras]);
   const available = type ? extrasFor(cfg, type) : [];

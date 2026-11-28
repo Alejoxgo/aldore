@@ -1,6 +1,7 @@
 "use client";
+import { celebrate } from "@/lib/celebrate";
 import TC from "@/components/TC";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import Aldo from "./Aldo";
 import { submitContact, type ContactState } from "@/app/actions/contact";
 
@@ -8,6 +9,7 @@ const initial: ContactState = { ok: false, message: "" };
 
 export default function ContactForm({ services, defaultService = "" }: { services: string[]; defaultService?: string }) {
   const [state, action, pending] = useActionState(submitContact, initial);
+  useEffect(() => { if (state.ok) celebrate(); }, [state.ok]);
 
   if (state.ok) {
     return (

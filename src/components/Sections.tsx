@@ -1,3 +1,4 @@
+import CountUp from "@/components/CountUp";
 import TC from "@/components/TC";
 import AldoFlyBy from "./AldoFlyBy";
 import Link from "next/link";
@@ -69,7 +70,7 @@ export function Hero({ s }: { s: Settings }) {
             <dl className="mt-14 grid grid-cols-3 gap-4 border-t border-ink-900/15 pt-8 sm:gap-6">
               {promises.map(([v, l]) => (
                 <div key={l} className="min-w-0">
-                  <dt className="font-display text-lg font-semibold leading-tight text-ink-900 sm:text-2xl">{v}</dt>
+                  <dt className="font-display text-lg font-semibold leading-tight text-ink-900 sm:text-2xl"><CountUp value={v} /></dt>
                   <dd className="mt-1 text-xs leading-snug text-ink-500 sm:text-sm">{l}</dd>
                 </div>
               ))}
@@ -102,7 +103,7 @@ export function ServicesList({ services, s }: { services: Service[]; s: Settings
         <ul className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-paper-line bg-paper-line sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((sv) => (
             <li key={sv.id} className="min-w-0">
-              <Link href={`/servicios/${sv.slug}`} className="group flex h-full flex-col bg-paper p-7 transition-colors duration-300 hover:bg-white">
+              <Link href={`/servicios/${sv.slug}`} data-tilt="glow" className="group flex h-full flex-col bg-paper p-7 transition-colors duration-300 hover:bg-white">
                 <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-brand-600 transition duration-300 group-hover:rotate-[-6deg] group-hover:bg-brand-500 group-hover:text-white">
                   <Icon name={sv.icon} className="h-5 w-5" />
                 </span>
@@ -252,7 +253,7 @@ export function ProductsList({ products, s }: { products: Product[]; s: Settings
         </div>
         <div className="grid gap-px overflow-hidden rounded-xl border border-paper-line bg-paper-line sm:grid-cols-2 lg:col-span-8">
           {others.map((p) => (
-            <Link key={p.id} href={`/productos/${p.slug}`} className="group flex flex-col bg-paper p-7 transition-colors hover:bg-white">
+            <Link key={p.id} href={`/productos/${p.slug}`} data-tilt="glow" className="group flex flex-col bg-paper p-7 transition-colors hover:bg-white">
               <h3 className="font-display text-2xl text-ink-900">{p.name}</h3>
               <p className="mt-2 flex-1 text-ink-500">{p.tagline}</p>
               {p.price && <p className="mt-6 text-sm font-semibold text-ink-900">{p.price}</p>}
@@ -307,7 +308,7 @@ export function Plans({ plans, s }: { plans: Plan[]; s: Settings }) {
           {plans.map((p) => {
             const hl = p.highlighted;
             return (
-              <div key={p.id} className={`flex flex-col rounded-xl p-8 ${hl ? "bg-ink-900 text-paper" : "border border-paper-line bg-paper"}`}>
+              <div key={p.id} data-tilt="tilt" className={`flex flex-col rounded-xl p-8 ${hl ? "bg-ink-900 text-paper" : "border border-paper-line bg-paper"}`}>
                 <div className="flex items-baseline justify-between gap-3">
                   <h3 className="font-display text-2xl">{p.name}</h3>
                   {hl && <span className="font-mono text-[11px] uppercase tracking-wider text-brand-400"><TC>{"El más elegido"}</TC></span>}

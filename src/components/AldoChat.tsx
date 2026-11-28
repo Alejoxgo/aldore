@@ -68,6 +68,42 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
     });
     return () => timers.forEach(clearTimeout);
   }, [k.bubble]);
+  // Aldo con vida: se duerme si no haces nada, aletea mientras haces scroll y celebra cuando envías un formulario.
+  const [mood, setMood] = useState<"wave" | "sleep" | "fly" | "cheer">("wave");
+  const [party, setParty] = useState(0);
+  useEffect(() => {
+    let idle: ReturnType<typeof setTimeout>;
+    let scrollEnd: ReturnType<typeof setTimeout>;
+    let cheering = false;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const arm = () => { clearTimeout(idle); idle = setTimeout(() => !cheering && setMood("sleep"), 35000); };
+    const wake = () => { if (!cheering) setMood((m) => (m === "sleep" ? "wave" : m)); arm(); };
+    const onScroll = () => {
+      wake();
+      if (reduce || cheering) return;
+      setMood("fly");
+      clearTimeout(scrollEnd);
+      scrollEnd = setTimeout(() => !cheering && setMood("wave"), 650);
+    };
+    const onParty = () => {
+      cheering = true;
+      setMood("cheer");
+      setParty((n) => n + 1);
+      setTimeout(() => { cheering = false; setMood("wave"); arm(); }, 3200);
+    };
+    arm();
+    window.addEventListener("pointermove", wake, { passive: true });
+    window.addEventListener("keydown", wake);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("aldore:celebrate", onParty);
+    return () => {
+      clearTimeout(idle); clearTimeout(scrollEnd);
+      window.removeEventListener("pointermove", wake);
+      window.removeEventListener("keydown", wake);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("aldore:celebrate", onParty);
+    };
+  }, []);
   const tips = [k.bubble, tr("¿Tienes una idea? Te ayudo a cotizarla en un minuto."), tr("Pregúntame lo que quieras sobre Aldore 🦉")];
 
   useEffect(() => {
@@ -283,9 +319,21 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
           aria-expanded={open}
           className="aldo-hover group relative block h-20 w-20"
         >
+          {mood === "sleep" && !open && <span className="aldo-zz pointer-events-none absolute -left-1 -top-3 font-mono text-sm font-bold text-ink-500" aria-hidden>z<span>z</span><span>z</span></span>}
+          {party > 0 && (
+            <span key={party} className="pointer-events-none absolute inset-0" aria-hidden>
+              {Array.from({ length: 22 }, (_, i) => (
+                <span
+                  key={i}
+                  className="aldo-confetti"
+                  style={{ "--a": `${(i / 22) * 360}deg`, "--d": `${70 + (i % 5) * 22}px`, "--c": ["#e2471c", "#f6bfa9", "#16130f", "#34d399", "#fbbf24"][i % 5], animationDelay: `${(i % 4) * 40}ms` } as React.CSSProperties}
+                />
+              ))}
+            </span>
+          )}
           <span className="absolute inset-0 overflow-hidden rounded-full border border-paper-line bg-paper shadow-xl shadow-black/25">
             <span className="aldo-peek absolute inset-x-0 -bottom-3 block [animation:aldo-peek_.7s_cubic-bezier(.2,.9,.3,1.2)_1.2s_both]">
-              <Aldo pose="wave" className="mx-auto h-[84px] w-[84px]" />
+              <Aldo pose={open ? "wave" : mood} className={`mx-auto h-[84px] w-[84px] ${mood === "cheer" ? "aldo-jump" : ""}`} />
             </span>
           </span>
           <span className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-brand-500 text-white shadow ring-2 ring-white">

@@ -271,21 +271,21 @@ body { @apply bg-paper font-sans text-ink-900 antialiased; }
 @keyframes aldo-chat-type { 0%, 100% { transform: rotate(-3deg) translateY(0); } 50% { transform: rotate(3deg) translateY(-2px); } }
 @media (prefers-reduced-motion: reduce) { .aldo-chat-typing { animation: none; } }
 
-/* Transición de puerta al navegar desde el menú (DoorTransition) */
-.door-tx { position: fixed; inset: 0; z-index: 90; pointer-events: none; overflow: hidden; }
-.door-tx-arch { position: absolute; transform-origin: 50% 5%; }
-.door-tx-in .door-tx-arch { animation: door-grow .52s cubic-bezier(.7,0,.25,1) both; }
-.door-tx-out .door-tx-arch { animation: door-pass .65s cubic-bezier(.5,0,.2,1) both; }
-@keyframes door-grow { from { transform: scale(.004); } to { transform: scale(1); } }
-@keyframes door-pass { from { transform: scale(1); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
-.door-tx-label { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 18px; color: #f4f1ea; font-size: clamp(2rem, 6vw, 4.5rem); letter-spacing: -.02em; }
-.door-tx-mark { width: 64px; height: 64px; }
-.door-tx-in .door-tx-label { animation: door-label-in .5s .22s ease-out both; }
-.door-tx-out .door-tx-label { animation: door-label-out .35s ease-in both; }
-@keyframes door-label-in { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: none; } }
-@keyframes door-label-out { to { opacity: 0; transform: translateY(-18px) scale(1.04); } }
-.door-tx-inner { transform-box: fill-box; transform-origin: 50% 100%; animation: door-inner 1s ease-in-out infinite alternate; }
-@keyframes door-inner { from { transform: scaleY(.55); } to { transform: scaleY(1.08); } }
+/* Transición al navegar desde el menú (DoorTransition): barrita con puertita y la página que entra en forma de arco */
+.door-bar { position: fixed; left: 0; right: 0; top: 64px; height: 3px; z-index: 60; pointer-events: none; }
+.door-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, #e2471c 0%, #f6a27f 100%); box-shadow: 0 0 10px rgba(226,71,28,.6); }
+.door-bar-run .door-bar-fill { animation: door-bar-run 2.5s cubic-bezier(.1,.7,.2,1) both; }
+.door-bar-done .door-bar-fill { animation: door-bar-done .45s ease-out both; }
+@keyframes door-bar-run { from { width: 0; } to { width: 85%; } }
+@keyframes door-bar-done { 0% { width: 85%; opacity: 1; } 60% { width: 100%; opacity: 1; } 100% { width: 100%; opacity: 0; } }
+.door-bar-tip { position: absolute; right: -6px; top: -9px; width: 12px; height: 12px; transform-origin: center; }
+.door-bar-run .door-bar-tip, .door-bar-done .door-bar-tip { animation: door-tip .5s ease-in-out infinite alternate; }
+@keyframes door-tip { to { transform: translateY(-3px); } }
+main.door-reveal { animation: door-reveal .6s cubic-bezier(.3,.7,.2,1) both; }
+@keyframes door-reveal {
+  from { clip-path: ellipse(18% 12% at 50% 0%); opacity: .4; transform: translateY(8px); }
+  to { clip-path: ellipse(120% 140% at 50% 0%); opacity: 1; transform: none; }
+}
 
 /* Menú de arriba: subrayado que crece, una puertita que se asoma al pasar y punto en la sección actual */
 .nav-door { position: relative; padding: 6px 0; }
@@ -304,3 +304,25 @@ body { @apply bg-paper font-sans text-ink-900 antialiased; }
 @keyframes aldo-tab-out { to { opacity: 0; transform: translateX(18px) scale(.9); } }
 @keyframes aldo-tab-time { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 @media (prefers-reduced-motion: reduce) { .aldo-tab, .aldo-tab-out { animation: none; } }
+
+/* Aldo con vida: zzz al dormir, salto y confeti al celebrar */
+.aldo-zz { animation: aldo-zz 2.4s ease-in-out infinite; }
+.aldo-zz span { font-size: .8em; margin-left: 1px; position: relative; top: -6px; }
+@keyframes aldo-zz { 0%,100% { opacity: .3; transform: translateY(2px); } 50% { opacity: 1; transform: translateY(-4px); } }
+.aldo-jump { animation: aldo-jump .5s ease-in-out 5 alternate; }
+@keyframes aldo-jump { to { transform: translateY(-10px) rotate(-6deg); } }
+.aldo-confetti { position: absolute; left: 50%; top: 50%; width: 7px; height: 11px; border-radius: 2px; background: var(--c); opacity: 0; animation: aldo-confetti 1.3s cubic-bezier(.15,.7,.3,1) both; }
+@keyframes aldo-confetti {
+  0% { opacity: 1; transform: rotate(var(--a)) translateY(0) rotate(0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(var(--d) * -1)) rotate(540deg); }
+}
+
+/* Tarjetas que siguen el mouse: luz que sigue el puntero y, en las de tipo "tilt", inclinación 3D */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  [data-tilt] { position: relative; isolation: isolate; }
+  [data-tilt]::after { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s; background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(226,71,28,.13), transparent 45%); }
+  [data-tilt]:hover::after { opacity: 1; }
+  [data-tilt="tilt"] { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty, 0px)) !important; transition: transform .25s ease-out, box-shadow .3s, border-color .3s !important; will-change: transform; }
+  [data-tilt="tilt"]:hover { --ty: -4px; box-shadow: 0 0 0 1px rgba(226,71,28,.35), 0 24px 48px -24px rgba(22,19,15,.45); }
+}

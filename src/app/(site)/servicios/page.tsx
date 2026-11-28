@@ -1,3 +1,4 @@
+import CountUp from "@/components/CountUp";
 import TC from "@/components/TC";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -45,11 +46,11 @@ export default async function ServicesPage() {
             <dl className="grid grid-cols-3 gap-4 border-t border-ink-900 pt-5 lg:col-span-4">
               <div>
                 <dt className="font-mono text-[11px] uppercase tracking-wider text-ink-500"><TC>{"Servicios"}</TC></dt>
-                <dd className="mt-1 font-display text-4xl">{services.length}</dd>
+                <dd className="mt-1 font-display text-4xl"><CountUp value={services.length} /></dd>
               </div>
               <div>
                 <dt className="font-mono text-[11px] uppercase tracking-wider text-ink-500"><TC>{"Áreas"}</TC></dt>
-                <dd className="mt-1 font-display text-4xl">{groups.length}</dd>
+                <dd className="mt-1 font-display text-4xl"><CountUp value={groups.length} ms={900} /></dd>
               </div>
               <div>
                 <dt className="font-mono text-[11px] uppercase tracking-wider text-ink-500"><TC>{"Precio"}</TC></dt>
@@ -100,6 +101,7 @@ export default async function ServicesPage() {
                   <Reveal as="li" key={sv.id} delay={(i % 2) * 90} className="min-w-0">
                     <Link
                       href={`/servicios/${sv.slug}`}
+                      data-tilt="tilt"
                       className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-paper-line bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-ink-900 hover:shadow-[0_18px_40px_-20px_rgba(22,19,15,.35)]"
                     >
                       <span className="pointer-events-none absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-brand-500 transition-transform duration-500 group-hover:scale-x-100" aria-hidden />
