@@ -9,6 +9,7 @@ async function publicSite(req: NextRequest) {
   // Vista previa (borrador del editor visual o una temática) solo para quien tiene sesión en el panel.
   const base = new Headers(req.headers);
   base.delete("x-draft");
+  base.delete("x-pathname");
   base.delete("x-theme-preview");
   const wantsDraft = req.nextUrl.searchParams.get("vista") === "borrador";
   const theme = req.nextUrl.searchParams.get("tema");
@@ -50,6 +51,9 @@ export async function middleware(req: NextRequest) {
   // El panel siempre en español: se ignora cualquier cabecera de idioma que llegue de afuera.
   const clean = new Headers(req.headers);
   clean.delete("x-lang");
+  clean.delete("x-draft");
+  // La ruta viaja al servidor para revisar los permisos de cada sección del panel.
+  clean.set("x-pathname", pathname);
   if (pathname.startsWith("/admin/login") || pathname === "/admin/salir") return NextResponse.next({ request: { headers: clean } });
 
   const token = req.cookies.get(SESSION_COOKIE)?.value;

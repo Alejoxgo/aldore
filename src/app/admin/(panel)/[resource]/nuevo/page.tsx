@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getResource } from "@/lib/resources";
@@ -7,6 +8,7 @@ import Flash from "@/components/admin/Flash";
 type Props = { params: Promise<{ resource: string }>; searchParams: Promise<Record<string, string | undefined>> };
 
 export default async function NewResource({ params, searchParams }: Props) {
+  await requireAdmin();
   const res = getResource((await params).resource);
   if (!res) notFound();
   const { error, ...rest } = await searchParams;

@@ -1,8 +1,10 @@
+import { requireAdmin } from "@/lib/auth";
 import { SETTINGS_GROUPS, getRawSettings } from "@/lib/settings";
 import Flash from "@/components/admin/Flash";
 import { saveSettings } from "../../actions";
 
 export default async function ContentPage({ searchParams }: { searchParams: Promise<{ ok?: string }> }) {
+  await requireAdmin();
   const { ok } = await searchParams;
   const s = await getRawSettings();
   return (

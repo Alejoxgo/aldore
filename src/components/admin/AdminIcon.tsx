@@ -32,6 +32,7 @@ const P: Record<string, React.ReactNode> = {
   arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
   spark: <path d="M4 20l9-9M15 4v3M15 11v3M11 7h3M16 7h3M19 14l1 1M19 4l1-1M11 4l-1-1M5 15l4 4" />,
   star: <path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7L12 3Z" />,
+  send: <path d="M21 3 10 14M21 3l-7 18-4-7-7-4 18-7Z" />,
   user: <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5 21a7 7 0 0 1 14 0" />,
   shield: <path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3ZM9 12l2 2 4-4" />,
 };

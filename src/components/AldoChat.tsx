@@ -163,11 +163,11 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
         >
           <header className="flex items-center gap-3 bg-ink-900 px-4 py-3 text-paper">
             <span className="relative grid h-11 w-11 place-items-center overflow-hidden rounded-full bg-paper">
-              <Aldo pose="base" follow={false} className="mt-3 h-12 w-12" />
+              <Aldo pose={typing ? "code" : "base"} follow={false} className={`mt-3 h-12 w-12 ${typing ? "aldo-chat-typing" : ""}`} />
             </span>
             <div className="min-w-0 flex-1 leading-tight">
               <p className="font-semibold"><TC>{"Aldo"}</TC></p>
-              <p className="font-mono text-[11px] text-paper/60"><TC>{"asistente de Aldore"}</TC></p>
+              <p className="font-mono text-[11px] text-paper/60">{typing ? <span className="text-emerald-400"><TC>{"escribiendo…"}</TC></span> : <TC>{"asistente de Aldore"}</TC>}</p>
             </div>
             <button onClick={() => setOpen(false)} aria-label="Cerrar chat" className="grid h-8 w-8 place-items-center rounded-full text-paper/70 hover:bg-white/10 hover:text-paper">
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8}><path d="M6 6l12 12M18 6 6 18" /></svg>
@@ -207,9 +207,12 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
               </div>
             ))}
             {typing && (
-              <p className="inline-flex gap-1 rounded-2xl rounded-bl-md border border-paper-line bg-white px-4 py-3" aria-label="Aldo está escribiendo">
-                {[0, 1, 2].map((d) => <span key={d} className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-500" style={{ animationDelay: `${d * 0.15}s` }} />)}
-              </p>
+              <div className="flex items-end gap-2" aria-label="Aldo está escribiendo" role="status">
+                <Aldo pose="code" follow={false} className="aldo-chat-typing h-11 w-11 shrink-0" title="" />
+                <p className="inline-flex items-center gap-1 rounded-2xl rounded-bl-md border border-paper-line bg-white px-4 py-3">
+                  {[0, 1, 2].map((d) => <span key={d} className="h-1.5 w-1.5 animate-bounce rounded-full bg-brand-500" style={{ animationDelay: `${d * 0.15}s` }} />)}
+                </p>
+              </div>
             )}
           </div>
 

@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
@@ -10,6 +11,7 @@ import { deleteLead, leadToOrder, updateLead } from "../../../actions";
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ ok?: string }> };
 
 export default async function LeadDetail({ params, searchParams }: Props) {
+  await requireAdmin();
   const id = Number((await params).id);
   if (!Number.isInteger(id)) notFound();
   const lead = await prisma.lead.findUnique({ where: { id } });

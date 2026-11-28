@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
@@ -28,6 +29,7 @@ async function relationLabels(res: ResourceConfig) {
 }
 
 export default async function ResourceList({ params, searchParams }: Props) {
+  await requireAdmin();
   const res = getResource((await params).resource);
   if (!res) notFound();
   const { ok, error, estado, q, periodo } = await searchParams;

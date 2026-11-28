@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { LEAD_STATUSES, STATUS_STYLES } from "@/lib/leads";
@@ -6,6 +7,7 @@ import Flash from "@/components/admin/Flash";
 type Props = { searchParams: Promise<{ estado?: string; q?: string; ok?: string }> };
 
 export default async function LeadsPage({ searchParams }: Props) {
+  await requireAdmin();
   const { estado = "", q = "", ok } = await searchParams;
   const where = {
     ...(estado ? { status: estado } : {}),

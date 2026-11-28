@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
@@ -11,6 +12,7 @@ import ShareLinks from "@/components/admin/ShareLinks";
 type Props = { params: Promise<{ resource: string; id: string }>; searchParams: Promise<{ error?: string; ok?: string }> };
 
 export default async function EditResource({ params, searchParams }: Props) {
+  await requireAdmin();
   const { resource, id } = await params;
   const res = getResource(resource);
   const numId = Number(id);

@@ -20,7 +20,36 @@ model User {
   title        String   @default("")
   /// Foto de perfil: imagen (data URL) o uno de los Aldos ("aldo-1" … "aldo-10").
   avatar       String   @default("aldo-1")
+  /// Rol con permisos (si role no es "admin"). Ver modelo Role.
+  roleId       Int?
+  /// Segundo factor con app autenticadora (Google Authenticator, Authy…). Secreto en base32.
+  totpSecret   String   @default("")
+  totpOn       Boolean  @default(false)
   createdAt    DateTime @default(now())
+}
+
+/// Roles del panel con casillas de permisos (lista separada por comas, ver src/lib/permissions.ts).
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String   @default("")
+  perms       String   @default("")
+  createdAt   DateTime @default(now())
+}
+
+/// Llaves de acceso (passkeys / WebAuthn) de los usuarios del panel.
+model Passkey {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  credId     String    @unique
+  publicKey  String
+  counter    Int       @default(0)
+  transports String    @default("")
+  name       String    @default("Llave de acceso")
+  createdAt  DateTime  @default(now())
+  lastUsed   DateTime?
+
+  @@index([userId])
 }
 
 /// Correo interno entre los usuarios del panel.
@@ -153,51 +182,98 @@ model Lead {
 // Los valores en dinero son pesos enteros (COP).
 
 model Client {
-  id        Int      @id @default(autoincrement())
-  name      String
-  company   String   @default("")
-  taxId     String   @default("")
-  email     String   @default("")
-  phone     String   @default("")
-  city      String   @default("")
-  notes     String   @default("")
-  portalToken String @default("")
-  createdAt DateTime @default(now())
-  orders    Order[]
+  id          Int      @id @default(autoincrement())
+  name        String
+  company     String   @default("")
+  taxId       String   @default("")
+  email       String   @default("")
+  phone       String   @default("")
+  city        String   @default("")
+  notes       String   @default("")
+  portalToken String   @default("")
+  /// Acceso del cliente a su portal con correo y contraseña (vacío = sin acceso con contraseña).
+  portalHash  String   @default("")
+  /// Color e iniciales para identificar la empresa en el panel.
+  color       String   @default("#e2471c")
+  createdAt   DateTime @default(now())
+  orders      Order[]
+}
+
+// ---------- Email marketing ----------
+model Contact {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  name       String   @default("")
+  tags       String   @default("")
+  source     String   @default("manual")
+  subscribed Boolean  @default(true)
+  token      String   @unique
+  clientId   Int?
+  createdAt  DateTime @default(now())
+}
+
+model Campaign {
+  id         Int       @id @default(autoincrement())
+  subject    String
+  preheader  String    @default("")
+  body       String    @default("")
+  ctaLabel   String    @default("")
+  ctaUrl     String    @default("")
+  audience   String    @default("todos")
+  status     String    @default("borrador")
+  sentAt     DateTime?
+  sentCount  Int       @default(0)
+  openCount  Int       @default(0)
+  clickCount Int       @default(0)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
+}
+
+model CampaignSend {
+  id         Int       @id @default(autoincrement())
+  campaignId Int
+  contactId  Int
+  key        String    @unique
+  status     String    @default("enviado")
+  openedAt   DateTime?
+  clickedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@unique([campaignId, contactId])
 }
 
 model Order {
-  id        Int      @id @default(autoincrement())
-  title     String
-  clientId  Int?
-  client    Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  service   String   @default("")
-  status    String   @default("cotizacion")
-  amount    Int      @default(0)
-  paid      Int      @default(0)
-  startDate String   @default("")
-  dueDate   String   @default("")
-  clientUpdate String @default("")
-  notes     String   @default("")
-  leadId    Int?
-  createdAt DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  title        String
+  clientId     Int?
+  client       Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  service      String   @default("")
+  status       String   @default("cotizacion")
+  amount       Int      @default(0)
+  paid         Int      @default(0)
+  startDate    String   @default("")
+  dueDate      String   @default("")
+  clientUpdate String   @default("")
+  notes        String   @default("")
+  leadId       Int?
+  createdAt    DateTime @default(now())
 }
 
 model Employee {
-  id           Int           @id @default(autoincrement())
+  id           Int            @id @default(autoincrement())
   name         String
-  document     String        @default("")
-  email        String        @default("")
-  phone        String        @default("")
-  position     String        @default("")
-  contractType String        @default("indefinido")
-  salary       Int           @default(0)
-  startDate    String        @default("")
-  bank         String        @default("")
-  bankAccount  String        @default("")
-  active       Boolean       @default(true)
-  notes        String        @default("")
-  createdAt    DateTime      @default(now())
+  document     String         @default("")
+  email        String         @default("")
+  phone        String         @default("")
+  position     String         @default("")
+  contractType String         @default("indefinido")
+  salary       Int            @default(0)
+  startDate    String         @default("")
+  bank         String         @default("")
+  bankAccount  String         @default("")
+  active       Boolean        @default(true)
+  notes        String         @default("")
+  createdAt    DateTime       @default(now())
   payrolls     Payroll[]
   requests     StaffRequest[]
 }
@@ -234,25 +310,25 @@ model StaffRequest {
 
 // ---------- Puerta by Aldore: páginas de un toque (QR / NFC) para clientes ----------
 model LinkPage {
-  id        Int      @id @default(autoincrement())
-  slug      String   @unique
-  name      String
-  subtitle  String   @default("")
-  logoUrl   String   @default("")
-  coverUrl  String   @default("")
-  color     String   @default("#e2471c")
-  bgColor   String   @default("")
-  theme     String   @default("oscuro")
-  font      String   @default("moderna")
-  buttonStyle String @default("tarjeta")
-  buttons   String   @default("")
-  wifiName  String   @default("")
-  wifiPass  String   @default("")
-  clientId  Int?
-  published Boolean  @default(true)
-  views     Int      @default(0)
-  clicks    Int      @default(0)
-  createdAt DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  name        String
+  subtitle    String   @default("")
+  logoUrl     String   @default("")
+  coverUrl    String   @default("")
+  color       String   @default("#e2471c")
+  bgColor     String   @default("")
+  theme       String   @default("oscuro")
+  font        String   @default("moderna")
+  buttonStyle String   @default("tarjeta")
+  buttons     String   @default("")
+  wifiName    String   @default("")
+  wifiPass    String   @default("")
+  clientId    Int?
+  published   Boolean  @default(true)
+  views       Int      @default(0)
+  clicks      Int      @default(0)
+  createdAt   DateTime @default(now())
 }
 
 // ---------- Blog ----------

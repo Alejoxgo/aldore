@@ -1,7 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth";
+import { requirePerm } from "@/lib/auth";
 import { translateLater } from "@/lib/i18n";
 import { DRAFT, SETTINGS_GROUPS, SETTING_KEYS } from "@/lib/settings";
 import { SEASONS } from "@/lib/season";
@@ -12,7 +12,7 @@ const MODES = new Set(["auto", "ninguna", ...Object.keys(SEASONS)]);
 
 /** Activa una temática (o automático / ninguna) y decide si caen detalles. */
 export async function setTheme(mode: string, effects: boolean) {
-  await requireAdmin();
+  await requirePerm("editor");
   if (!MODES.has(mode)) return { ok: false };
   for (const [key, value] of [["theme.mode", mode], ["theme.effects", effects ? "sí" : "no"]]) {
     await prisma.setting.upsert({ where: { key }, create: { key, value }, update: { value } });
@@ -33,7 +33,7 @@ async function published() {
 
 /** Guarda los cambios del editor como borrador (no se ven en el sitio hasta publicar). Devuelve cuántos hay pendientes. */
 export async function saveDraft(values: Record<string, string>) {
-  await requireAdmin();
+  await requirePerm("editor");
   const pub = await published();
   for (const [k, raw] of Object.entries(values)) {
     if (!SETTING_KEYS.has(k)) continue;
@@ -47,7 +47,7 @@ export async function saveDraft(values: Record<string, string>) {
 
 /** Publica el borrador: pasa al sitio real y se traduce a los idiomas activos. */
 export async function publishDraft() {
-  await requireAdmin();
+  await requirePerm("editor");
   const drafts = await prisma.setting.findMany({ where: { key: { startsWith: DRAFT } } });
   for (const d of drafts) {
     const key = d.key.slice(DRAFT.length);
@@ -62,7 +62,7 @@ export async function publishDraft() {
 
 /** Descarta el borrador y vuelve a lo publicado. */
 export async function discardDraft() {
-  await requireAdmin();
+  await requirePerm("editor");
   await prisma.setting.deleteMany({ where: { key: { startsWith: DRAFT } } });
   return { ok: true };
 }
@@ -79,7 +79,7 @@ const ASSIST: Record<string, string> = {
 
 /** Aldo reescribe un texto del sitio con Groq. Devuelve la propuesta; tú decides si la usas. */
 export async function aldoAssist(input: { key: string; value: string; mode: string; prompt?: string }) {
-  await requireAdmin();
+  await requirePerm("editor");
   const key = process.env.GROQ_API_KEY;
   if (!key) return { ok: false as const, text: "Aldo necesita la clave GROQ_API_KEY en Cloudflare para ayudarte a escribir." };
   const field = SETTINGS_GROUPS.flatMap((g) => g.fields.map((f) => ({ ...f, group: g.title }))).find((f) => f.key === input.key);

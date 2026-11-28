@@ -259,3 +259,8 @@ body { @apply bg-paper font-sans text-ink-900 antialiased; }
 .decor-spider { animation-name: decor-drop; animation-duration: 4s; }
 @keyframes decor-drop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 @media (prefers-reduced-motion: reduce) { .decor-bulb, .decor-swing, .decor-spider { animation: none; } }
+
+/* Aldo escribiendo en el chat: se mece un poco mientras teclea */
+.aldo-chat-typing { animation: aldo-chat-type 0.9s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes aldo-chat-type { 0%, 100% { transform: rotate(-3deg) translateY(0); } 50% { transform: rotate(3deg) translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .aldo-chat-typing { animation: none; } }

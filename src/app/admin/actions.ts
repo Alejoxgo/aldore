@@ -4,7 +4,8 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireAdmin, requireOwner } from "@/lib/auth";
+import { getAccess, requireAdmin, requireOwner, requirePerm } from "@/lib/auth";
+import { permForResource, parsePerms } from "@/lib/permissions";
 import { translateLater } from "@/lib/i18n";
 import { MFA_COOKIE, SESSION_COOKIE, TRUST_COOKIE, TRUST_DAYS, authSecretReady, hashCode, sessionCookieOptions, signSession, signTrust, verifyTrust } from "@/lib/session";
 import { esc, mailLayout, mailReady, sendMail } from "@/lib/mail";
@@ -14,13 +15,15 @@ const NO_SECRET =
 import { getResource } from "@/lib/resources";
 import { SETTING_KEYS } from "@/lib/settings";
 import { randomKey, slugify } from "@/lib/utils";
+import { verifyTotp } from "@/lib/totp";
+import { startSession } from "@/lib/login";
 import { LEAD_STATUSES } from "@/lib/leads";
 
 /* ---------------- Autenticación ---------------- */
 
 const attempts = new Map<string, { count: number; until: number }>();
 
-export type LoginState = { error?: string; email?: string; step?: "code"; masked?: string; info?: string };
+export type LoginState = { error?: string; email?: string; step?: "code"; method?: "email" | "totp"; masked?: string; info?: string };
 
 const CODE_TTL_MS = 10 * 60 * 1000;
 const CODE_MAX_ATTEMPTS = 5;
@@ -37,10 +40,15 @@ function sixDigits() {
   return String(b[0] % 1_000_000).padStart(6, "0");
 }
 
-async function startSession(user: { id: number; email: string; name: string }) {
-  const token = await signSession({ uid: user.id, email: user.email, name: user.name });
-  (await cookies()).set(SESSION_COOKIE, token, sessionCookieOptions());
+/** Segundo paso con app autenticadora: se guarda un reto sin código (el código lo genera la app). */
+async function startTotpChallenge(userId: number) {
+  const id = randomKey(32);
+  const now = Math.floor(Date.now() / 1000);
+  await prisma.mfaChallenge.deleteMany({ where: { OR: [{ userId }, { expires: { lt: now } }] } });
+  await prisma.mfaChallenge.create({ data: { id, userId, codeHash: "totp", expires: now + CODE_TTL_MS / 1000, sentAt: now } });
+  (await cookies()).set(MFA_COOKIE, id, { ...sessionCookieOptions(), maxAge: CODE_TTL_MS / 1000 });
 }
+
 
 /** Crea (o renueva) el código de 6 dígitos y lo envía al correo del administrador. */
 async function sendLoginCode(user: { id: number; email: string; name: string }, challengeId?: string) {
@@ -93,10 +101,15 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   // o si este equipo ya se verificó en los últimos 30 días.
   const store = await cookies();
   const trusted = await verifyTrust(store.get(TRUST_COOKIE)?.value, user.id);
+  // Con app autenticadora activa se pide su código (siempre, aunque no haya correo configurado).
+  if (user.totpOn && user.totpSecret && !trusted) {
+    await startTotpChallenge(user.id);
+    return { step: "code", method: "totp", email };
+  }
   if (mailReady() && !trusted) {
     const sent = await sendLoginCode(user);
     if (!sent) return { error: "No pudimos enviarte el código de verificación. Intenta de nuevo en un momento.", email };
-    return { step: "code", email, masked: maskEmail(user.email) };
+    return { step: "code", method: "email", email, masked: maskEmail(user.email) };
   }
 
   await startSession(user);
@@ -114,7 +127,14 @@ export async function verifyLoginCode(prev: LoginState, formData: FormData): Pro
     return { ...back, error: "El código venció o tuvo demasiados intentos. Ingresa de nuevo tu contraseña." };
   }
   const code = String(formData.get("code") ?? "").replace(/\D/g, "");
-  if (code.length !== 6 || (await hashCode(code, ch.id)) !== ch.codeHash) {
+  let good = false;
+  if (ch.codeHash === "totp") {
+    const u = await prisma.user.findUnique({ where: { id: ch.userId }, select: { totpSecret: true } });
+    good = Boolean(u?.totpSecret) && (await verifyTotp(u!.totpSecret, code));
+  } else {
+    good = code.length === 6 && (await hashCode(code, ch.id)) === ch.codeHash;
+  }
+  if (!good) {
     const left = CODE_MAX_ATTEMPTS - ch.attempts - 1;
     await prisma.mfaChallenge.update({ where: { id: ch.id }, data: { attempts: { increment: 1 } } });
     if (left <= 0) {
@@ -141,6 +161,7 @@ export async function resendLoginCode(prev: LoginState): Promise<LoginState> {
   const id = store.get(MFA_COOKIE)?.value;
   const ch = id ? await prisma.mfaChallenge.findUnique({ where: { id } }) : null;
   if (!ch || ch.expires * 1000 < Date.now()) return { email: prev.email, error: "El código venció. Ingresa de nuevo tu contraseña." };
+  if (ch.codeHash === "totp") return { ...prev, error: "Este código lo genera tu app autenticadora; no se envía por correo.", info: undefined };
   if (Date.now() - ch.sentAt * 1000 < RESEND_WAIT_MS) return { ...prev, error: "Espera unos segundos antes de pedir otro código.", info: undefined };
   const user = await prisma.user.findUnique({ where: { id: ch.userId } });
   if (!user) return { email: prev.email, error: "Ingresa de nuevo." };
@@ -156,6 +177,12 @@ export async function logout() {
 
 /* ---------------- CRUD genérico ---------------- */
 
+/** Exige el permiso de la sección a la que pertenece el recurso (servicios → catálogo, puertas → puertas…). */
+async function requireResource(key: string) {
+  const perm = permForResource(key);
+  return perm ? requirePerm(perm) : requireAdmin();
+}
+
 function refreshSite() {
   revalidatePath("/", "layout");
 }
@@ -167,7 +194,7 @@ function delegate(model: string): any {
 }
 
 export async function saveResource(resourceKey: string, id: number | null, formData: FormData) {
-  await requireAdmin();
+  await requireResource(resourceKey);
   const res = getResource(resourceKey);
   if (!res) throw new Error("Recurso desconocido");
 
@@ -214,7 +241,7 @@ export async function saveResource(resourceKey: string, id: number | null, formD
 }
 
 export async function deleteResource(resourceKey: string, id: number) {
-  await requireAdmin();
+  await requireResource(resourceKey);
   const res = getResource(resourceKey);
   if (!res) throw new Error("Recurso desconocido");
   await delegate(res.model).delete({ where: { id } });
@@ -223,7 +250,7 @@ export async function deleteResource(resourceKey: string, id: number) {
 }
 
 export async function toggleResource(resourceKey: string, id: number, published: boolean) {
-  await requireAdmin();
+  await requireResource(resourceKey);
   const res = getResource(resourceKey);
   if (!res) throw new Error("Recurso desconocido");
   await delegate(res.model).update({ where: { id }, data: { published } });
@@ -234,7 +261,7 @@ export async function toggleResource(resourceKey: string, id: number, published:
 /* ---------------- Textos del sitio ---------------- */
 
 export async function saveSettings(formData: FormData) {
-  await requireAdmin();
+  await requirePerm("editor");
   const ops = [];
   for (const [key, value] of formData.entries()) {
     if (!SETTING_KEYS.has(key)) continue;
@@ -269,18 +296,31 @@ export async function deleteLead(id: number) {
 
 /* ---------------- Usuarios ---------------- */
 
-const backUsers = (kind: "ok" | "error", msg: string) => redirect(`/admin/usuarios?${kind}=${encodeURIComponent(msg)}`);
-const cleanRole = (v: FormDataEntryValue | null) => (v === "admin" ? "admin" : "editor");
+const backUsers = (kind: "ok" | "error", msg: string, to = "/admin/usuarios") => redirect(`${to}?${kind}=${encodeURIComponent(msg)}`);
+const backProfile = (kind: "ok" | "error", msg: string) => backUsers(kind, msg, "/admin/perfil");
+
+/** Lee el rol del formulario: "admin" (todo) o "role:ID" (un rol con permisos). */
+async function readRole(v: FormDataEntryValue | null, me: number) {
+  const raw = String(v ?? "");
+  if (raw === "admin") {
+    if (!(await getAccess(me)).admin) backUsers("error", "Solo un administrador puede dar el rol de administrador.");
+    return { role: "admin", roleId: null as number | null };
+  }
+  const id = Number.parseInt(raw.replace(/^role:/, ""), 10);
+  const r = id ? await prisma.role.findUnique({ where: { id } }) : null;
+  if (!r) backUsers("error", "Elige un rol para el usuario.");
+  return { role: "editor", roleId: r!.id };
+}
 
 export async function createUser(formData: FormData) {
-  await requireOwner();
+  const session = await requireOwner();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const name = String(formData.get("name") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const role = cleanRole(formData.get("role"));
   if (!email || !name || password.length < 10) backUsers("error", "Nombre, correo y contraseña (mín. 10 caracteres) son obligatorios.");
+  const { role, roleId } = await readRole(formData.get("role"), session.uid);
   try {
-    await prisma.user.create({ data: { email, name, role, title: String(formData.get("title") ?? "").trim().slice(0, 80), avatar: `aldo-${1 + Math.floor(Math.random() * 10)}`, passwordHash: await bcrypt.hash(password, 12) } });
+    await prisma.user.create({ data: { email, name, role, roleId, title: String(formData.get("title") ?? "").trim().slice(0, 80), avatar: `aldo-${1 + Math.floor(Math.random() * 10)}`, passwordHash: await bcrypt.hash(password, 12) } });
   } catch {
     backUsers("error", "Ya existe un usuario con ese correo.");
   }
@@ -300,24 +340,26 @@ export async function updateMyProfile(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim().slice(0, 80);
   const avatar = cleanAvatar(formData.get("avatar"));
-  if (!name) backUsers("error", "Escribe tu nombre.");
+  if (!name) backProfile("error", "Escribe tu nombre.");
   await prisma.user.update({ where: { id: session.uid }, data: { name, title, ...(avatar ? { avatar } : {}) } });
   revalidatePath("/admin", "layout");
-  backUsers("ok", "Perfil actualizado");
+  backProfile("ok", "Perfil actualizado");
 }
 
 export async function updateUser(id: number, formData: FormData) {
   const session = await requireOwner();
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) backUsers("error", "Ese usuario ya no existe.");
+  const me = await getAccess(session.uid);
+  if (user!.role === "admin" && !me.admin) backUsers("error", "Solo un administrador puede editar a otro administrador.");
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const name = String(formData.get("name") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const role = cleanRole(formData.get("role"));
+  const { role, roleId } = await readRole(formData.get("role"), session.uid);
   if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) backUsers("error", "Escribe un nombre y un correo válido.");
   if (password && password.length < 10) backUsers("error", "La nueva contraseña debe tener al menos 10 caracteres.");
   // Siempre debe quedar al menos un administrador.
-  if (user!.role !== "editor" && role === "editor") {
+  if (user!.role === "admin" && role !== "admin") {
     if (id === session.uid) backUsers("error", "No puedes quitarte a ti mismo el rol de administrador.");
     if ((await prisma.user.count({ where: { role: "admin" } })) <= 1) backUsers("error", "Debe quedar al menos un administrador.");
   }
@@ -328,11 +370,14 @@ export async function updateUser(id: number, formData: FormData) {
         name,
         email,
         role,
+        roleId,
         title: String(formData.get("title") ?? "").trim().slice(0, 80),
         ...(cleanAvatar(formData.get("avatar")) ? { avatar: cleanAvatar(formData.get("avatar")) } : {}),
         ...(password ? { passwordHash: await bcrypt.hash(password, 12) } : {}),
+        ...(formData.get("resetMfa") === "on" ? { totpOn: false, totpSecret: "" } : {}),
       },
     });
+    if (formData.get("resetMfa") === "on") await prisma.passkey.deleteMany({ where: { userId: id } });
   } catch {
     backUsers("error", "Ya existe otro usuario con ese correo.");
   }
@@ -343,9 +388,39 @@ export async function deleteUser(id: number) {
   const session = await requireOwner();
   if (session.uid === id) backUsers("error", "No puedes eliminar tu propio usuario.");
   const user = await prisma.user.findUnique({ where: { id } });
-  if (user && user.role !== "editor" && (await prisma.user.count({ where: { role: "admin" } })) <= 1) backUsers("error", "Debe quedar al menos un administrador.");
+  if (user?.role === "admin" && !(await getAccess(session.uid)).admin) backUsers("error", "Solo un administrador puede eliminar a otro administrador.");
+  if (user && user.role === "admin" && (await prisma.user.count({ where: { role: "admin" } })) <= 1) backUsers("error", "Debe quedar al menos un administrador.");
   await prisma.user.delete({ where: { id } });
+  await prisma.passkey.deleteMany({ where: { userId: id } });
   backUsers("ok", "Usuario eliminado");
+}
+
+/* ---------------- Roles ---------------- */
+
+const backRoles = (kind: "ok" | "error", msg: string) => redirect(`/admin/usuarios/roles?${kind}=${encodeURIComponent(msg)}`);
+
+export async function saveRole(id: number | null, formData: FormData) {
+  await requireOwner();
+  const name = String(formData.get("name") ?? "").trim().slice(0, 60);
+  const description = String(formData.get("description") ?? "").trim().slice(0, 200);
+  const perms = parsePerms(formData.getAll("perms").map(String).join(","));
+  if (!name) backRoles("error", "Ponle un nombre al rol.");
+  if (/^administrador$/i.test(name)) backRoles("error", "«Administrador» ya existe y tiene todos los permisos. Usa otro nombre.");
+  try {
+    if (id) await prisma.role.update({ where: { id }, data: { name, description, perms: perms.join(",") } });
+    else await prisma.role.create({ data: { name, description, perms: perms.join(",") } });
+  } catch {
+    backRoles("error", "Ya existe un rol con ese nombre.");
+  }
+  backRoles("ok", id ? `Rol «${name}» actualizado` : `Rol «${name}» creado`);
+}
+
+export async function deleteRole(id: number) {
+  await requireOwner();
+  const used = await prisma.user.count({ where: { roleId: id } });
+  if (used) backRoles("error", `Ese rol lo tienen ${used} usuario(s). Cámbiales el rol antes de eliminarlo.`);
+  await prisma.role.delete({ where: { id } }).catch(() => {});
+  backRoles("ok", "Rol eliminado");
 }
 
 export async function changePassword(formData: FormData) {
@@ -354,11 +429,11 @@ export async function changePassword(formData: FormData) {
   const next = String(formData.get("next") ?? "");
   const user = await prisma.user.findUnique({ where: { id: session.uid } });
   if (!user || !(await bcrypt.compare(current, user.passwordHash))) {
-    redirect(`/admin/usuarios?error=${encodeURIComponent("La contraseña actual no es correcta.")}`);
+    backProfile("error", "La contraseña actual no es correcta.");
   }
-  if (next.length < 10) redirect(`/admin/usuarios?error=${encodeURIComponent("La nueva contraseña debe tener al menos 10 caracteres.")}`);
+  if (next.length < 10) backProfile("error", "La nueva contraseña debe tener al menos 10 caracteres.");
   await prisma.user.update({ where: { id: session.uid }, data: { passwordHash: await bcrypt.hash(next, 12) } });
-  redirect(`/admin/usuarios?ok=${encodeURIComponent("Contraseña actualizada")}`);
+  backProfile("ok", "Contraseña actualizada");
 }
 
 /* ---------------- Primer administrador ---------------- */
@@ -464,7 +539,7 @@ export async function leadToOrder(leadId: number) {
 
 /** Activa o apaga los idiomas extranjeros del sitio (inglés, portugués). */
 export async function saveLanguages(formData: FormData) {
-  await requireOwner();
+  await requirePerm("idiomas");
   const { FOREIGN } = await import("@/lib/langs");
   const list = formData.getAll("langs").map(String).filter((l) => (FOREIGN as string[]).includes(l));
   await prisma.setting.upsert({ where: { key: "site.langs" }, create: { key: "site.langs", value: list.join(", ") || "ninguno" }, update: { value: list.join(", ") || "ninguno" } });

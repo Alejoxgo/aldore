@@ -3,7 +3,9 @@ import { prisma } from "@/lib/db";
 import { STATUS_STYLES } from "@/lib/leads";
 import { STATUS_COLORS } from "@/lib/resources";
 import { currentPeriod, money, shortDate } from "@/lib/format";
-import { requireAdmin } from "@/lib/auth";
+import { getAccess, requireAdmin } from "@/lib/auth";
+import { permForPath } from "@/lib/permissions";
+import Flash from "@/components/admin/Flash";
 import AdminIcon from "@/components/admin/AdminIcon";
 
 function greeting() {
@@ -11,8 +13,11 @@ function greeting() {
   return h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches";
 }
 
-export default async function Dashboard() {
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ error?: string; ok?: string }> }) {
   const session = await requireAdmin();
+  const { error, ok } = await searchParams;
+  const access = await getAccess(session.uid);
+  const may = (href: string) => { const p = permForPath(href); return !p || access.perms.has(p); };
   const period = currentPeriod();
   const today = new Date().toISOString().slice(0, 10);
   const [newLeads, openOrders, employees, payroll, pendingReqs, latestLeads, upcoming, reqs] = await Promise.all([
@@ -64,6 +69,7 @@ export default async function Dashboard() {
 
   return (
     <div>
+      <Flash ok={ok} error={error} />
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="font-mono text-xs uppercase tracking-wider text-ink-500 first-letter:uppercase">{todayLabel}</p>
@@ -71,18 +77,18 @@ export default async function Dashboard() {
             {greeting()}{first ? `, ${first}` : ""}<span className="text-brand-500">.</span>
           </h1>
           <p className="mt-1 text-ink-500">
-            {newLeads + pendingReqs > 0
-              ? `Tienes ${newLeads + pendingReqs} ${newLeads + pendingReqs === 1 ? "cosa" : "cosas"} esperando tu respuesta.`
+            {(may("/admin/leads") ? newLeads : 0) + (may("/admin/solicitudes") ? pendingReqs : 0) > 0
+              ? "Tienes cosas esperando tu respuesta."
               : "Todo está al día. Buen momento para mover un pedido."}
           </p>
         </div>
-        <Link href="/admin/pedidos/nuevo" className="inline-flex items-center gap-2 self-start rounded-full bg-ink-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-600 sm:self-auto">
+        {may("/admin/pedidos") && <Link href="/admin/pedidos/nuevo" className="inline-flex items-center gap-2 self-start rounded-full bg-ink-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-600 sm:self-auto">
           <AdminIcon name="plus" className="h-4 w-4" /> Nuevo pedido
-        </Link>
+        </Link>}
       </header>
 
       <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
-        {cards.map((c) => (
+        {cards.filter((c) => may(c.href)).map((c) => (
           <Link key={c.label} href={c.href} className="group min-w-0 rounded-2xl border border-black/[0.06] bg-white p-4 sm:p-5 shadow-[0_1px_2px_rgba(0,0,0,.04)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-16px_rgba(0,0,0,.25)]">
             <div className="flex items-start justify-between">
               <p className="text-xs text-ink-500 sm:text-sm">{c.label}</p>
@@ -102,7 +108,7 @@ export default async function Dashboard() {
       <section className="mt-8">
         <h2 className="font-mono text-[11px] uppercase tracking-wider text-ink-500">Accesos rápidos</h2>
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {quick.map(([l, h, ic]) => (
+          {quick.filter(([, h]) => may(h)).map(([l, h, ic]) => (
             <Link key={h} href={h} className="group flex flex-col items-start gap-3 rounded-2xl border border-black/[0.06] bg-white p-4 text-sm font-medium text-ink-800 transition hover:border-brand-500/40 hover:text-brand-700">
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#f6f5f2] text-ink-700 transition group-hover:bg-brand-500 group-hover:text-white">
                 <AdminIcon name={ic} className="h-[18px] w-[18px]" />
@@ -114,7 +120,7 @@ export default async function Dashboard() {
       </section>
 
       <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <Panel title="Solicitudes web recientes" icon="inbox" href="/admin/leads" empty="Aún no hay contactos. Llegarán aquí desde el formulario del sitio.">
+        {may("/admin/leads") && <Panel title="Solicitudes web recientes" icon="inbox" href="/admin/leads" empty="Aún no hay contactos. Llegarán aquí desde el formulario del sitio.">
           {latestLeads.map((l) => (
             <Item key={l.id} href={`/admin/leads/${l.id}`}>
               <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#f6f5f2] text-xs font-semibold text-ink-700">{l.name.charAt(0).toUpperCase()}</span>
@@ -125,8 +131,8 @@ export default async function Dashboard() {
               <span className={`ml-auto shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_STYLES[l.status] ?? ""}`}>{l.status}</span>
             </Item>
           ))}
-        </Panel>
-        <Panel title="Entregas próximas" icon="calendar" href="/admin/pedidos" empty="No hay pedidos aprobados o en curso.">
+        </Panel>}
+        {may("/admin/pedidos") && <Panel title="Entregas próximas" icon="calendar" href="/admin/pedidos" empty="No hay pedidos aprobados o en curso.">
           {upcoming.map((o) => (
             <Item key={o.id} href={`/admin/pedidos/${o.id}`}>
               <span className="min-w-0">
@@ -138,8 +144,8 @@ export default async function Dashboard() {
               </span>
             </Item>
           ))}
-        </Panel>
-        <Panel title="Solicitudes del equipo por revisar" icon="check" href="/admin/solicitudes?estado=pendiente" empty="No hay solicitudes pendientes.">
+        </Panel>}
+        {may("/admin/solicitudes") && <Panel title="Solicitudes del equipo por revisar" icon="check" href="/admin/solicitudes?estado=pendiente" empty="No hay solicitudes pendientes.">
           {reqs.map((r) => (
             <Item key={r.id} href={`/admin/solicitudes/${r.id}`}>
               <span className="min-w-0">
@@ -149,8 +155,8 @@ export default async function Dashboard() {
               <span className={`ml-auto shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[r.status]}`}>{r.status}</span>
             </Item>
           ))}
-        </Panel>
-        <section className="flex flex-col justify-between overflow-hidden rounded-2xl bg-ink-900 p-6 text-paper">
+        </Panel>}
+        {may("/admin/contenido") && <section className="flex flex-col justify-between overflow-hidden rounded-2xl bg-ink-900 p-6 text-paper">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-wider text-paper/50">Tu sitio web</p>
             <p className="mt-2 font-display text-2xl">Cambia textos, servicios y precios sin tocar código.</p>
@@ -168,7 +174,7 @@ export default async function Dashboard() {
               </Link>
             ))}
           </div>
-        </section>
+        </section>}
       </div>
     </div>
   );
