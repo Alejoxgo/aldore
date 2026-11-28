@@ -15,7 +15,14 @@ export const ADMIN_NAV = [
       { href: "/admin/leads", label: "Solicitudes web", icon: "inbox" },
       { href: "/admin/pedidos", label: "Pedidos", icon: "orders" },
       { href: "/admin/clientes", label: "Clientes", icon: "clients" },
+    ],
+  },
+  {
+    title: "Productos para clientes",
+    items: [
       { href: "/admin/puertas", label: "Puertas (QR / NFC)", icon: "door" },
+      { href: "/admin/turnos", label: "Turnos con QR", icon: "ticket" },
+      { href: "/admin/menus", label: "Menú del día", icon: "menu2" },
     ],
   },
   {
@@ -30,6 +37,7 @@ export const ADMIN_NAV = [
     title: "Sitio web",
     items: [
       { href: "/admin/contenido", label: "Textos del sitio", icon: "text" },
+      { href: "/admin/blog", label: "Blog", icon: "pen" },
       { href: "/admin/servicios", label: "Servicios", icon: "grid" },
       { href: "/admin/productos", label: "Productos", icon: "box" },
       { href: "/admin/planes", label: "Planes y precios", icon: "tag" },

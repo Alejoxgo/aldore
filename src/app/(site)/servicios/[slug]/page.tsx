@@ -23,6 +23,13 @@ export default async function ServicePage({ params }: Props) {
   const idx = all.findIndex((x) => x.id === sv.id);
   const others = all.filter((x) => x.id !== sv.id).slice(0, 3);
   const feats = lines(sv.features);
+  const demos: Record<string, [string, string][]> = {
+    "turnos-qr": [["Tomar un turno de prueba", "/t/demo"], ["Ver la pantalla", "/t/demo/pantalla"], ["Probar «Llamar siguiente»", "/t/demo/atender?k=demo-atender"]],
+    "menu-del-dia": [["Ver menú de ejemplo", "/menu/demo"]],
+    "tarjetas-nfc": [["Ver una Puerta de ejemplo", "/p/demo"]],
+    "carta-digital": [["Ver una Puerta de ejemplo", "/p/demo"]],
+  };
+  const demo = demos[sv.slug];
 
   return (
     <>
@@ -32,6 +39,12 @@ export default async function ServicePage({ params }: Props) {
           <p className="mt-10 font-mono text-sm text-brand-500">{String(idx + 1).padStart(2, "0")}</p>
           <h1 className="mt-2 max-w-4xl font-display text-5xl font-medium leading-[1.02] tracking-tight sm:text-7xl">{sv.title}</h1>
           <p className="mt-6 max-w-2xl text-xl leading-relaxed text-ink-700">{sv.shortDescription}</p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/cotizar" className="btn-signal">Cotizar en línea →</Link>
+            {demo?.map(([l, h]) => (
+              <a key={h} href={h} target="_blank" className="btn-outline">{l} ↗</a>
+            ))}
+          </div>
         </div>
       </section>
       <section className="py-20">

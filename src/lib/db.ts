@@ -3,6 +3,9 @@ import { PrismaD1 } from "@prisma/adapter-d1";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { COLUMN_GUARD, SCHEMA_GUARD } from "./schema-guard";
 import { PUERTA_DEMOS } from "./puerta-demos";
+import { BLOG_SEED } from "./blog-seed";
+import { DEMO_MENU, DEMO_QUEUE, NEW_SERVICES_2 } from "./seed-extra";
+import { randomKey } from "./utils";
 
 /**
  * Cliente de base de datos.
@@ -38,28 +41,62 @@ async function ensureSchema(db: D1Like) {
         await db.prepare(c.ddl).run().catch((e) => console.error("Columna", c.column, e));
       }
     }
-    await seedPuertaDemos(db);
+    await seedOnce(db, "seed.puerta-demos", puertaDemoStatements(db));
+    await seedOnce(db, "seed.blog", blogStatements(db));
+    await seedOnce(db, "seed.turnos-menu", turnosMenuStatements(db));
   } catch (e) {
     console.error("No se pudo verificar el esquema de D1", e);
   }
 }
 
-/** Crea los negocios de ejemplo de Puerta y le da identidad a la demo original si nadie la ha tocado. */
-async function seedPuertaDemos(db: D1Like) {
-  const stmts = PUERTA_DEMOS.flatMap((d) => [
+/** Ejecuta un contenido inicial una sola vez (queda marcado en Setting). Si luego lo borras, no vuelve. */
+async function seedOnce(db: D1Like, key: string, stmts: D1Stmt[]) {
+  const { results } = await db.prepare(`SELECT 1 AS x FROM "Setting" WHERE "key" = ?`).bind(key).all();
+  if (results.length) return;
+  await db.batch([...stmts, db.prepare(`INSERT OR IGNORE INTO "Setting" ("key","value") VALUES (?, ?)`).bind(key, new Date().toISOString())]);
+}
+
+/** Negocios de ejemplo de Puerta, y la identidad nueva para la demo original si nadie la había tocado. */
+function puertaDemoStatements(db: D1Like) {
+  return PUERTA_DEMOS.flatMap((d) => [
     db
       .prepare(
         `INSERT OR IGNORE INTO "LinkPage" ("slug","name","subtitle","logoUrl","coverUrl","color","bgColor","theme","font","buttonStyle","buttons","wifiName","wifiPass") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       )
       .bind(d.slug, d.name, d.subtitle, d.logoUrl, d.coverUrl, d.color, d.bgColor, d.theme, d.font, d.buttonStyle, d.buttons, d.wifiName, d.wifiPass),
-    // La demo de antes (naranja, sin logo ni portada) pasa a la identidad nueva una sola vez.
     db
       .prepare(
         `UPDATE "LinkPage" SET "subtitle"=?,"logoUrl"=?,"coverUrl"=?,"color"=?,"bgColor"=?,"theme"=?,"font"=?,"buttonStyle"=?,"buttons"=? WHERE "slug"=? AND "logoUrl"='' AND "coverUrl"='' AND "color"='#e2471c'`,
       )
       .bind(d.subtitle, d.logoUrl, d.coverUrl, d.color, d.bgColor, d.theme, d.font, d.buttonStyle, d.buttons, d.slug),
   ]);
-  await db.batch(stmts);
+}
+
+function turnosMenuStatements(db: D1Like) {
+  const now = new Date().toISOString();
+  const q = DEMO_QUEUE;
+  const m = DEMO_MENU;
+  return [
+    ...NEW_SERVICES_2.map((s) =>
+      db
+        .prepare(`INSERT OR IGNORE INTO "Service" ("slug","title","shortDescription","description","icon","features","order","published","updatedAt") VALUES (?,?,?,?,?,?,?,1,?)`)
+        .bind(s.slug, s.title, s.shortDescription, s.description, s.icon, s.features, s.order, now),
+    ),
+    db
+      .prepare(`INSERT OR IGNORE INTO "Queue" ("slug","name","subtitle","logoUrl","color","prefix","avgMinutes","staffKey") VALUES (?,?,?,?,?,?,?,?)`)
+      .bind(q.slug, q.name, q.subtitle, q.logoUrl, q.color, q.prefix, q.avgMinutes, q.staffKey),
+    db
+      .prepare(`INSERT OR IGNORE INTO "MenuBoard" ("slug","name","subtitle","logoUrl","color","whatsapp","date","items","price","notes","hours","staffKey") VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
+      .bind(m.slug, m.name, m.subtitle, m.logoUrl, m.color, m.whatsapp, now.slice(0, 10), m.items, m.price, m.notes, m.hours, randomKey()),
+  ];
+}
+
+function blogStatements(db: D1Like) {
+  return BLOG_SEED.map((p) =>
+    db
+      .prepare(`INSERT OR IGNORE INTO "Post" ("slug","title","excerpt","content","coverUrl","tags","publishedAt") VALUES (?,?,?,?,?,?,?)`)
+      .bind(p.slug, p.title, p.excerpt, p.content, p.coverUrl, p.tags, p.publishedAt),
+  );
 }
 
 function workerClient(): PrismaClient {

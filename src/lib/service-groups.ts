@@ -12,7 +12,7 @@ export const SERVICE_GROUPS = [
     id: "negocio",
     title: "Tu negocio, más *digital*",
     text: "Herramientas listas para restaurantes, tiendas, consultorios y pymes: vendes más y pierdes menos tiempo.",
-    slugs: ["carta-digital", "catalogo-whatsapp", "agenda-online", "fidelizacion", "resenas-google", "facturacion-electronica"],
+    slugs: ["carta-digital", "menu-del-dia", "turnos-qr", "catalogo-whatsapp", "agenda-online", "fidelizacion", "resenas-google", "facturacion-electronica"],
   },
   {
     id: "fisico",

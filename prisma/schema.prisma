@@ -112,6 +112,7 @@ model Client {
   phone     String   @default("")
   city      String   @default("")
   notes     String   @default("")
+  portalToken String @default("")
   createdAt DateTime @default(now())
   orders    Order[]
 }
@@ -127,6 +128,7 @@ model Order {
   paid      Int      @default(0)
   startDate String   @default("")
   dueDate   String   @default("")
+  clientUpdate String @default("")
   notes     String   @default("")
   leadId    Int?
   createdAt DateTime @default(now())
@@ -202,4 +204,71 @@ model LinkPage {
   views     Int      @default(0)
   clicks    Int      @default(0)
   createdAt DateTime @default(now())
+}
+
+// ---------- Blog ----------
+model Post {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  title       String
+  excerpt     String   @default("")
+  content     String   @default("")
+  coverUrl    String   @default("")
+  tags        String   @default("")
+  author      String   @default("Equipo Aldore")
+  publishedAt String   @default("")
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+}
+
+// ---------- Turnos con QR ----------
+model Queue {
+  id            Int      @id @default(autoincrement())
+  slug          String   @unique
+  name          String
+  subtitle      String   @default("")
+  logoUrl       String   @default("")
+  color         String   @default("#e2471c")
+  prefix        String   @default("A")
+  lastNumber    Int      @default(0)
+  currentNumber Int      @default(0)
+  avgMinutes    Int      @default(5)
+  open          Boolean  @default(true)
+  staffKey      String   @default("")
+  clientId      Int?
+  createdAt     DateTime @default(now())
+}
+
+model Ticket {
+  id        Int       @id @default(autoincrement())
+  queueId   Int
+  number    Int
+  name      String    @default("")
+  code      String    @unique
+  status    String    @default("esperando")
+  createdAt DateTime  @default(now())
+  calledAt  DateTime?
+
+  @@index([queueId, status])
+}
+
+// ---------- Menú del día ----------
+model MenuBoard {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
+  name      String
+  subtitle  String   @default("")
+  logoUrl   String   @default("")
+  color     String   @default("#e2471c")
+  whatsapp  String   @default("")
+  date      String   @default("")
+  items     String   @default("")
+  price     String   @default("")
+  notes     String   @default("")
+  hours     String   @default("")
+  staffKey  String   @default("")
+  published Boolean  @default(true)
+  clientId  Int?
+  updatedAt DateTime @default(now()) @updatedAt
 }

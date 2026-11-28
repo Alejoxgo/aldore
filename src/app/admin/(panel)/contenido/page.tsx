@@ -28,7 +28,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
               <div key={f.key}>
                 <label className="label" htmlFor={f.key}>{f.label}</label>
                 {f.type === "textarea" ? (
-                  <textarea id={f.key} name={f.key} defaultValue={s[f.key]} rows={f.key === "process.steps" ? 5 : 3} className="input" />
+                  <textarea id={f.key} name={f.key} defaultValue={s[f.key]} rows={Math.min(14, Math.max(3, (s[f.key] || "").split("\n").length + 1))} className="input" />
                 ) : (
                   <input id={f.key} name={f.key} defaultValue={s[f.key]} className="input" placeholder={f.type === "url" ? "https://…" : undefined} />
                 )}
