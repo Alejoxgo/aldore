@@ -1,11 +1,13 @@
 import TC from "@/components/TC";
+import LangFooter from "@/components/LangFooter";
+import type { Lang } from "@/lib/langs";
 import Link from "next/link";
 import Logo from "./Logo";
 import type { Settings } from "@/lib/settings";
 import { isExternal, linkList } from "@/lib/utils";
 import { SERVICE_GROUPS } from "@/lib/service-groups";
 
-export default function Footer({ s, services }: { s: Settings; services: { slug: string; title: string }[] }) {
+export default function Footer({ s, services, lang = "es", langs = [] }: { s: Settings; services: { slug: string; title: string }[]; lang?: Lang; langs?: Lang[] }) {
   const socials = [
     ["Instagram", s["social.instagram"]],
     ["LinkedIn", s["social.linkedin"]],
@@ -85,7 +87,12 @@ export default function Footer({ s, services }: { s: Settings; services: { slug:
             </ul>
           </div>
         </div>
-        <div className="mt-12 flex flex-col justify-between gap-2 text-xs text-paper/40 sm:flex-row">
+        {langs.length > 1 && (
+          <div className="mt-12 border-t border-paper/10 pt-6">
+            <LangFooter lang={lang} langs={langs} />
+          </div>
+        )}
+        <div className={`${langs.length > 1 ? "mt-6" : "mt-12"} flex flex-col justify-between gap-2 text-xs text-paper/40 sm:flex-row`}>
           <p>© {new Date().getFullYear()} {s["site.name"]}{s["footer.copyright"] ? ` · ${s["footer.copyright"]}` : ""}</p>
           <div className="flex flex-wrap gap-x-5 gap-y-1">
             {linkList(s["footer.links"]).map((l) =>

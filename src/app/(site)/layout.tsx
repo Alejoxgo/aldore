@@ -12,7 +12,6 @@ import { headers } from "next/headers";
 import { enabledLangs } from "@/lib/langs";
 import SeasonDecor from "@/components/SeasonDecor";
 import PreviewLinks from "@/components/PreviewLinks";
-import LangFloat from "@/components/LangFloat";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [{ s, services, knowledge }, session] = await Promise.all([loadAldo(), getSession().catch(() => null)]);
@@ -40,9 +39,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         decor={seasonId ? <SeasonDecor kind={seasonId} /> : null}
       />
       <main>{children}</main>
-      <Footer s={s} services={services} />
+      <Footer s={s} services={services} lang={knowledge.lang} langs={enabledLangs(raw["site.langs"])} />
       <AldoChat k={knowledge} />
-      <LangFloat lang={knowledge.lang} langs={enabledLangs(raw["site.langs"])} />
       {(draft || preview) && <PreviewLinks params={draft ? "vista=borrador" : `tema=${preview}`} />}
     </div>
     </SeasonWear>
