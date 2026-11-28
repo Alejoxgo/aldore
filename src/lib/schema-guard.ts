@@ -10,3 +10,11 @@ export const SCHEMA_GUARD: string[] = [
   "CREATE TABLE IF NOT EXISTS \"LinkPage\" (\n    \"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n    \"slug\" TEXT NOT NULL,\n    \"name\" TEXT NOT NULL,\n    \"subtitle\" TEXT NOT NULL DEFAULT '',\n    \"logoUrl\" TEXT NOT NULL DEFAULT '',\n    \"color\" TEXT NOT NULL DEFAULT '#e2471c',\n    \"theme\" TEXT NOT NULL DEFAULT 'oscuro',\n    \"buttons\" TEXT NOT NULL DEFAULT '',\n    \"wifiName\" TEXT NOT NULL DEFAULT '',\n    \"wifiPass\" TEXT NOT NULL DEFAULT '',\n    \"clientId\" INTEGER,\n    \"published\" BOOLEAN NOT NULL DEFAULT true,\n    \"views\" INTEGER NOT NULL DEFAULT 0,\n    \"clicks\" INTEGER NOT NULL DEFAULT 0,\n    \"createdAt\" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP\n)",
   "CREATE UNIQUE INDEX IF NOT EXISTS \"LinkPage_slug_key\" ON \"LinkPage\"(\"slug\")"
 ];
+
+/** Columnas añadidas después de crear la tabla. Se agregan solo si faltan (SQLite no tiene ADD COLUMN IF NOT EXISTS). */
+export const COLUMN_GUARD: { table: string; column: string; ddl: string }[] = [
+  { table: "LinkPage", column: "coverUrl", ddl: `ALTER TABLE "LinkPage" ADD COLUMN "coverUrl" TEXT NOT NULL DEFAULT ''` },
+  { table: "LinkPage", column: "bgColor", ddl: `ALTER TABLE "LinkPage" ADD COLUMN "bgColor" TEXT NOT NULL DEFAULT ''` },
+  { table: "LinkPage", column: "font", ddl: `ALTER TABLE "LinkPage" ADD COLUMN "font" TEXT NOT NULL DEFAULT 'moderna'` },
+  { table: "LinkPage", column: "buttonStyle", ddl: `ALTER TABLE "LinkPage" ADD COLUMN "buttonStyle" TEXT NOT NULL DEFAULT 'tarjeta'` },
+];

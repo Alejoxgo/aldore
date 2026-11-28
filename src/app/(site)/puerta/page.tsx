@@ -4,7 +4,7 @@ import { getSettings } from "@/lib/settings";
 import { lines } from "@/lib/utils";
 import { Emph } from "@/components/Sections";
 import ContactForm from "@/components/ContactForm";
-import { PuertaPhone, parsePlans } from "@/components/PuertaSections";
+import { PuertaPhone, PuertaShowcase, parsePlans } from "@/components/PuertaSections";
 
 export const metadata: Metadata = {
   title: "Puerta: tu negocio a un toque (QR y NFC)",
@@ -39,6 +39,8 @@ export default async function PuertaLanding() {
           </div>
         </div>
       </section>
+
+      <PuertaShowcase />
 
       {steps.length > 0 && (
         <section className="border-b border-paper-line py-20">

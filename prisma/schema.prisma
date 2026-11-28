@@ -188,8 +188,12 @@ model LinkPage {
   name      String
   subtitle  String   @default("")
   logoUrl   String   @default("")
+  coverUrl  String   @default("")
   color     String   @default("#e2471c")
+  bgColor   String   @default("")
   theme     String   @default("oscuro")
+  font      String   @default("moderna")
+  buttonStyle String @default("tarjeta")
   buttons   String   @default("")
   wifiName  String   @default("")
   wifiPass  String   @default("")

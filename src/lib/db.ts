@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaD1 } from "@prisma/adapter-d1";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { SCHEMA_GUARD } from "./schema-guard";
+import { COLUMN_GUARD, SCHEMA_GUARD } from "./schema-guard";
+import { PUERTA_DEMOS } from "./puerta-demos";
 
 /**
  * Cliente de base de datos.
@@ -19,13 +20,46 @@ function nodeClient() {
   return globalForPrisma.prisma;
 }
 
-type D1Like = { prepare(sql: string): unknown; batch(stmts: unknown[]): Promise<unknown> };
+type D1Stmt = { bind(...v: unknown[]): D1Stmt; run(): Promise<unknown>; all<T = unknown>(): Promise<{ results: T[] }> };
+type D1Like = { prepare(sql: string): D1Stmt; batch(stmts: unknown[]): Promise<unknown> };
 
-/** Crea (si faltan) las tablas más recientes. Así el sitio no se cae si las migraciones no se aplicaron. */
-function ensureSchema(db: D1Like) {
-  return db.batch(SCHEMA_GUARD.map((s) => db.prepare(s))).catch((e) => {
+/**
+ * Crea (si faltan) las tablas y columnas más recientes, y los ejemplos de Puerta.
+ * Así el sitio no se cae si las migraciones no se aplicaron.
+ */
+async function ensureSchema(db: D1Like) {
+  try {
+    await db.batch(SCHEMA_GUARD.map((s) => db.prepare(s)));
+    const tables = [...new Set(COLUMN_GUARD.map((c) => c.table))];
+    for (const table of tables) {
+      const { results } = await db.prepare(`PRAGMA table_info("${table}")`).all<{ name: string }>();
+      const have = new Set(results.map((r) => r.name));
+      for (const c of COLUMN_GUARD.filter((c) => c.table === table && !have.has(c.column))) {
+        await db.prepare(c.ddl).run().catch((e) => console.error("Columna", c.column, e));
+      }
+    }
+    await seedPuertaDemos(db);
+  } catch (e) {
     console.error("No se pudo verificar el esquema de D1", e);
-  });
+  }
+}
+
+/** Crea los negocios de ejemplo de Puerta y le da identidad a la demo original si nadie la ha tocado. */
+async function seedPuertaDemos(db: D1Like) {
+  const stmts = PUERTA_DEMOS.flatMap((d) => [
+    db
+      .prepare(
+        `INSERT OR IGNORE INTO "LinkPage" ("slug","name","subtitle","logoUrl","coverUrl","color","bgColor","theme","font","buttonStyle","buttons","wifiName","wifiPass") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      )
+      .bind(d.slug, d.name, d.subtitle, d.logoUrl, d.coverUrl, d.color, d.bgColor, d.theme, d.font, d.buttonStyle, d.buttons, d.wifiName, d.wifiPass),
+    // La demo de antes (naranja, sin logo ni portada) pasa a la identidad nueva una sola vez.
+    db
+      .prepare(
+        `UPDATE "LinkPage" SET "subtitle"=?,"logoUrl"=?,"coverUrl"=?,"color"=?,"bgColor"=?,"theme"=?,"font"=?,"buttonStyle"=?,"buttons"=? WHERE "slug"=? AND "logoUrl"='' AND "coverUrl"='' AND "color"='#e2471c'`,
+      )
+      .bind(d.subtitle, d.logoUrl, d.coverUrl, d.color, d.bgColor, d.theme, d.font, d.buttonStyle, d.buttons, d.slug),
+  ]);
+  await db.batch(stmts);
 }
 
 function workerClient(): PrismaClient {
