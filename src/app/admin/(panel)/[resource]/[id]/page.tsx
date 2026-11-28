@@ -63,8 +63,32 @@ export default async function EditResource({ params, searchParams }: Props) {
           ]}
         />
       )}
+      {res.model === "order" && <OrderPayments orderId={item.id} />}
       <ResourceForm res={res} item={item} back={backTo} />
       <RelatedRecords model={res.model} id={numId} />
+    </div>
+  );
+}
+
+const PAY_BADGE: Record<string, string> = { aprobado: "bg-emerald-50 text-emerald-700", pendiente: "bg-amber-50 text-amber-700", rechazado: "bg-red-50 text-red-700", anulado: "bg-slate-100 text-slate-500", error: "bg-red-50 text-red-700" };
+
+/** Pagos en línea (Wompi) del pedido. Los aprobados ya están sumados en «Pagado». */
+async function OrderPayments({ orderId }: { orderId: number }) {
+  const pays = await prisma.payment.findMany({ where: { orderId }, orderBy: { createdAt: "desc" }, take: 20 });
+  if (!pays.length) return null;
+  return (
+    <div className="mb-6 rounded-2xl border border-black/[0.06] bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,.04)]">
+      <p className="text-xs uppercase tracking-wider text-slate-500">Pagos en línea</p>
+      <ul className="mt-3 divide-y divide-slate-100 text-sm">
+        {pays.map((p) => (
+          <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
+            <span className="font-mono text-xs text-slate-500">{p.reference}</span>
+            <span className="text-slate-500">{p.method || "—"} · {p.createdAt.toISOString().slice(0, 10)}</span>
+            <span className="font-medium tabular-nums text-ink-900">${p.amount.toLocaleString("es-CO")}</span>
+            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${PAY_BADGE[p.status] || PAY_BADGE.pendiente}`}>{p.status}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

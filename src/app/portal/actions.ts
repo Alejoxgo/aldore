@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { notifyLead } from "@/lib/notify";
 import { contractedItems } from "@/lib/client-items";
+import { checkoutUrl, wompiReady } from "@/lib/wompi";
 import { CLIENT_COOKIE, getClientId, startClientSession } from "@/lib/client-session";
 
 const tries = new Map<string, { n: number; until: number }>();
@@ -75,4 +76,20 @@ export async function changeMyPortalPassword(formData: FormData) {
   if (next.length < 8) redirect("/portal?error=" + encodeURIComponent("La nueva contraseña debe tener al menos 8 caracteres."));
   await prisma.client.update({ where: { id: cid }, data: { portalHash: await bcrypt.hash(next, 10) } });
   redirect("/portal?ok=" + encodeURIComponent("Contraseña actualizada."));
+}
+
+/** Paga el saldo de un proyecto con Wompi (tarjeta, PSE, Nequi…). Crea el pago y lleva al checkout. */
+export async function payOrder(orderId: number) {
+  const cid = await me();
+  if (!wompiReady()) redirect("/portal?error=" + encodeURIComponent("El pago en línea aún no está activo. Usa los datos de transferencia de tu cuenta de cobro."));
+  const [o, c] = await Promise.all([prisma.order.findFirst({ where: { id: orderId, clientId: cid } }), prisma.client.findUnique({ where: { id: cid } })]);
+  const due = o ? o.amount - o.paid : 0;
+  if (!o || o.status === "cotizacion" || o.status === "cancelado" || due <= 0) redirect("/portal?error=" + encodeURIComponent("Ese proyecto no tiene saldo por pagar."));
+  const reference = `ALD-${o!.id}-${Date.now().toString(36)}-${crypto.randomUUID().slice(0, 6)}`.toUpperCase();
+  await prisma.payment.create({ data: { orderId: o!.id, reference, amount: due } });
+  const h = await headers();
+  const host = h.get("x-forwarded-host") || h.get("host") || "aldore.co";
+  const proto = h.get("x-forwarded-proto") || (host.startsWith("localhost") ? "http" : "https");
+  const site = (process.env.SITE_URL || `${proto}://${host}`).replace(/\/$/, "");
+  redirect(await checkoutUrl({ reference, amount: due, redirectUrl: `${site}/portal/pago`, email: c?.email || undefined, name: c?.name || undefined }));
 }

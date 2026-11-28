@@ -272,7 +272,7 @@ export async function saveSettings(formData: FormData) {
   }
   await prisma.$transaction(ops);
   refreshSite();
-  translateLater([...formData.entries()].filter(([k]) => SETTING_KEYS.has(k) && !/^(notify\.|social\.|seed\.|booking\.(days|hours|slot|ahead|meet))/.test(k)).map(([, v]) => String(v)));
+  translateLater([...formData.entries()].filter(([k]) => SETTING_KEYS.has(k) && !/^(notify\.|social\.|seed\.|booking\.(days|hours|slot|ahead|meet)|billing\.)/.test(k)).map(([, v]) => String(v)));
   const group = String(formData.get("_group") ?? "");
   redirect(`/admin/contenido?ok=${encodeURIComponent("Textos actualizados")}${group ? `#${group}` : ""}`);
 }

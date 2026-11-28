@@ -391,6 +391,17 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     ],
   },
   {
+    id: "cobros",
+    title: "Cuentas de cobro y pagos",
+    fields: [
+      { key: "billing.legalName", label: "Razón social o nombre de quien cobra", default: "Aldore S.A.S." },
+      { key: "billing.nit", label: "NIT o cédula", default: "" },
+      { key: "billing.address", label: "Dirección para la cuenta de cobro", default: "Medellín, Colombia" },
+      { key: "billing.bank", label: "Datos para transferencia (banco, tipo y número de cuenta)", type: "textarea", default: "" },
+      { key: "billing.note", label: "Nota al pie de la cuenta de cobro", type: "textarea", default: "Gracias por confiar en nosotros." },
+    ],
+  },
+  {
     id: "agenda",
     title: "Agendar llamada",
     fields: [

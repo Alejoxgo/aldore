@@ -1,4 +1,6 @@
 import PuertaStatsCard from "@/components/PuertaStatsCard";
+import { wompiReady } from "@/lib/wompi";
+import { payOrder } from "@/app/portal/actions";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
@@ -16,6 +18,7 @@ type ClientRow = { id: number; name: string; company: string };
 /** El portal del cliente: proyectos, pagos y servicios. Lo usan el enlace privado y la cuenta con contraseña. */
 export default async function PortalView({ client, account = false, headerAction, children }: { client: ClientRow; account?: boolean; headerAction?: React.ReactNode; children?: React.ReactNode }) {
   /** En la cuenta con contraseña cada servicio tiene su botón para pedir un cambio. */
+  const canPay = account && wompiReady();
   const ask = (item: string) =>
     account ? (
       <a href={`/portal?pedir=${encodeURIComponent(item)}#solicitar`} className="text-ink-700 hover:text-brand-600">
@@ -129,7 +132,17 @@ export default async function PortalView({ client, account = false, headerAction
                       </div>
                     )}
                     {o.status === "cotizacion" && o.amount > 0 && <p className="mt-6 text-sm text-ink-600">Valor cotizado: <strong className="text-ink-900">{money(o.amount)}</strong></p>}
-                    {account && <p className="mt-6 text-sm font-medium">{ask(`o${o.id}`)}</p>}
+                    {account && (
+                      <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-sm font-medium">
+                        {o.status !== "cotizacion" && o.amount - o.paid > 0 && canPay && (
+                          <form action={payOrder.bind(null, o.id)}>
+                            <button className="btn-signal !py-2 text-sm">Pagar {money(o.amount - o.paid)}</button>
+                          </form>
+                        )}
+                        {o.status !== "cotizacion" && o.amount > 0 && <a href={`/portal/cuenta/${o.id}`} className="text-ink-900 hover:text-brand-600">Cuenta de cobro ↗</a>}
+                        {ask(`o${o.id}`)}
+                      </div>
+                    )}
                   </li>
                 );
               })}
