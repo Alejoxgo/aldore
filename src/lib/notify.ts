@@ -1,5 +1,5 @@
 import "server-only";
-import { getSettings } from "@/lib/settings";
+import { getRawSettings as getSettings } from "@/lib/settings";
 import { esc, mailLayout, rows, sendMail } from "@/lib/mail";
 
 export async function notifyLead(id: number, d: { name: string; email: string; phone: string; company: string; service: string; message: string }, title = "Llegó una nueva solicitud desde el sitio") {

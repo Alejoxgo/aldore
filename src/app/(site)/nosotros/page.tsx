@@ -1,3 +1,4 @@
+import TC from "@/components/TC";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getSettings } from "@/lib/settings";
@@ -51,8 +52,8 @@ export default async function AboutPage() {
             </h1>
             <p className="mt-7 max-w-2xl text-xl leading-relaxed text-ink-700">{s["about.text"]}</p>
             <div className="mt-9 flex flex-wrap gap-3">
-              <a href="#mision" className="btn-primary">Misión y visión</a>
-              <a href="#aldo" className="btn-outline">Conoce a Aldo</a>
+              <a href="#mision" className="btn-primary"><TC>{"Misión y visión"}</TC></a>
+              <a href="#aldo" className="btn-outline"><TC>{"Conoce a Aldo"}</TC></a>
             </div>
           </div>
           <div className="relative hidden justify-center lg:col-span-5 lg:flex">
@@ -104,7 +105,7 @@ export default async function AboutPage() {
           <div className="container-x">
             <Reveal>
               <p className="font-mono text-sm text-brand-500">02</p>
-              <h2 className="mt-3 font-display text-4xl leading-tight sm:text-5xl">Hacia dónde vamos</h2>
+              <h2 className="mt-3 font-display text-4xl leading-tight sm:text-5xl"><TC>{"Hacia dónde vamos"}</TC></h2>
             </Reveal>
             <div className="mt-12 grid gap-5 lg:grid-cols-2">
               {s["about.mission"] && (
@@ -112,7 +113,7 @@ export default async function AboutPage() {
                   <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-500/30 blur-3xl transition duration-700 group-hover:scale-125" aria-hidden />
                   <div className="relative">
                     <div className="flex items-center justify-between">
-                      <p className="font-mono text-xs uppercase tracking-[0.2em] text-brand-400">Misión</p>
+                      <p className="font-mono text-xs uppercase tracking-[0.2em] text-brand-400"><TC>{"Misión"}</TC></p>
                       <svg viewBox="0 0 24 24" className="h-7 w-7 text-brand-400" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1.5" fill="currentColor" /></svg>
                     </div>
                     <p className="mt-8 font-display text-2xl leading-snug sm:text-3xl">{s["about.mission"]}</p>
@@ -124,7 +125,7 @@ export default async function AboutPage() {
                   <div className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-amber-300/40 blur-3xl transition duration-700 group-hover:scale-125" aria-hidden />
                   <div className="relative">
                     <div className="flex items-center justify-between">
-                      <p className="font-mono text-xs uppercase tracking-[0.2em] text-white/80">Visión</p>
+                      <p className="font-mono text-xs uppercase tracking-[0.2em] text-white/80"><TC>{"Visión"}</TC></p>
                       <svg viewBox="0 0 24 24" className="h-7 w-7 text-white/90" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
                     </div>
                     <p className="mt-8 font-display text-2xl leading-snug sm:text-3xl">{s["about.vision"]}</p>
@@ -135,7 +136,7 @@ export default async function AboutPage() {
 
             {values.length > 0 && (
               <>
-                <h3 className="mt-16 font-mono text-xs uppercase tracking-[0.2em] text-ink-500">Lo que nos guía</h3>
+                <h3 className="mt-16 font-mono text-xs uppercase tracking-[0.2em] text-ink-500"><TC>{"Lo que nos guía"}</TC></h3>
                 <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {values.map(([t, d], i) => (
                     <Reveal as="li" key={t} delay={i * 80} className="rounded-2xl border border-paper-line bg-white p-6 transition hover:-translate-y-1 hover:border-ink-900">
@@ -156,7 +157,7 @@ export default async function AboutPage() {
         <section className="py-20 sm:py-24">
           <div className="container-x">
             <p className="font-mono text-sm text-brand-500">03</p>
-            <h2 className="mt-3 font-display text-4xl leading-tight sm:text-5xl">El equipo</h2>
+            <h2 className="mt-3 font-display text-4xl leading-tight sm:text-5xl"><TC>{"El equipo"}</TC></h2>
             <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {team.map(([name, role, photo], i) => (
                 <Reveal as="li" key={name} delay={i * 80} className="rounded-2xl border border-paper-line bg-white p-5">
@@ -183,7 +184,7 @@ export default async function AboutPage() {
         <AldoFlyBy top="70%" size={44} every={20} delay={9} reverse onDark />
         <div className="container-x relative grid items-center gap-14 lg:grid-cols-12">
           <Reveal className="lg:col-span-6">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-brand-400">Nuestra mascota</p>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-brand-400"><TC>{"Nuestra mascota"}</TC></p>
             <h2 className="mt-4 font-display text-4xl leading-[1.05] sm:text-6xl">
               <Emph text={s["aldo.title"]} />
             </h2>
@@ -204,14 +205,14 @@ export default async function AboutPage() {
               {POSES.map(({ pose, label }) => (
                 <li key={pose} className="aldo-hover group flex flex-col items-center rounded-2xl border border-white/10 bg-white/[0.04] px-3 pb-4 pt-5 transition hover:-translate-y-1 hover:border-brand-500/60 hover:bg-white/[0.07]">
                   <Aldo pose={pose} onDark className="h-24 w-24 sm:h-28 sm:w-28" title={`Aldo ${label.toLowerCase()}`} />
-                  <span className="mt-2 font-mono text-xs uppercase tracking-wider text-paper/60 group-hover:text-paper">{label}</span>
+                  <span className="mt-2 font-mono text-xs uppercase tracking-wider text-paper/60 group-hover:text-paper"><TC>{label}</TC></span>
                 </li>
               ))}
             </ul>
             {s["aldo.quote"] && (
               <blockquote className="mt-6 rounded-2xl bg-brand-500 p-6 font-display text-xl leading-snug text-white sm:text-2xl">
                 “{s["aldo.quote"]}”
-                <span className="mt-2 block font-mono text-xs uppercase tracking-wider text-white/70">— Aldo</span>
+                <span className="mt-2 block font-mono text-xs uppercase tracking-wider text-white/70"><TC>{"— Aldo"}</TC></span>
               </blockquote>
             )}
           </Reveal>
@@ -228,8 +229,8 @@ export default async function AboutPage() {
                 <h2 className="font-display text-4xl leading-[1.05] sm:text-5xl"><Emph text={s["about.ctaTitle"]} /></h2>
                 <p className="mt-4 max-w-2xl text-lg text-ink-700">{s["about.ctaText"]}</p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <Link href="/contacto" className="btn-signal">Hablemos <Arrow className="h-4 w-4" /></Link>
-                  <Link href="/cotizar" className="btn-outline">Cotizar en línea</Link>
+                  <Link href="/contacto" className="btn-signal"><TC>{"Hablemos "}</TC><Arrow className="h-4 w-4" /></Link>
+                  <Link href="/cotizar" className="btn-outline"><TC>{"Cotizar en línea"}</TC></Link>
                 </div>
               </div>
               <div className="hidden justify-end lg:col-span-4 lg:flex">

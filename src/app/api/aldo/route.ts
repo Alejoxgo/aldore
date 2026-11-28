@@ -50,7 +50,7 @@ Contacto: WhatsApp ${s["contact.whatsapp"]}, correo ${s["contact.email"]}, horar
 ${catalog}
 
 # Preguntas frecuentes
-${faqs}`;
+${faqs}${(k as { lang?: string }).lang === "en" ? "\n\nIMPORTANT: The visitor is browsing the English version of the site. Always answer in natural English, keeping the same rules." : ""}`;
 
   try {
     const r = await fetch(process.env.GROQ_API_URL || "https://api.groq.com/openai/v1/chat/completions", {

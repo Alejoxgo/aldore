@@ -1,3 +1,4 @@
+import { getT } from "./i18n";
 import { prisma } from "./db";
 
 type Field = { key: string; label: string; type?: "text" | "textarea" | "url"; default: string; help?: string };
@@ -403,10 +404,24 @@ export const SETTING_KEYS = new Set(SETTINGS_GROUPS.flatMap((g) => g.fields.map(
 
 export type Settings = Record<string, string>;
 
-export async function getSettings(): Promise<Settings> {
+/** Textos que nunca se traducen: datos técnicos o que solo ve el panel. */
+const NO_TRANSLATE = /^(notify\.|seo\.keywords|social\.|contact\.(email|phone)|site\.name|seed\.)/;
+
+/** Textos del sitio en español, tal como están guardados (lo que usa el panel). */
+export async function getRawSettings(): Promise<Settings> {
   const defaults: Settings = {};
   for (const g of SETTINGS_GROUPS) for (const f of g.fields) defaults[f.key] = f.default;
   const rows = await prisma.setting.findMany();
   for (const r of rows) defaults[r.key] = r.value;
   return defaults;
+}
+
+/** Textos del sitio en el idioma de la visita (en el panel siempre en español). */
+export async function getSettings(): Promise<Settings> {
+  const raw = await getRawSettings();
+  const { lang, tx } = await getT();
+  if (lang === "es") return raw;
+  const out: Settings = {};
+  for (const [k, v] of Object.entries(raw)) out[k] = NO_TRANSLATE.test(k) ? v : tx(v);
+  return out;
 }

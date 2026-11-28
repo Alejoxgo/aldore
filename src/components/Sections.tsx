@@ -1,3 +1,4 @@
+import TC from "@/components/TC";
 import AldoFlyBy from "./AldoFlyBy";
 import Link from "next/link";
 import { Fragment } from "react";
@@ -92,7 +93,7 @@ export function ServicesList({ services, s }: { services: Service[]; s: Settings
       <div className="container-x">
         <div className="grid gap-6 lg:grid-cols-12">
           <div className="lg:col-span-6">
-            <Label n="01">Servicios</Label>
+            <Label n="01"><TC>{"Servicios"}</TC></Label>
             <h2 className="section-title mt-5"><Emph text={s["services.title"]} /></h2>
           </div>
           <div className="self-end lg:col-span-5 lg:col-start-8">
@@ -108,8 +109,7 @@ export function ServicesList({ services, s }: { services: Service[]; s: Settings
                 </span>
                 <h3 className="mt-5 font-display text-2xl leading-tight text-ink-900">{sv.title}</h3>
                 <p className="mt-2 flex-1 text-ink-500">{sv.shortDescription}</p>
-                <span className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-ink-900">
-                  Ver más <Arrow className="h-4 w-4 transition group-hover:translate-x-1 group-hover:text-brand-500" />
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-ink-900"><TC>{"Ver más "}</TC><Arrow className="h-4 w-4 transition group-hover:translate-x-1 group-hover:text-brand-500" />
                 </span>
               </Link>
             </li>
@@ -118,14 +118,13 @@ export function ServicesList({ services, s }: { services: Service[]; s: Settings
         <div className="mt-8 flex flex-col gap-5 rounded-2xl bg-ink-900 p-6 text-paper sm:p-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <p className="font-display text-2xl">
-              {rest.length > 0 ? <>Y {rest.length} servicios más para tu negocio</> : <>Conoce cada servicio en detalle</>}
+              {rest.length > 0 ? <>Y {rest.length}<TC>{" servicios más para tu negocio"}</TC></> : <><TC>{"Conoce cada servicio en detalle"}</TC></>}
             </p>
             {rest.length > 0 && (
               <p className="mt-2 text-sm text-paper/60">{rest.slice(0, 6).map((r) => r.title).join(" · ")}{rest.length > 6 ? " · …" : ""}</p>
             )}
           </div>
-          <Link href="/servicios" className="btn-signal shrink-0 self-start lg:self-auto">
-            Ver todos los servicios <Arrow className="h-4 w-4" />
+          <Link href="/servicios" className="btn-signal shrink-0 self-start lg:self-auto"><TC>{"Ver todos los servicios "}</TC><Arrow className="h-4 w-4" />
           </Link>
         </div>
       </div>
@@ -215,8 +214,8 @@ function DeskMock() {
   return (
     <div className="overflow-hidden rounded-xl border border-white/10 bg-[#1d1915] text-sm shadow-2xl shadow-black/40">
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-        <span className="font-semibold text-paper">Castorly</span>
-        <span className="font-mono text-xs text-paper/40">Service Desk · Turno mañana</span>
+        <span className="font-semibold text-paper"><TC>{"Castorly"}</TC></span>
+        <span className="font-mono text-xs text-paper/40"><TC>{"Service Desk · Turno mañana"}</TC></span>
       </div>
       <div className="grid sm:grid-cols-[1fr_14rem]">
         <ul className="divide-y divide-white/5">
@@ -229,13 +228,11 @@ function DeskMock() {
           ))}
         </ul>
         <div className="border-t border-white/10 p-4 sm:border-l sm:border-t-0">
-          <p className="font-mono text-[11px] uppercase tracking-wider text-brand-400">Cástor</p>
-          <p className="mt-2 leading-relaxed text-paper/80">
-            Encontré el artículo «Reinstalar el cliente VPN». ¿Quieres que guíe la llamada paso a paso?
-          </p>
+          <p className="font-mono text-[11px] uppercase tracking-wider text-brand-400"><TC>{"Cástor"}</TC></p>
+          <p className="mt-2 leading-relaxed text-paper/80"><TC>{"Encontré el artículo «Reinstalar el cliente VPN». ¿Quieres que guíe la llamada paso a paso?"}</TC></p>
           <div className="mt-4 flex gap-2">
-            <span className="rounded bg-brand-500 px-2.5 py-1 text-xs font-semibold text-white">Sí, guíame</span>
-            <span className="rounded border border-white/15 px-2.5 py-1 text-xs text-paper/70">Ver artículo</span>
+            <span className="rounded bg-brand-500 px-2.5 py-1 text-xs font-semibold text-white"><TC>{"Sí, guíame"}</TC></span>
+            <span className="rounded border border-white/15 px-2.5 py-1 text-xs text-paper/70"><TC>{"Ver artículo"}</TC></span>
           </div>
         </div>
       </div>
@@ -250,7 +247,7 @@ export function ProductsList({ products, s }: { products: Product[]; s: Settings
     <section id="productos" className="scroll-mt-16 border-b border-paper-line py-24">
       <div className="container-x grid grid-cols-1 gap-12 lg:grid-cols-12">
         <div className="lg:col-span-4">
-          <Label n="03">Productos</Label>
+          <Label n="03"><TC>{"Productos"}</TC></Label>
           <h2 className="section-title mt-5"><Emph text={s["products.title"]} /></h2>
           <p className="mt-5 text-ink-700">{s["products.subtitle"]}</p>
         </div>
@@ -260,8 +257,7 @@ export function ProductsList({ products, s }: { products: Product[]; s: Settings
               <h3 className="font-display text-2xl text-ink-900">{p.name}</h3>
               <p className="mt-2 flex-1 text-ink-500">{p.tagline}</p>
               {p.price && <p className="mt-6 text-sm font-semibold text-ink-900">{p.price}</p>}
-              <span className="mt-4 inline-flex items-center gap-2 text-sm text-ink-700 group-hover:text-brand-600">
-                Ver detalles <Arrow className="h-4 w-4" />
+              <span className="mt-4 inline-flex items-center gap-2 text-sm text-ink-700 group-hover:text-brand-600"><TC>{"Ver detalles "}</TC><Arrow className="h-4 w-4" />
               </span>
             </Link>
           ))}
@@ -280,12 +276,12 @@ export function Process({ s }: { s: Settings }) {
   return (
     <section className="py-24">
       <div className="container-x">
-        <Label n="04">Cómo trabajamos</Label>
+        <Label n="04"><TC>{"Cómo trabajamos"}</TC></Label>
         <h2 className="section-title mt-5 max-w-2xl"><Emph text={s["process.title"]} /></h2>
         <ol className="mt-14 grid gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           {steps.map((st, i) => (
             <li key={i} className="border-t border-ink-900 pt-5">
-              <span className="font-mono text-xs text-brand-500">Paso {String(i + 1).padStart(2, "0")}</span>
+              <span className="font-mono text-xs text-brand-500"><TC>{"Paso "}</TC>{String(i + 1).padStart(2, "0")}</span>
               <h3 className="mt-3 font-display text-2xl text-ink-900">{st.title}</h3>
               <p className="mt-3 leading-relaxed text-ink-500">{st.text}</p>
             </li>
@@ -303,7 +299,7 @@ export function Plans({ plans, s }: { plans: Plan[]; s: Settings }) {
       <div className="container-x">
         <div className="grid gap-6 lg:grid-cols-12">
           <div className="lg:col-span-6">
-            <Label n="05">Planes</Label>
+            <Label n="05"><TC>{"Planes"}</TC></Label>
             <h2 className="section-title mt-5"><Emph text={s["plans.title"]} /></h2>
           </div>
           <p className="self-end text-ink-700 lg:col-span-5 lg:col-start-8">{s["plans.subtitle"]}</p>
@@ -315,7 +311,7 @@ export function Plans({ plans, s }: { plans: Plan[]; s: Settings }) {
               <div key={p.id} className={`flex flex-col rounded-xl p-8 ${hl ? "bg-ink-900 text-paper" : "border border-paper-line bg-paper"}`}>
                 <div className="flex items-baseline justify-between gap-3">
                   <h3 className="font-display text-2xl">{p.name}</h3>
-                  {hl && <span className="font-mono text-[11px] uppercase tracking-wider text-brand-400">El más elegido</span>}
+                  {hl && <span className="font-mono text-[11px] uppercase tracking-wider text-brand-400"><TC>{"El más elegido"}</TC></span>}
                 </div>
                 <p className={`mt-1 text-sm ${hl ? "text-paper/60" : "text-ink-500"}`}>{p.description}</p>
                 <p className="mt-8 font-display text-5xl tracking-tight">{p.price}</p>
@@ -328,8 +324,7 @@ export function Plans({ plans, s }: { plans: Plan[]; s: Settings }) {
                 <Link
                   href={`/contacto?servicio=${encodeURIComponent("Plan " + p.name)}`}
                   className={`mt-8 ${hl ? "btn-signal" : "btn-outline"}`}
-                >
-                  Elegir {p.name}
+                ><TC>{"Elegir "}</TC>{p.name}
                 </Link>
               </div>
             );
@@ -377,7 +372,7 @@ export function FaqList({ items, s }: { items: Faq[]; s: Settings }) {
     <section id="faq" className="scroll-mt-16 border-t border-paper-line py-24">
       <div className="container-x grid grid-cols-1 gap-10 lg:grid-cols-12">
         <div className="lg:col-span-4">
-          <Label n="07">Preguntas</Label>
+          <Label n="07"><TC>{"Preguntas"}</TC></Label>
           <h2 className="section-title mt-5"><Emph text={s["faq.title"]} /></h2>
         </div>
         <div className="border-t border-ink-900 lg:col-span-8">
@@ -410,12 +405,12 @@ export function AldoBand({ s }: { s: Settings }) {
           ))}
         </div>
         <div className="lg:col-span-7">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-brand-400">Nuestra mascota</p>
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-brand-400"><TC>{"Nuestra mascota"}</TC></p>
           <h2 className="mt-3 font-display text-4xl leading-[1.05] sm:text-5xl"><Emph text={s["aldo.title"]} /></h2>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-paper/70">{s["aldo.text"]}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/nosotros#aldo" className="btn-signal">Conoce a Aldo <Arrow className="h-4 w-4" /></Link>
-            <Link href="/nosotros" className="btn-ghost text-paper">Quiénes somos</Link>
+            <Link href="/nosotros#aldo" className="btn-signal"><TC>{"Conoce a Aldo "}</TC><Arrow className="h-4 w-4" /></Link>
+            <Link href="/nosotros" className="btn-ghost text-paper"><TC>{"Quiénes somos"}</TC></Link>
           </div>
         </div>
       </div>

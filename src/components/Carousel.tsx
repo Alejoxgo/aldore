@@ -1,5 +1,6 @@
 "use client";
 
+import TC from "@/components/TC";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export type Slide = { src: string; caption?: string };
@@ -119,9 +120,7 @@ export default function Carousel({
                 className={`aspect-[16/9] w-full rounded-2xl border object-cover object-top transition group-hover:brightness-105 ${styles.frame}`}
               />
               <span className="pointer-events-none absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-black/55 px-3 py-1.5 text-xs font-medium text-white opacity-0 backdrop-blur transition group-hover:opacity-100 group-focus-visible:opacity-100">
-                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="6" /><path d="M20 20l-4.5-4.5M11 8v6M8 11h6" /></svg>
-                Ampliar
-              </span>
+                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="6" /><path d="M20 20l-4.5-4.5M11 8v6M8 11h6" /></svg><TC>{"Ampliar"}</TC></span>
             </button>
             {g.caption && <figcaption className={`mt-4 text-center text-sm sm:text-base ${styles.cap}`}>{g.caption}</figcaption>}
           </figure>

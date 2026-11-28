@@ -14,6 +14,8 @@ model User {
   email        String   @unique
   name         String
   passwordHash String
+  /// "admin" gestiona usuarios y todo el panel; "editor" maneja el contenido pero no los usuarios.
+  role         String   @default("admin")
   createdAt    DateTime @default(now())
 }
 
@@ -28,6 +30,19 @@ model MfaChallenge {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+/// Traducciones automáticas (Groq) del sitio público. `key` es la huella del texto en español.
+model Translation {
+  id        Int      @id @default(autoincrement())
+  lang      String
+  key       String
+  source    String
+  text      String
+  manual    Boolean  @default(false)
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@unique([lang, key])
 }
 
 model Service {

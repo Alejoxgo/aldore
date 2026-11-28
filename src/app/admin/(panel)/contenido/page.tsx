@@ -1,10 +1,10 @@
-import { SETTINGS_GROUPS, getSettings } from "@/lib/settings";
+import { SETTINGS_GROUPS, getRawSettings } from "@/lib/settings";
 import Flash from "@/components/admin/Flash";
 import { saveSettings } from "../../actions";
 
 export default async function ContentPage({ searchParams }: { searchParams: Promise<{ ok?: string }> }) {
   const { ok } = await searchParams;
-  const s = await getSettings();
+  const s = await getRawSettings();
   return (
     <div>
       <h1 className="font-display text-3xl text-ink-900">Textos del sitio</h1>

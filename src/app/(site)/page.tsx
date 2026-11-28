@@ -1,3 +1,4 @@
+import TC from "@/components/TC";
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import { StackMarquee } from "@/components/TechSections";
@@ -35,15 +36,15 @@ export default async function HomePage() {
         <div className="container-x grid grid-cols-1 gap-14 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <div className="flex items-end justify-between gap-4">
-              <p className="eyebrow">Contacto</p>
+              <p className="eyebrow"><TC>{"Contacto"}</TC></p>
               <Aldo pose="wave" className="-mb-2 h-24 w-24 shrink-0" />
             </div>
             <h2 className="section-title mt-2"><Emph text={s["cta.title"]} /></h2>
             <p className="mt-5 text-lg text-ink-700">{s["cta.text"]}</p>
             <dl className="mt-10 space-y-5 border-t border-paper-line pt-6 text-[15px]">
-              <div><dt className="eyebrow">Correo</dt><dd className="mt-1"><a className="link-u" href={`mailto:${s["contact.email"]}`}>{s["contact.email"]}</a></dd></div>
-              <div><dt className="eyebrow">Teléfono</dt><dd className="mt-1">{s["contact.phone"]}</dd></div>
-              <div><dt className="eyebrow">Dónde</dt><dd className="mt-1">{s["contact.address"]}</dd></div>
+              <div><dt className="eyebrow"><TC>{"Correo"}</TC></dt><dd className="mt-1"><a className="link-u" href={`mailto:${s["contact.email"]}`}>{s["contact.email"]}</a></dd></div>
+              <div><dt className="eyebrow"><TC>{"Teléfono"}</TC></dt><dd className="mt-1">{s["contact.phone"]}</dd></div>
+              <div><dt className="eyebrow"><TC>{"Dónde"}</TC></dt><dd className="mt-1">{s["contact.address"]}</dd></div>
             </dl>
           </div>
           <div className="lg:col-span-7">

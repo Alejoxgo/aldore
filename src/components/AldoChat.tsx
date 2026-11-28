@@ -1,4 +1,5 @@
 "use client";
+import TC, { useTr } from "@/components/TC";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import Aldo from "./Aldo";
@@ -41,6 +42,7 @@ const hits = (a: string[], b: string[]) => a.filter((w) => b.some((k) => k.start
 
 /** Aldo: asistente que guía por los servicios, responde preguntas frecuentes y pasa a WhatsApp. */
 export default function AldoChat({ k }: { k: AldoKnowledge }) {
+  const tr = useTr();
   const [open, setOpen] = useState(false);
   const [teaser, setTeaser] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([]);
@@ -164,8 +166,8 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
               <Aldo pose="base" follow={false} className="mt-3 h-12 w-12" />
             </span>
             <div className="min-w-0 flex-1 leading-tight">
-              <p className="font-semibold">Aldo</p>
-              <p className="font-mono text-[11px] text-paper/60">asistente de Aldore</p>
+              <p className="font-semibold"><TC>{"Aldo"}</TC></p>
+              <p className="font-mono text-[11px] text-paper/60"><TC>{"asistente de Aldore"}</TC></p>
             </div>
             <button onClick={() => setOpen(false)} aria-label="Cerrar chat" className="grid h-8 w-8 place-items-center rounded-full text-paper/70 hover:bg-white/10 hover:text-paper">
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8}><path d="M6 6l12 12M18 6 6 18" /></svg>
@@ -186,14 +188,10 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
                 {(m.topic?.href || m.link || m.wa) && (
                   <div className="flex flex-wrap gap-2">
                     {(m.topic?.href || m.link) && (
-                      <Link href={(m.topic?.href || m.link)!} onClick={() => setOpen(false)} className="rounded-full border border-ink-900/20 bg-white px-3 py-1.5 text-[13px] font-medium text-ink-900 hover:border-ink-900">
-                        Ver más →
-                      </Link>
+                      <Link href={(m.topic?.href || m.link)!} onClick={() => setOpen(false)} className="rounded-full border border-ink-900/20 bg-white px-3 py-1.5 text-[13px] font-medium text-ink-900 hover:border-ink-900"><TC>{"Ver más →"}</TC></Link>
                     )}
                     {m.wa && (
-                      <a href={waHref(interest)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-3 py-1.5 text-[13px] font-semibold text-white hover:brightness-95">
-                        Escribir por WhatsApp ↗
-                      </a>
+                      <a href={waHref(interest)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-3 py-1.5 text-[13px] font-semibold text-white hover:brightness-95"><TC>{"Escribir por WhatsApp ↗"}</TC></a>
                     )}
                   </div>
                 )}
@@ -225,7 +223,7 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Escríbele a Aldo…"
+              placeholder={tr("Escríbele a Aldo…")}
               aria-label="Mensaje para Aldo"
               className="min-w-0 flex-1 rounded-full border border-paper-line bg-paper px-4 py-2 text-[14px] outline-none focus:border-brand-500"
             />
@@ -233,8 +231,7 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2}><path d="M5 12h14M13 6l6 6-6 6" /></svg>
             </button>
           </form>
-          <a href={waHref(interest)} target="_blank" rel="noopener noreferrer" className="bg-white pb-2 text-center text-[11px] text-ink-500 hover:text-ink-900">
-            ¿Prefieres hablar con una persona? <span className="font-semibold text-[#128C7E]">WhatsApp ↗</span>
+          <a href={waHref(interest)} target="_blank" rel="noopener noreferrer" className="bg-white pb-2 text-center text-[11px] text-ink-500 hover:text-ink-900"><TC>{"¿Prefieres hablar con una persona? "}</TC><span className="font-semibold text-[#128C7E]"><TC>{"WhatsApp ↗"}</TC></span>
           </a>
         </section>
       )}

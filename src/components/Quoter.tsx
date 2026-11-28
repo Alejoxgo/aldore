@@ -1,5 +1,6 @@
 "use client";
 
+import TC, { useTr } from "@/components/TC";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "./Icon";
 import Aldo from "./Aldo";
@@ -35,7 +36,7 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
     <fieldset className="border-t border-paper-line pt-6">
       <legend className="flex items-center gap-3 font-display text-2xl text-ink-900">
         <span className="grid h-8 w-8 place-items-center rounded-full bg-ink-900 font-mono text-sm text-paper">{n}</span>
-        {title}
+        <TC>{title}</TC>
       </legend>
       <div className="mt-5">{children}</div>
     </fieldset>
@@ -43,6 +44,7 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
 }
 
 export default function Quoter({ cfg }: { cfg: QuoteConfig }) {
+  const tr = useTr();
   const [type, setType] = useState("");
   const [size, setSize] = useState("o1");
   const [speed, setSpeed] = useState(cfg.speeds[0]?.id ?? "normal");
@@ -68,7 +70,7 @@ export default function Quoter({ cfg }: { cfg: QuoteConfig }) {
     return (
       <div className="mx-auto flex max-w-2xl flex-col items-center rounded-3xl border border-paper-line bg-white p-10 text-center">
         <Aldo pose="happy" className="h-28 w-28" />
-        <p className="mt-4 font-display text-3xl text-ink-900">¡Cotización enviada!</p>
+        <p className="mt-4 font-display text-3xl text-ink-900"><TC>{"¡Cotización enviada!"}</TC></p>
         <p className="mt-3 text-lg text-ink-700">{state.message}</p>
       </div>
     );
@@ -106,8 +108,8 @@ export default function Quoter({ cfg }: { cfg: QuoteConfig }) {
             <div className={`grid gap-3 ${scope.options.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
               {scope.options.map((x) => (
                 <button key={x.id} type="button" onClick={() => setSize(x.id)} className={pill(size === x.id)} aria-pressed={size === x.id}>
-                  <span className="block font-medium text-ink-900">{x.name}</span>
-                  <span className="mt-0.5 block text-sm text-ink-500">{x.text}</span>
+                  <span className="block font-medium text-ink-900"><TC>{x.name}</TC></span>
+                  <span className="mt-0.5 block text-sm text-ink-500"><TC>{x.text}</TC></span>
                 </button>
               ))}
             </div>
@@ -117,8 +119,8 @@ export default function Quoter({ cfg }: { cfg: QuoteConfig }) {
             <div className="grid gap-3 sm:grid-cols-2">
               {cfg.speeds.map((x) => (
                 <button key={x.id} type="button" onClick={() => setSpeed(x.id)} className={pill(speed === x.id)} aria-pressed={speed === x.id}>
-                  <span className="block font-medium text-ink-900">{x.name}</span>
-                  <span className="mt-0.5 block text-sm text-ink-500">{x.text}</span>
+                  <span className="block font-medium text-ink-900"><TC>{x.name}</TC></span>
+                  <span className="mt-0.5 block text-sm text-ink-500"><TC>{x.text}</TC></span>
                 </button>
               ))}
             </div>
@@ -150,7 +152,7 @@ export default function Quoter({ cfg }: { cfg: QuoteConfig }) {
 
       <aside className="lg:col-span-5">
         <div className="rounded-3xl bg-ink-900 p-7 text-paper shadow-2xl shadow-black/20 lg:sticky lg:top-24">
-          <p className="font-mono text-[11px] uppercase tracking-wider text-paper/50">Tu estimado</p>
+          <p className="font-mono text-[11px] uppercase tracking-wider text-paper/50"><TC>{"Tu estimado"}</TC></p>
           {q ? (
             <>
               <p className="mt-3 font-display text-[clamp(2rem,4vw,2.75rem)] leading-tight tabular-nums">
@@ -159,31 +161,29 @@ export default function Quoter({ cfg }: { cfg: QuoteConfig }) {
               {q.type.monthly && <p className="mt-1 text-sm text-brand-400">{q.type.monthly}</p>}
               <ul className="mt-6 space-y-2 border-t border-white/10 pt-5 text-sm text-paper/75">
                 <li className="flex justify-between gap-4"><span>{q.type.name}</span><span className="text-paper/50">{q.size.name}</span></li>
-                <li className="flex justify-between gap-4"><span>Tiempo</span><span className="text-paper/50">{q.speed.name}</span></li>
+                <li className="flex justify-between gap-4"><span><TC>{"Tiempo"}</TC></span><span className="text-paper/50"><TC>{q.speed.name}</TC></span></li>
                 {q.extras.map((e) => (
                   <li key={e.name} className="flex justify-between gap-4"><span>{e.name}</span><span className="text-paper/50">+{money(e.price)}</span></li>
                 ))}
               </ul>
-              <p className="mt-5 text-xs leading-relaxed text-paper/45">Es un rango aproximado. El precio final es cerrado y te lo confirmamos antes de empezar.</p>
+              <p className="mt-5 text-xs leading-relaxed text-paper/45"><TC>{"Es un rango aproximado. El precio final es cerrado y te lo confirmamos antes de empezar."}</TC></p>
               {!showForm ? (
-                <button type="button" onClick={() => setShowForm(true)} className="btn-signal mt-6 w-full justify-center">
-                  Recibir cotización exacta →
-                </button>
+                <button type="button" onClick={() => setShowForm(true)} className="btn-signal mt-6 w-full justify-center"><TC>{"Recibir cotización exacta →"}</TC></button>
               ) : (
                 <div className="mt-6 space-y-3">
                   <div>
-                    <input name="name" placeholder="Tu nombre *" className="input !border-white/15 !bg-white/5 !text-paper placeholder:!text-paper/40" required />
+                    <input name="name" placeholder={tr("Tu nombre *")} className="input !border-white/15 !bg-white/5 !text-paper placeholder:!text-paper/40" required />
                     {state.errors?.name && <p className="mt-1 text-xs text-brand-400">{state.errors.name}</p>}
                   </div>
                   <div>
-                    <input name="email" type="email" placeholder="Correo *" className="input !border-white/15 !bg-white/5 !text-paper placeholder:!text-paper/40" required />
+                    <input name="email" type="email" placeholder={tr("Correo *")} className="input !border-white/15 !bg-white/5 !text-paper placeholder:!text-paper/40" required />
                     {state.errors?.email && <p className="mt-1 text-xs text-brand-400">{state.errors.email}</p>}
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <input name="phone" placeholder="WhatsApp" className="input !border-white/15 !bg-white/5 !text-paper placeholder:!text-paper/40" />
-                    <input name="company" placeholder="Empresa" className="input !border-white/15 !bg-white/5 !text-paper placeholder:!text-paper/40" />
+                    <input name="company" placeholder={tr("Empresa")} className="input !border-white/15 !bg-white/5 !text-paper placeholder:!text-paper/40" />
                   </div>
-                  <textarea name="note" rows={3} placeholder="¿Algo que debamos saber? (opcional)" className="input !border-white/15 !bg-white/5 !text-paper placeholder:!text-paper/40" />
+                  <textarea name="note" rows={3} placeholder={tr("¿Algo que debamos saber? (opcional)")} className="input !border-white/15 !bg-white/5 !text-paper placeholder:!text-paper/40" />
                   {state.message && !state.ok && <p className="text-sm text-brand-400">{state.message}</p>}
                   <button className="btn-signal w-full justify-center" disabled={pending}>{pending ? "Enviando…" : "Enviar"}</button>
                 </div>
@@ -192,7 +192,7 @@ export default function Quoter({ cfg }: { cfg: QuoteConfig }) {
           ) : (
             <div className="mt-4 flex items-center gap-4">
               <Aldo pose="wave" className="h-20 w-20 shrink-0" />
-              <p className="text-paper/70">Elige qué necesitas y aquí verás el precio al instante.</p>
+              <p className="text-paper/70"><TC>{"Elige qué necesitas y aquí verás el precio al instante."}</TC></p>
             </div>
           )}
         </div>

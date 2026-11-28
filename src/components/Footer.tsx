@@ -1,3 +1,4 @@
+import TC from "@/components/TC";
 import Link from "next/link";
 import Logo from "./Logo";
 import type { Settings } from "@/lib/settings";
@@ -49,19 +50,19 @@ export default function Footer({ s, services }: { s: Settings; services: { slug:
                 return (
                   <li key={g.id}>
                     <Link href={`/servicios#${g.id}`} className="group flex items-baseline justify-between gap-3 hover:text-paper">
-                      <span>{g.title.replace(/\*/g, "")}</span>
+                      <span><TC>{g.title.replace(/\*/g, "")}</TC></span>
                       <span className="font-mono text-[11px] text-paper/35 group-hover:text-brand-400">{n}</span>
                     </Link>
                   </li>
                 );
               })}
               <li className="pt-1">
-                <Link href="/servicios" className="text-brand-400 hover:text-brand-300">Ver todos los servicios →</Link>
+                <Link href="/servicios" className="text-brand-400 hover:text-brand-300"><TC>{"Ver todos los servicios →"}</TC></Link>
               </li>
             </ul>
           </div>
           <div className="lg:col-span-2">
-            <h3 className="eyebrow !text-paper/50">Aldore</h3>
+            <h3 className="eyebrow !text-paper/50"><TC>{"Aldore"}</TC></h3>
             <ul className="mt-4 space-y-3 text-sm">
               {[
                 ["Nosotros", "/nosotros"],
@@ -70,7 +71,7 @@ export default function Footer({ s, services }: { s: Settings; services: { slug:
                 ["Blog", "/blog"],
                 ["Cotizar en línea", "/cotizar"],
               ].map(([label, href]) => (
-                <li key={href}><Link href={href} className="hover:text-paper">{label}</Link></li>
+                <li key={href}><Link href={href} className="hover:text-paper"><TC>{label}</TC></Link></li>
               ))}
             </ul>
           </div>

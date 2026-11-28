@@ -1,3 +1,4 @@
+import TC from "@/components/TC";
 import Link from "next/link";
 import PuertaView, { type PuertaData } from "./PuertaView";
 import { PUERTA_DEMOS, type PuertaDemo } from "@/lib/puerta-demos";
@@ -27,7 +28,7 @@ export function PuertaPhone({ className = "", demo = PUERTA_DEMOS[0], sticker = 
               <path d="M5 38V21C5 11 12 5 20 2c8 3 15 9 15 19v17z" fill="#16130f" />
               <path d="M15 38V25c0-4 2-7 5-9 3 2 5 5 5 9v13z" fill="#e2471c" />
             </svg>
-            <p className="mt-1 font-mono text-[9px] uppercase tracking-wider">Acerca tu celular</p>
+            <p className="mt-1 font-mono text-[9px] uppercase tracking-wider"><TC>{"Acerca tu celular"}</TC></p>
           </div>
         </div>
         <span className="absolute -right-3 top-1/2 h-px w-6 animate-pulse bg-brand-500" />
@@ -64,7 +65,7 @@ export function PuertaBlock({ s }: { s: Settings }) {
           )}
           <div className="mt-9 flex flex-wrap gap-3">
             <Link href="/puerta" className="btn-signal">{s["puerta.cta"]} →</Link>
-            <Link href="/puerta#planes" className="btn-outline">Ver planes</Link>
+            <Link href="/puerta#planes" className="btn-outline"><TC>{"Ver planes"}</TC></Link>
           </div>
         </div>
         <div className="relative lg:col-span-6">
@@ -84,14 +85,11 @@ export function PuertaShowcase() {
       <div className="container-x">
         <div className="grid gap-6 lg:grid-cols-12">
           <div className="lg:col-span-6">
-            <p className="eyebrow">Cada negocio, su propia Puerta</p>
-            <h2 className="section-title mt-4">
-              Tu logo, tus colores, <em className="not-italic text-brand-500">tu estilo</em>.
+            <p className="eyebrow"><TC>{"Cada negocio, su propia Puerta"}</TC></p>
+            <h2 className="section-title mt-4"><TC>{"Tu logo, tus colores, "}</TC><em className="not-italic text-brand-500"><TC>{"tu estilo"}</TC></em>.
             </h2>
           </div>
-          <p className="self-end text-lg text-ink-700 lg:col-span-5 lg:col-start-8">
-            No es una plantilla igual para todos. Diseñamos cada Puerta con la identidad del negocio: portada, logo, tipografía, colores y botones. Estos tres son inventados, tócalos y míralos en vivo.
-          </p>
+          <p className="self-end text-lg text-ink-700 lg:col-span-5 lg:col-start-8"><TC>{"No es una plantilla igual para todos. Diseñamos cada Puerta con la identidad del negocio: portada, logo, tipografía, colores y botones. Estos tres son inventados, tócalos y míralos en vivo."}</TC></p>
         </div>
         <ul className="-mx-4 mt-12 flex snap-x snap-mandatory gap-8 overflow-x-auto px-4 pb-4 [scrollbar-width:none] lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
           {PUERTA_DEMOS.map((d, i) => (
@@ -102,9 +100,7 @@ export function PuertaShowcase() {
                   <p className="font-mono text-[11px] uppercase tracking-wider text-ink-500">{kinds[i] ?? "Negocio"}</p>
                   <p className="font-display text-xl text-ink-900">{d.name}</p>
                 </div>
-                <a href={`/p/${d.slug}`} target="_blank" rel="noopener noreferrer" className="btn-outline !px-4 !py-2 text-sm">
-                  Ver en vivo ↗
-                </a>
+                <a href={`/p/${d.slug}`} target="_blank" rel="noopener noreferrer" className="btn-outline !px-4 !py-2 text-sm"><TC>{"Ver en vivo ↗"}</TC></a>
               </div>
             </li>
           ))}

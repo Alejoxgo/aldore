@@ -1,3 +1,4 @@
+import TC from "@/components/TC";
 import Aldo from "./Aldo";
 
 const chat = [
@@ -35,10 +36,10 @@ export default function HeroDoor({ caption }: { caption: string }) {
 
         <div className="absolute inset-x-[9%] bottom-[7%] top-[30%] flex flex-col">
           <div className="flex items-center gap-2.5 border-b border-white/10 pb-3">
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-emerald-500 text-[11px] font-bold text-white">PO</span>
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-emerald-500 text-[11px] font-bold text-white"><TC>{"PO"}</TC></span>
             <div className="min-w-0 leading-tight">
-              <p className="truncate text-sm font-semibold text-paper">Peluquería Ola</p>
-              <p className="font-mono text-[10px] text-emerald-400">bot · en línea</p>
+              <p className="truncate text-sm font-semibold text-paper"><TC>{"Peluquería Ola"}</TC></p>
+              <p className="font-mono text-[10px] text-emerald-400"><TC>{"bot · en línea"}</TC></p>
             </div>
           </div>
           <ul className="mt-3 flex flex-1 flex-col justify-end gap-2">

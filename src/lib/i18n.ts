@@ -1,0 +1,240 @@
+import "server-only";
+import { cache } from "react";
+import { headers } from "next/headers";
+import { after } from "next/server";
+import { prisma } from "./db";
+
+/**
+ * Sitio en inglés con traducción automática (Groq).
+ *
+ * - El idioma lo decide el middleware (/en/... o la cookie `lang`) y llega como cabecera `x-lang`.
+ *   El panel nunca recibe esa cabecera: allí todo sigue en español.
+ * - Cada texto en español se traduce una sola vez y se guarda en la tabla Translation.
+ * - Al guardar algo en el panel se traduce de inmediato (ver `translateNow`). Si al mostrar una
+ *   página falta algún texto, se muestra en español y se traduce justo después de responder.
+ */
+
+export type Lang = "es" | "en";
+export const LANGS: Lang[] = ["es", "en"];
+
+export async function getLang(): Promise<Lang> {
+  try {
+    return (await headers()).get("x-lang") === "en" ? "en" : "es";
+  } catch {
+    return "es";
+  }
+}
+
+export function groqReady() {
+  return Boolean(process.env.GROQ_API_KEY);
+}
+
+async function keyOf(text: string) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf).slice(0, 16), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** ¿Vale la pena traducirlo? Deja quietos enlaces, correos, números, colores e identificadores. */
+export function translatable(s: string) {
+  const v = s.trim();
+  if (!v || !/\p{L}/u.test(v)) return false;
+  if (/^(https?:|mailto:|tel:|\/|#|www\.)/i.test(v)) return false;
+  if (/^[\w.+-]+@[\w-]+\.[\w.]+$/.test(v)) return false;
+  if (/^[a-z0-9_-]+$/.test(v)) return false; // ids, íconos, slugs
+  if (/^[A-Z0-9_-]{1,4}$/.test(v)) return false; // siglas cortas
+  return true;
+}
+
+const loadDict = cache(async (lang: Lang) => {
+  const map = new Map<string, string>();
+  try {
+    const rows = await prisma.translation.findMany({ where: { lang }, select: { source: true, text: true } });
+    for (const r of rows) map.set(r.source, r.text);
+  } catch (e) {
+    console.error("Traducciones", e);
+  }
+  return map;
+});
+
+const pending = cache(() => ({ set: new Set<string>(), scheduled: false }));
+
+export type Translator = { lang: Lang; t: (s: string) => string; tx: (s: string) => string };
+
+/** Traductor para la petición actual. `t` traduce un texto; `tx` respeta listas con | ; = y saltos de línea. */
+export const getT = cache(async (): Promise<Translator> => {
+  const lang = await getLang();
+  if (lang === "es") return { lang, t: (s) => s, tx: (s) => s };
+  const dict = await loadDict(lang);
+  const p = pending();
+  const t = (s: string) => {
+    if (typeof s !== "string" || !translatable(s)) return s;
+    const lead = s.match(/^\s*/)![0];
+    const trail = s.match(/\s*$/)![0];
+    const core = s.trim();
+    const hit = dict.get(core);
+    if (hit !== undefined) return lead + hit + trail;
+    if (groqReady()) {
+      p.set.add(core);
+      if (!p.scheduled) {
+        p.scheduled = true;
+        try {
+          after(() => translateNow([...p.set], lang).catch((e) => console.error("Traducción en segundo plano", e)));
+        } catch {}
+      }
+    }
+    return s;
+  };
+  return { lang, t, tx: (s: string) => structured(s, t) };
+});
+
+/** Separa un valor con estructura (líneas, columnas con |, opciones con ; y =) y traduce solo las partes de texto. */
+export function pieces(value: string): string[] {
+  const out: string[] = [];
+  structured(value, (x) => {
+    if (translatable(x)) out.push(x.trim());
+    return x;
+  });
+  return out;
+}
+
+function structured(value: string, t: (s: string) => string): string {
+  if (!value || typeof value !== "string") return value;
+  if (!/[\n|]/.test(value)) return t(value);
+  return value
+    .split("\n")
+    .map((line) => {
+      if (!line.trim()) return line;
+      if (!line.includes("|")) return t(line);
+      return line
+        .split("|")
+        .map((cell) => {
+          if (/\s=\s/.test(cell)) return cell.split(/(\s*[;=]\s*)/).map((part, i) => (i % 2 ? part : t(part))).join("");
+          return t(cell);
+        })
+        .join("|");
+    })
+    .join("\n");
+}
+
+/** Traduce los campos indicados de una lista de registros (servicios, productos, artículos…). */
+export async function trList<T extends Record<string, unknown>>(list: T[], fields: (keyof T)[]): Promise<T[]> {
+  const { lang, tx } = await getT();
+  if (lang === "es") return list;
+  return list.map((r) => {
+    const c = { ...r };
+    for (const f of fields) if (typeof c[f] === "string") (c as Record<string, unknown>)[f as string] = tx(c[f] as string);
+    return c;
+  });
+}
+
+export async function trOne<T extends Record<string, unknown>>(r: T | null, fields: (keyof T)[]): Promise<T | null> {
+  if (!r) return r;
+  return (await trList([r], fields))[0];
+}
+
+/* ---------------- Groq ---------------- */
+
+const SYSTEM = `You translate website copy for Aldore, a software studio in Medellín, Colombia, from Spanish to natural, professional English (US).
+Rules:
+- Return ONLY JSON: {"t": [ ...translations in the same order... ]} with exactly as many items as you received.
+- Keep brand and product names as they are: Aldore, Aldo, Castorly, Castorly Meet, Puerta, Cástor, WhatsApp, Wompi, Mercado Pago.
+- Keep any markup exactly: *asterisks* around words (put them around the equivalent English words), markdown (#, ##, -, 1., >, **, [text](url)), emojis, URLs, emails, numbers, prices like $1.200.000 and "COP".
+- Keep Colombian places as they are (Medellín, Colombia, Latinoamérica → Latin America).
+- Short UI labels stay short. Do not add quotes or explanations.`;
+
+async function groqBatch(texts: string[]): Promise<string[] | null> {
+  const key = process.env.GROQ_API_KEY;
+  if (!key) return null;
+  const body = JSON.stringify({
+    model: process.env.GROQ_TRANSLATE_MODEL || process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+    temperature: 0.2,
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: SYSTEM },
+      { role: "user", content: JSON.stringify({ t: texts }) },
+    ],
+  });
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const r = await fetch(process.env.GROQ_API_URL || "https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body,
+      signal: AbortSignal.timeout(45000),
+    }).catch(() => null);
+    if (r?.status === 429) {
+      const wait = Math.min(20, Number(r.headers.get("retry-after")) || 6);
+      await new Promise((res) => setTimeout(res, wait * 1000));
+      continue;
+    }
+    if (!r?.ok) {
+      console.error("Groq traducción", r?.status, await r?.text().catch(() => ""));
+      return null;
+    }
+    const data = (await r.json().catch(() => null)) as { choices?: { message?: { content?: string } }[] } | null;
+    try {
+      const out = JSON.parse(data?.choices?.[0]?.message?.content || "{}").t;
+      if (Array.isArray(out) && out.length === texts.length) return out.map((x) => String(x ?? ""));
+    } catch {}
+    console.error("Groq traducción: respuesta inválida");
+    return null;
+  }
+  return null;
+}
+
+/**
+ * Traduce y guarda los textos que todavía no tengan traducción. Devuelve cuántos tradujo.
+ * No toca las traducciones corregidas a mano.
+ */
+export async function translateNow(texts: string[], lang: Lang = "en"): Promise<number> {
+  if (lang === "es" || !groqReady()) return 0;
+  const uniq = [...new Set(texts.map((x) => x.trim()).filter(translatable))];
+  if (!uniq.length) return 0;
+  const keys = await Promise.all(uniq.map(keyOf));
+  const existing = new Set<string>();
+  for (let i = 0; i < keys.length; i += 90) {
+    const rows = await prisma.translation.findMany({ where: { lang, key: { in: keys.slice(i, i + 90) } }, select: { key: true } });
+    rows.forEach((r) => existing.add(r.key));
+  }
+  const todo = uniq.map((s, i) => ({ s, k: keys[i] })).filter((x) => !existing.has(x.k));
+  let done = 0;
+  // Lotes de ~40 textos o ~6.000 caracteres para no pasarnos del límite de Groq.
+  let batch: typeof todo = [];
+  let size = 0;
+  const flush = async () => {
+    if (!batch.length) return;
+    const out = await groqBatch(batch.map((x) => x.s));
+    if (out) {
+      for (let i = 0; i < batch.length; i++) {
+        const text = out[i].trim();
+        if (!text) continue;
+        await prisma.translation.upsert({
+          where: { lang_key: { lang, key: batch[i].k } },
+          create: { lang, key: batch[i].k, source: batch[i].s, text },
+          update: {},
+        });
+        done++;
+      }
+    }
+    batch = [];
+    size = 0;
+  };
+  for (const x of todo) {
+    if (batch.length >= 40 || size + x.s.length > 6000) await flush();
+    batch.push(x);
+    size += x.s.length;
+  }
+  await flush();
+  return done;
+}
+
+/** Traduce en segundo plano (después de responder) los textos de lo que se acaba de guardar en el panel. */
+export function translateLater(values: string[]) {
+  if (!groqReady()) return;
+  const texts = values.flatMap((v) => (typeof v === "string" ? pieces(v) : []));
+  if (!texts.length) return;
+  try {
+    after(() => translateNow(texts, "en").catch((e) => console.error("Traducción al guardar", e)));
+  } catch {
+    void translateNow(texts, "en").catch(() => {});
+  }
+}

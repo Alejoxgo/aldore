@@ -1,3 +1,4 @@
+import TC from "@/components/TC";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
@@ -27,16 +28,14 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
     <>
       <section className="border-b border-paper-line">
         <div className="container-x pb-12 pt-14 sm:pt-20">
-          <p className="font-mono text-sm uppercase tracking-widest text-brand-500">Blog</p>
+          <p className="font-mono text-sm uppercase tracking-widest text-brand-500"><TC>{"Blog"}</TC></p>
           <h1 className="mt-4 max-w-4xl font-display text-5xl font-medium leading-[1.02] tracking-tight sm:text-7xl">
             <Emph text={s["blog.title"]} />
           </h1>
           <p className="mt-6 max-w-2xl text-xl leading-relaxed text-ink-700">{s["blog.text"]}</p>
           {tags.length > 0 && (
             <div className="mt-8 flex flex-wrap gap-2">
-              <Link href="/blog" className={`rounded-full border px-3.5 py-1.5 text-sm transition ${!tag ? "border-ink-900 bg-ink-900 text-paper" : "border-paper-line bg-white/60 text-ink-700 hover:border-ink-900"}`}>
-                Todo
-              </Link>
+              <Link href="/blog" className={`rounded-full border px-3.5 py-1.5 text-sm transition ${!tag ? "border-ink-900 bg-ink-900 text-paper" : "border-paper-line bg-white/60 text-ink-700 hover:border-ink-900"}`}><TC>{"Todo"}</TC></Link>
               {tags.map((t) => (
                 <Link key={t} href={`/blog?tag=${encodeURIComponent(t)}`} className={`rounded-full border px-3.5 py-1.5 text-sm transition ${tag === t ? "border-ink-900 bg-ink-900 text-paper" : "border-paper-line bg-white/60 text-ink-700 hover:border-ink-900"}`}>
                   {t}
@@ -49,7 +48,7 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
 
       <section className="py-16 sm:py-20">
         <div className="container-x">
-          {!first && <p className="rounded-2xl border border-dashed border-paper-line p-10 text-center text-ink-500">Pronto publicaremos artículos aquí.</p>}
+          {!first && <p className="rounded-2xl border border-dashed border-paper-line p-10 text-center text-ink-500"><TC>{"Pronto publicaremos artículos aquí."}</TC></p>}
           {first && (
             <Reveal>
               <Link href={`/blog/${first.slug}`} className="group grid overflow-hidden rounded-3xl border border-paper-line bg-white transition hover:shadow-[0_24px_50px_-30px_rgba(22,19,15,.45)] lg:grid-cols-2">
@@ -60,12 +59,11 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
                   )}
                 </div>
                 <div className="flex flex-col justify-center p-7 sm:p-10">
-                  <p className="font-mono text-xs uppercase tracking-wider text-brand-500">Lo más reciente</p>
+                  <p className="font-mono text-xs uppercase tracking-wider text-brand-500"><TC>{"Lo más reciente"}</TC></p>
                   <h2 className="mt-3 font-display text-3xl leading-tight text-ink-900 sm:text-4xl">{first.title}</h2>
                   <p className="mt-4 text-lg text-ink-500">{first.excerpt}</p>
                   <p className="mt-6 font-mono text-xs text-ink-400">
-                    {postDate(first.publishedAt)} · {readingMinutes(first.content)} min de lectura
-                  </p>
+                    {postDate(first.publishedAt)} · {readingMinutes(first.content)}<TC>{" min de lectura"}</TC></p>
                 </div>
               </Link>
             </Reveal>
@@ -85,7 +83,7 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
                       <p className="font-mono text-[11px] uppercase tracking-wider text-brand-500">{tagList(p.tags)[0] ?? "Artículo"}</p>
                       <h3 className="mt-2 font-display text-2xl leading-tight text-ink-900">{p.title}</h3>
                       <p className="mt-2 flex-1 text-ink-500">{p.excerpt}</p>
-                      <p className="mt-5 font-mono text-xs text-ink-400">{postDate(p.publishedAt)} · {readingMinutes(p.content)} min</p>
+                      <p className="mt-5 font-mono text-xs text-ink-400">{postDate(p.publishedAt)} · {readingMinutes(p.content)}<TC>{" min"}</TC></p>
                     </div>
                   </Link>
                 </Reveal>

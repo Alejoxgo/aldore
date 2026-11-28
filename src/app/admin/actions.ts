@@ -4,7 +4,8 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdmin, requireOwner } from "@/lib/auth";
+import { translateLater } from "@/lib/i18n";
 import { MFA_COOKIE, SESSION_COOKIE, TRUST_COOKIE, TRUST_DAYS, authSecretReady, hashCode, sessionCookieOptions, signSession, signTrust, verifyTrust } from "@/lib/session";
 import { esc, mailLayout, mailReady, sendMail } from "@/lib/mail";
 
@@ -205,6 +206,10 @@ export async function saveResource(resourceKey: string, id: number | null, formD
     redirect(`/admin/${res.key}/${id ?? "nuevo"}?error=${encodeURIComponent(msg)}`);
   }
   refreshSite();
+  // Lo que se ve en el sitio público se traduce al inglés con Groq apenas se guarda.
+  if (["service", "product", "plan", "testimonial", "faq", "post"].includes(res.model)) {
+    translateLater(Object.values(data).filter((v): v is string => typeof v === "string"));
+  }
   redirect(`/admin/${res.key}?ok=${encodeURIComponent("Guardado correctamente")}`);
 }
 
@@ -238,6 +243,7 @@ export async function saveSettings(formData: FormData) {
   }
   await prisma.$transaction(ops);
   refreshSite();
+  translateLater([...formData.entries()].filter(([k]) => SETTING_KEYS.has(k) && !/^(notify\.|social\.|seed\.)/.test(k)).map(([, v]) => String(v)));
   const group = String(formData.get("_group") ?? "");
   redirect(`/admin/contenido?ok=${encodeURIComponent("Textos actualizados")}${group ? `#${group}` : ""}`);
 }
@@ -263,27 +269,57 @@ export async function deleteLead(id: number) {
 
 /* ---------------- Usuarios ---------------- */
 
+const backUsers = (kind: "ok" | "error", msg: string) => redirect(`/admin/usuarios?${kind}=${encodeURIComponent(msg)}`);
+const cleanRole = (v: FormDataEntryValue | null) => (v === "admin" ? "admin" : "editor");
+
 export async function createUser(formData: FormData) {
-  await requireAdmin();
+  await requireOwner();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const name = String(formData.get("name") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  if (!email || !name || password.length < 8) {
-    redirect(`/admin/usuarios?error=${encodeURIComponent("Nombre, correo y contraseña (mín. 8 caracteres) son obligatorios.")}`);
+  const role = cleanRole(formData.get("role"));
+  if (!email || !name || password.length < 10) backUsers("error", "Nombre, correo y contraseña (mín. 10 caracteres) son obligatorios.");
+  try {
+    await prisma.user.create({ data: { email, name, role, passwordHash: await bcrypt.hash(password, 12) } });
+  } catch {
+    backUsers("error", "Ya existe un usuario con ese correo.");
+  }
+  backUsers("ok", "Usuario creado");
+}
+
+export async function updateUser(id: number, formData: FormData) {
+  const session = await requireOwner();
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) backUsers("error", "Ese usuario ya no existe.");
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const name = String(formData.get("name") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const role = cleanRole(formData.get("role"));
+  if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) backUsers("error", "Escribe un nombre y un correo válido.");
+  if (password && password.length < 10) backUsers("error", "La nueva contraseña debe tener al menos 10 caracteres.");
+  // Siempre debe quedar al menos un administrador.
+  if (user!.role !== "editor" && role === "editor") {
+    if (id === session.uid) backUsers("error", "No puedes quitarte a ti mismo el rol de administrador.");
+    if ((await prisma.user.count({ where: { role: "admin" } })) <= 1) backUsers("error", "Debe quedar al menos un administrador.");
   }
   try {
-    await prisma.user.create({ data: { email, name, passwordHash: await bcrypt.hash(password, 12) } });
+    await prisma.user.update({
+      where: { id },
+      data: { name, email, role, ...(password ? { passwordHash: await bcrypt.hash(password, 12) } : {}) },
+    });
   } catch {
-    redirect(`/admin/usuarios?error=${encodeURIComponent("Ya existe un usuario con ese correo.")}`);
+    backUsers("error", "Ya existe otro usuario con ese correo.");
   }
-  redirect(`/admin/usuarios?ok=${encodeURIComponent("Usuario creado")}`);
+  backUsers("ok", `Cambios guardados para ${name}`);
 }
 
 export async function deleteUser(id: number) {
-  const session = await requireAdmin();
-  if (session.uid === id) redirect(`/admin/usuarios?error=${encodeURIComponent("No puedes eliminar tu propio usuario.")}`);
+  const session = await requireOwner();
+  if (session.uid === id) backUsers("error", "No puedes eliminar tu propio usuario.");
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (user && user.role !== "editor" && (await prisma.user.count({ where: { role: "admin" } })) <= 1) backUsers("error", "Debe quedar al menos un administrador.");
   await prisma.user.delete({ where: { id } });
-  redirect(`/admin/usuarios?ok=${encodeURIComponent("Usuario eliminado")}`);
+  backUsers("ok", "Usuario eliminado");
 }
 
 export async function changePassword(formData: FormData) {
@@ -294,7 +330,7 @@ export async function changePassword(formData: FormData) {
   if (!user || !(await bcrypt.compare(current, user.passwordHash))) {
     redirect(`/admin/usuarios?error=${encodeURIComponent("La contraseña actual no es correcta.")}`);
   }
-  if (next.length < 8) redirect(`/admin/usuarios?error=${encodeURIComponent("La nueva contraseña debe tener al menos 8 caracteres.")}`);
+  if (next.length < 10) redirect(`/admin/usuarios?error=${encodeURIComponent("La nueva contraseña debe tener al menos 10 caracteres.")}`);
   await prisma.user.update({ where: { id: session.uid }, data: { passwordHash: await bcrypt.hash(next, 12) } });
   redirect(`/admin/usuarios?ok=${encodeURIComponent("Contraseña actualizada")}`);
 }
@@ -396,4 +432,53 @@ export async function leadToOrder(leadId: number) {
   });
   await prisma.lead.update({ where: { id: leadId }, data: { status: "ganado" } }).catch(() => {});
   redirect(`/admin/pedidos/${order.id}?ok=${encodeURIComponent("Pedido creado desde la solicitud")}`);
+}
+
+/* ---------------- Idiomas (traducción con Groq) ---------------- */
+
+/** Traduce de una vez todos los textos del sitio que aún no estén en inglés. */
+export async function translateEverything() {
+  await requireAdmin();
+  const { translateNow, pieces, groqReady } = await import("@/lib/i18n");
+  if (!groqReady()) redirect(`/admin/idiomas?error=${encodeURIComponent("Falta la clave GROQ_API_KEY en Cloudflare.")}`);
+  const { getRawSettings } = await import("@/lib/settings");
+  const { UI_STRINGS } = await import("@/lib/ui-strings");
+  const { SERVICE_GROUPS } = await import("@/lib/service-groups");
+  const s = await getRawSettings();
+  const pub = { where: { published: true } };
+  const [services, products, plans, testimonials, faqs, posts] = await Promise.all([
+    prisma.service.findMany(pub), prisma.product.findMany(pub), prisma.plan.findMany(pub),
+    prisma.testimonial.findMany(pub), prisma.faq.findMany(pub), prisma.post.findMany(pub),
+  ]);
+  const texts: string[] = [
+    ...Object.entries(s).filter(([k]) => !/^(notify\.|social\.|seed\.|site\.name)/.test(k)).flatMap(([, v]) => pieces(v)),
+    ...UI_STRINGS,
+    ...SERVICE_GROUPS.flatMap((g) => [g.title, g.text]),
+    ...services.flatMap((x) => [x.title, x.shortDescription, x.description, x.features].flatMap(pieces)),
+    ...products.flatMap((x) => [x.tagline, x.description, x.price, x.priceNote, x.features, x.ctaLabel].flatMap(pieces)),
+    ...plans.flatMap((x) => [x.name, x.price, x.period, x.description, x.features].flatMap(pieces)),
+    ...testimonials.flatMap((x) => [x.role, x.quote].flatMap(pieces)),
+    ...faqs.flatMap((x) => [x.question, x.answer].flatMap(pieces)),
+    ...posts.flatMap((x) => [x.title, x.excerpt, x.content, x.tags, x.author].flatMap(pieces)),
+  ];
+  const n = await translateNow(texts, "en");
+  redirect(`/admin/idiomas?ok=${encodeURIComponent(n ? `Listo: ${n} textos nuevos traducidos al inglés.` : "Todo ya estaba traducido (o Groq no respondió; revisa los registros).")}`);
+}
+
+/** Corrige a mano una traducción. Queda marcada para que Groq no la cambie. */
+export async function saveTranslation(id: number, formData: FormData) {
+  await requireAdmin();
+  const text = String(formData.get("text") ?? "").trim();
+  if (text) await prisma.translation.update({ where: { id }, data: { text, manual: true } });
+  refreshSite();
+  const q = String(formData.get("q") ?? "");
+  redirect(`/admin/idiomas?ok=${encodeURIComponent("Traducción guardada")}${q ? `&q=${encodeURIComponent(q)}` : ""}`);
+}
+
+/** Borra una traducción para que Groq la vuelva a hacer en la próxima visita. */
+export async function redoTranslation(id: number) {
+  await requireAdmin();
+  await prisma.translation.delete({ where: { id } }).catch(() => {});
+  refreshSite();
+  redirect(`/admin/idiomas?ok=${encodeURIComponent("Se volverá a traducir")}`);
 }

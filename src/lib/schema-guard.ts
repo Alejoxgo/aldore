@@ -19,10 +19,13 @@ export const SCHEMA_GUARD: string[] = [
   "CREATE INDEX IF NOT EXISTS \"Ticket_queueId_status_idx\" ON \"Ticket\"(\"queueId\", \"status\")",
   "CREATE UNIQUE INDEX IF NOT EXISTS \"MenuBoard_slug_key\" ON \"MenuBoard\"(\"slug\")",  "CREATE TABLE IF NOT EXISTS \"MfaChallenge\" (\n    \"id\" TEXT NOT NULL PRIMARY KEY,\n    \"userId\" INTEGER NOT NULL,\n    \"codeHash\" TEXT NOT NULL,\n    \"attempts\" INTEGER NOT NULL DEFAULT 0,\n    \"expires\" INTEGER NOT NULL,\n    \"sentAt\" INTEGER NOT NULL,\n    \"createdAt\" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP\n)",
   "CREATE INDEX IF NOT EXISTS \"MfaChallenge_userId_idx\" ON \"MfaChallenge\"(\"userId\")",
+  "CREATE TABLE IF NOT EXISTS \"Translation\" (\n    \"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n    \"lang\" TEXT NOT NULL,\n    \"key\" TEXT NOT NULL,\n    \"source\" TEXT NOT NULL,\n    \"text\" TEXT NOT NULL,\n    \"manual\" BOOLEAN NOT NULL DEFAULT false,\n    \"updatedAt\" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP\n)",
+  "CREATE UNIQUE INDEX IF NOT EXISTS \"Translation_lang_key_key\" ON \"Translation\"(\"lang\", \"key\")",
 ];
 
 /** Columnas añadidas después de crear la tabla. Se agregan solo si faltan (SQLite no tiene ADD COLUMN IF NOT EXISTS). */
 export const COLUMN_GUARD: { table: string; column: string; ddl: string }[] = [
+  { table: "User", column: "role", ddl: `ALTER TABLE "User" ADD COLUMN "role" TEXT NOT NULL DEFAULT 'admin'` },
   { table: "Order", column: "clientUpdate", ddl: `ALTER TABLE "Order" ADD COLUMN "clientUpdate" TEXT NOT NULL DEFAULT ''` },
   { table: "Client", column: "portalToken", ddl: `ALTER TABLE "Client" ADD COLUMN "portalToken" TEXT NOT NULL DEFAULT ''` },
   { table: "LinkPage", column: "coverUrl", ddl: `ALTER TABLE "LinkPage" ADD COLUMN "coverUrl" TEXT NOT NULL DEFAULT ''` },

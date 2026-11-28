@@ -1,3 +1,4 @@
+import TC from "@/components/TC";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -29,7 +30,7 @@ export default async function PostPage({ params }: Props) {
     <article>
       <header className="border-b border-paper-line">
         <div className="container-x max-w-4xl pb-10 pt-14 sm:pt-20">
-          <Link href="/blog" className="eyebrow hover:text-ink-900">← Blog</Link>
+          <Link href="/blog" className="eyebrow hover:text-ink-900"><TC>{"← Blog"}</TC></Link>
           <div className="mt-8 flex flex-wrap gap-2">
             {tagList(p.tags).map((t) => (
               <Link key={t} href={`/blog?tag=${encodeURIComponent(t)}`} className="rounded-full bg-brand-500/10 px-3 py-1 font-mono text-xs text-brand-700 hover:bg-brand-500/20">{t}</Link>
@@ -38,8 +39,7 @@ export default async function PostPage({ params }: Props) {
           <h1 className="mt-5 font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-6xl">{p.title}</h1>
           {p.excerpt && <p className="mt-5 text-xl leading-relaxed text-ink-700">{p.excerpt}</p>}
           <p className="mt-6 font-mono text-xs uppercase tracking-wider text-ink-500">
-            {p.author} · {postDate(p.publishedAt)} · {readingMinutes(p.content)} min de lectura
-          </p>
+            {p.author} · {postDate(p.publishedAt)} · {readingMinutes(p.content)}<TC>{" min de lectura"}</TC></p>
         </div>
       </header>
       {p.coverUrl && (
@@ -56,17 +56,17 @@ export default async function PostPage({ params }: Props) {
         <div className="flex flex-col items-start gap-6 rounded-3xl bg-ink-900 p-7 text-paper sm:flex-row sm:items-center sm:p-9">
           <Aldo pose="wave" className="h-24 w-24 shrink-0" />
           <div className="flex-1">
-            <p className="font-display text-2xl">¿Quieres saber cuánto costaría lo tuyo?</p>
-            <p className="mt-2 text-paper/70">Usa el cotizador: en dos minutos tienes un rango de precio, sin compromiso.</p>
+            <p className="font-display text-2xl"><TC>{"¿Quieres saber cuánto costaría lo tuyo?"}</TC></p>
+            <p className="mt-2 text-paper/70"><TC>{"Usa el cotizador: en dos minutos tienes un rango de precio, sin compromiso."}</TC></p>
           </div>
-          <Link href="/cotizar" className="btn-signal shrink-0">Cotizar ahora →</Link>
+          <Link href="/cotizar" className="btn-signal shrink-0"><TC>{"Cotizar ahora →"}</TC></Link>
         </div>
       </section>
 
       {others.length > 0 && (
         <section className="border-t border-paper-line bg-paper-2 py-16">
           <div className="container-x">
-            <p className="eyebrow">Sigue leyendo</p>
+            <p className="eyebrow"><TC>{"Sigue leyendo"}</TC></p>
             <ul className="mt-6 grid gap-5 md:grid-cols-3">
               {others.map((o) => (
                 <li key={o.id}>

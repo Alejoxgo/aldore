@@ -121,11 +121,43 @@ export function getPrisma(): PrismaClient {
   return isWorker ? workerClient() : nodeClient();
 }
 
+/**
+ * Campos que se muestran en el sitio público y se traducen cuando la visita es en inglés.
+ * La traducción solo ocurre si el middleware marcó la petición como inglés; el panel siempre ve el español.
+ */
+const TR_FIELDS: Record<string, string[]> = {
+  service: ["title", "shortDescription", "description", "features"],
+  product: ["tagline", "description", "price", "priceNote", "features", "ctaLabel"],
+  plan: ["name", "price", "period", "description", "features"],
+  testimonial: ["role", "quote"],
+  faq: ["question", "answer"],
+  post: ["title", "excerpt", "content", "tags", "author"],
+};
+const READS = new Set(["findMany", "findFirst", "findUnique", "findFirstOrThrow", "findUniqueOrThrow"]);
+
+function translatedModel(model: Record<string, unknown>, fields: string[]) {
+  return new Proxy(model, {
+    get(m, op) {
+      const fn = m[op as string];
+      if (typeof fn !== "function") return fn;
+      if (!READS.has(op as string)) return (fn as (...a: unknown[]) => unknown).bind(m);
+      return async (...args: unknown[]) => {
+        const r = await (fn as (...a: unknown[]) => Promise<unknown>).apply(m, args);
+        if (!r) return r;
+        const { trList } = await import("./i18n");
+        if (Array.isArray(r)) return trList(r as Record<string, unknown>[], fields);
+        return (await trList([r as Record<string, unknown>], fields))[0];
+      };
+    },
+  });
+}
+
 /** Acceso perezoso: resuelve el cliente correcto en cada uso. */
 export const prisma = new Proxy({} as PrismaClient, {
   get(_t, prop) {
     const client = getPrisma() as unknown as Record<string | symbol, unknown>;
     const value = client[prop];
+    if (typeof prop === "string" && TR_FIELDS[prop] && value) return translatedModel(value as Record<string, unknown>, TR_FIELDS[prop]);
     return typeof value === "function" ? (value as (...a: unknown[]) => unknown).bind(client) : value;
   },
 });

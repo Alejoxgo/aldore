@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import Logo from "./Logo";
 
 type NavLink = { label: string; href: string };
@@ -41,7 +42,28 @@ function LoginButton({ label, user, className = "", onClick }: { label: string; 
   );
 }
 
-export default function Header({ name, links, cta, ctaUrl, login, user = null }: { name: string; links: NavLink[]; cta: string; ctaUrl: string; login: string; user?: string | null }) {
+/** Cambia entre español e inglés en la misma página (recarga completa para traer los textos del idioma). */
+function LangSwitch({ lang, className = "" }: { lang: "es" | "en"; className?: string }) {
+  const path = (usePathname() || "/").replace(/^\/(en|es)(?=\/|$)/, "") || "/";
+  const opt = (l: "es" | "en") => (
+    <a
+      href={`/${l}${path === "/" ? "" : path}`}
+      hrefLang={l}
+      aria-current={lang === l ? "true" : undefined}
+      className={`rounded-full px-2 py-0.5 transition ${lang === l ? "bg-paper text-ink-900" : "text-paper/60 hover:text-paper"}`}
+    >
+      {l.toUpperCase()}
+    </a>
+  );
+  return (
+    <div className={`inline-flex items-center rounded-full border border-white/15 p-0.5 font-mono text-[11px] ${className}`} aria-label="Idioma / Language">
+      {opt("es")}
+      {opt("en")}
+    </div>
+  );
+}
+
+export default function Header({ name, links, cta, ctaUrl, login, user = null, lang = "es" }: { name: string; links: NavLink[]; cta: string; ctaUrl: string; login: string; user?: string | null; lang?: "es" | "en" }) {
   const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-ink-900/90 text-paper backdrop-blur">
@@ -49,13 +71,14 @@ export default function Header({ name, links, cta, ctaUrl, login, user = null }:
         <Link href="/" aria-label={`${name}, inicio`}>
           <Logo name={name} light />
         </Link>
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-6 md:flex xl:gap-8">
           {links.map((n) => (
             <Link key={n.href + n.label} href={n.href} className="text-[15px] text-paper/70 transition hover:text-paper">
               {n.label}
             </Link>
           ))}
           <div className="flex items-center gap-3">
+            <LangSwitch lang={lang} />
             {(login || user) && <LoginButton label={login} user={user} />}
             {cta && (
               <Link href={ctaUrl || "/contacto"} className="btn-signal !py-2">
@@ -90,6 +113,7 @@ export default function Header({ name, links, cta, ctaUrl, login, user = null }:
                 </Link>
               )}
               {(login || user) && <LoginButton label={login} user={user} onClick={() => setOpen(false)} className="!py-2.5" />}
+              <LangSwitch lang={lang} className="ml-auto" />
             </div>
           </div>
         </nav>

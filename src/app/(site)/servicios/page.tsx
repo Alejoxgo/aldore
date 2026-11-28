@@ -1,9 +1,11 @@
+import TC from "@/components/TC";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import { lines } from "@/lib/utils";
 import { groupServices } from "@/lib/service-groups";
+import { getT } from "@/lib/i18n";
 import Icon from "@/components/Icon";
 import Aldo from "@/components/Aldo";
 import Reveal from "@/components/Reveal";
@@ -21,7 +23,8 @@ export default async function ServicesPage() {
     getSettings(),
     prisma.service.findMany({ where: { published: true }, orderBy: { order: "asc" } }),
   ]);
-  const groups = groupServices(services);
+  const { t } = await getT();
+  const groups = groupServices(services).map((g) => ({ ...g, title: t(g.title), text: t(g.text) }));
   let n = 0;
 
   return (
@@ -30,10 +33,10 @@ export default async function ServicesPage() {
       <section className="relative overflow-hidden border-b border-paper-line">
         <div className="pointer-events-none absolute -right-40 -top-40 h-[32rem] w-[32rem] rounded-full bg-brand-500/10 blur-3xl" aria-hidden />
         <div className="container-x relative pb-14 pt-14 sm:pt-20">
-          <Link href="/" className="eyebrow hover:text-ink-900">← Inicio</Link>
+          <Link href="/" className="eyebrow hover:text-ink-900"><TC>{"← Inicio"}</TC></Link>
           <div className="mt-10 grid items-end gap-10 lg:grid-cols-12">
             <div className="lg:col-span-8">
-              <p className="font-mono text-sm uppercase tracking-widest text-brand-500">Servicios</p>
+              <p className="font-mono text-sm uppercase tracking-widest text-brand-500"><TC>{"Servicios"}</TC></p>
               <h1 className="mt-4 font-display text-5xl font-medium leading-[1.02] tracking-tight sm:text-7xl">
                 <Emph text={s["servicesPage.title"]} />
               </h1>
@@ -41,16 +44,16 @@ export default async function ServicesPage() {
             </div>
             <dl className="grid grid-cols-3 gap-4 border-t border-ink-900 pt-5 lg:col-span-4">
               <div>
-                <dt className="font-mono text-[11px] uppercase tracking-wider text-ink-500">Servicios</dt>
+                <dt className="font-mono text-[11px] uppercase tracking-wider text-ink-500"><TC>{"Servicios"}</TC></dt>
                 <dd className="mt-1 font-display text-4xl">{services.length}</dd>
               </div>
               <div>
-                <dt className="font-mono text-[11px] uppercase tracking-wider text-ink-500">Áreas</dt>
+                <dt className="font-mono text-[11px] uppercase tracking-wider text-ink-500"><TC>{"Áreas"}</TC></dt>
                 <dd className="mt-1 font-display text-4xl">{groups.length}</dd>
               </div>
               <div>
-                <dt className="font-mono text-[11px] uppercase tracking-wider text-ink-500">Precio</dt>
-                <dd className="mt-1 font-display text-4xl">Fijo</dd>
+                <dt className="font-mono text-[11px] uppercase tracking-wider text-ink-500"><TC>{"Precio"}</TC></dt>
+                <dd className="mt-1 font-display text-4xl"><TC>{"Fijo"}</TC></dd>
               </div>
             </dl>
           </div>
@@ -120,9 +123,7 @@ export default async function ServicesPage() {
                           ))}
                         </ul>
                       )}
-                      <span className="mt-auto inline-flex items-center gap-2 pt-6 text-sm font-medium text-ink-900">
-                        Ver el detalle
-                        <Arrow className="h-4 w-4 transition group-hover:translate-x-1 group-hover:text-brand-500" />
+                      <span className="mt-auto inline-flex items-center gap-2 pt-6 text-sm font-medium text-ink-900"><TC>{"Ver el detalle"}</TC><Arrow className="h-4 w-4 transition group-hover:translate-x-1 group-hover:text-brand-500" />
                       </span>
                     </Link>
                   </Reveal>
@@ -148,7 +149,7 @@ export default async function ServicesPage() {
               <Link href={s["nav.ctaUrl"] || "/contacto"} className="btn-signal">
                 {s["nav.cta"] || "Hablemos"} <Arrow className="h-4 w-4" />
               </Link>
-              <Link href="/#planes" className="btn-ghost text-paper">Ver planes y precios</Link>
+              <Link href="/#planes" className="btn-ghost text-paper"><TC>{"Ver planes y precios"}</TC></Link>
             </div>
           </div>
           <div className="hidden justify-end lg:col-span-4 lg:flex">

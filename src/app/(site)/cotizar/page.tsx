@@ -1,3 +1,4 @@
+import TC from "@/components/TC";
 import type { Metadata } from "next";
 import { getSettings } from "@/lib/settings";
 import { parseQuoteConfig } from "@/lib/quote";
@@ -18,7 +19,7 @@ export default async function QuotePage() {
       <section className="relative overflow-hidden border-b border-paper-line">
         <div className="pointer-events-none absolute -left-40 -top-40 h-[30rem] w-[30rem] rounded-full bg-brand-500/10 blur-3xl" aria-hidden />
         <div className="container-x relative pb-12 pt-14 sm:pt-20">
-          <p className="font-mono text-sm uppercase tracking-widest text-brand-500">Cotizador en línea</p>
+          <p className="font-mono text-sm uppercase tracking-widest text-brand-500"><TC>{"Cotizador en línea"}</TC></p>
           <h1 className="mt-4 max-w-4xl font-display text-5xl font-medium leading-[1.02] tracking-tight sm:text-7xl">
             <Emph text={s["quote.title"]} />
           </h1>

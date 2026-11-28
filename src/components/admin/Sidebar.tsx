@@ -47,7 +47,10 @@ export const ADMIN_NAV = [
   },
   {
     title: "Ajustes",
-    items: [{ href: "/admin/usuarios", label: "Usuarios del panel", icon: "key" }],
+    items: [
+      { href: "/admin/usuarios", label: "Usuarios del panel", icon: "key" },
+      { href: "/admin/idiomas", label: "Idiomas (inglés)", icon: "globe" },
+    ],
   },
 ];
 
