@@ -1,5 +1,5 @@
 import TC from "@/components/TC";
-import Aldo from "./Aldo";
+import HeroAldo from "./HeroAldo";
 
 const chat = [
   { me: false, t: "Hola 👋 ¿tienen cita para mañana?" },
@@ -26,15 +26,8 @@ export default function HeroDoor({ caption }: { caption: string }) {
         <path d="M2 358V191C2 91 72 31 150 2c78 29 148 89 148 189v167" stroke="currentColor" strokeDasharray="4 6" />
       </svg>
 
-      {/* Aldo llega volando desde la izquierda y se posa encima de la puerta */}
-      <div className="absolute -top-[86px] left-1/2 z-20 h-[96px] w-[96px] -translate-x-1/2">
-        <div className="hero-aldo-fly absolute inset-0" aria-hidden>
-          <Aldo pose="fly" follow={false} className="h-full w-full" title="" />
-        </div>
-        <div className="hero-aldo-sit absolute inset-0">
-          <Aldo pose="base" className="h-full w-full" title="Aldo, el búho de Aldore" />
-        </div>
-      </div>
+      {/* Aldo llega volando y se posa encima de la puerta; si lo tocas se va y luego regresa */}
+      <HeroAldo />
 
       <div className="relative z-10 aspect-[30/36] w-full bg-ink-900" style={{ clipPath: "url(#aldore-arch)" }}>
         {/* El umbral bermellón: la entrada del logo */}
