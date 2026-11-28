@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "./Icon";
 import Aldo from "./Aldo";
-import { computeQuote, extrasFor, type QuoteConfig } from "@/lib/quote";
+import { computeQuote, extrasFor, scopeFor, type QuoteConfig } from "@/lib/quote";
 import { money } from "@/lib/format";
 import { submitQuote, type QuoteState } from "@/app/actions/quote";
 
@@ -44,7 +44,7 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
 
 export default function Quoter({ cfg }: { cfg: QuoteConfig }) {
   const [type, setType] = useState("");
-  const [size, setSize] = useState(cfg.sizes[0]?.id ?? "basico");
+  const [size, setSize] = useState("o1");
   const [speed, setSpeed] = useState(cfg.speeds[0]?.id ?? "normal");
   const [extras, setExtras] = useState<string[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -52,11 +52,13 @@ export default function Quoter({ cfg }: { cfg: QuoteConfig }) {
 
   const q = useMemo(() => computeQuote(cfg, { type, size, speed, extras }), [cfg, type, size, speed, extras]);
   const available = type ? extrasFor(cfg, type) : [];
+  const scope = scopeFor(cfg, type);
   const min = useTween(q?.min ?? 0);
   const max = useTween(q?.max ?? 0);
 
   const choose = (id: string) => {
     setType(id);
+    setSize(scopeFor(cfg, id).options[0]?.id ?? "");
     setExtras((xs) => xs.filter((x) => extrasFor(cfg, id).some((e) => e.name === x)));
   };
   const pill = (on: boolean) =>
@@ -100,9 +102,9 @@ export default function Quoter({ cfg }: { cfg: QuoteConfig }) {
         </Step>
 
         <div className={`space-y-10 transition-opacity duration-500 ${type ? "opacity-100" : "pointer-events-none opacity-40"}`} aria-disabled={!type}>
-          <Step n={2} title="¿Qué tan completo?">
-            <div className="grid gap-3 sm:grid-cols-3">
-              {cfg.sizes.map((x) => (
+          <Step n={2} title={scope.question}>
+            <div className={`grid gap-3 ${scope.options.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
+              {scope.options.map((x) => (
                 <button key={x.id} type="button" onClick={() => setSize(x.id)} className={pill(size === x.id)} aria-pressed={size === x.id}>
                   <span className="block font-medium text-ink-900">{x.name}</span>
                   <span className="mt-0.5 block text-sm text-ink-500">{x.text}</span>

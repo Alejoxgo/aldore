@@ -31,7 +31,8 @@ export async function submitQuote(_prev: QuoteState, fd: FormData): Promise<Quot
 
   const message = [
     `Cotización en línea: ${q.type.name}`,
-    `Alcance: ${q.size.name} · ${q.speed.name}`,
+    `${q.scope.question} ${q.size.name}`,
+    `Tiempo: ${q.speed.name}`,
     q.extras.length ? `Extras: ${q.extras.map((e) => `${e.name} (${money(e.price)})`).join(", ")}` : "Extras: ninguno",
     `Rango estimado: ${money(q.min)} – ${money(q.max)}${q.type.monthly ? ` ${q.type.monthly}` : ""}`,
     data.note ? `\nComentario del cliente:\n${data.note}` : "",
