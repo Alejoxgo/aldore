@@ -52,6 +52,11 @@ export default function Aldo({
     };
   }, [follow, pose]);
 
+  // Contorno claro alrededor de la silueta para que Aldo no se pierda sobre fondos oscuros.
+  // paint-order "stroke" deja el trazo detrás del relleno: solo se ve la mitad de afuera.
+  // Se dibuja primero una copia de la silueta con un trazo grueso claro, y encima las piezas normales.
+  const edge = { fill: P, stroke: P, strokeWidth: onDark ? 6 : 5, strokeLinejoin: "round" as const };
+
   const eyesOpen = (
     <g className="aldo-blink">
       <circle cx="46" cy="46" r="12" fill={P} />
@@ -90,10 +95,17 @@ export default function Aldo({
         </g>
       )}
 
+      <g className="aldo-body" aria-hidden>
+        <g className="aldo-head"><path d="M24 114V66C24 47 29 37 35 30L31 10 49 23Q60 19 71 23L89 10 85 30C91 37 96 47 96 66v48z" {...edge} /></g>
+        {pose !== "code" && <path className="aldo-wing-l" d="M25 72c-10 8-12 22-4 34 3-12 6-22 4-34z" {...edge} />}
+        {(pose === "base" || pose === "happy") && <path className="aldo-wing-r" d="M95 72c10 8 12 22 4 34-3-12-6-22-4-34z" {...edge} />}
+        {pose === "wave" && <g className="aldo-wave"><path d="M95 74c10-6 16-20 14-34-6 8-11 20-14 34z" {...edge} /></g>}
+      </g>
+
       <g className="aldo-body">
         {/* cuerpo con orejas: el arco del logo */}
         <g className="aldo-head">
-          <path d="M24 114V66C24 47 29 37 35 30L31 10 49 23Q60 19 71 23L89 10 85 30C91 37 96 47 96 66v48z" fill={INK} stroke={onDark ? "rgba(244,241,234,.45)" : "none"} strokeWidth="1.6" strokeLinejoin="round" />
+          <path d="M24 114V66C24 47 29 37 35 30L31 10 49 23Q60 19 71 23L89 10 85 30C91 37 96 47 96 66v48z" fill={INK} />
           <path d="M41 114V90c0-10 8-16 19-20 11 4 19 10 19 20v24z" fill={V} />
           <path
             d="M52 88l4 4 4-4 4 4 4-4M48 98l4 4 4-4 4 4 4-4 4 4 4-4"
@@ -116,8 +128,8 @@ export default function Aldo({
         </g>
 
         {/* alas */}
-        {pose !== "code" && <path className="aldo-wing-l" d="M25 72c-10 8-12 22-4 34 3-12 6-22 4-34z" fill={INK} stroke={onDark ? "rgba(244,241,234,.45)" : "none"} strokeWidth="1.6" />}
-        {(pose === "base" || pose === "happy") && <path className="aldo-wing-r" d="M95 72c10 8 12 22 4 34-3-12-6-22-4-34z" fill={INK} stroke={onDark ? "rgba(244,241,234,.45)" : "none"} strokeWidth="1.6" />}
+        {pose !== "code" && <path className="aldo-wing-l" d="M25 72c-10 8-12 22-4 34 3-12 6-22 4-34z" fill={INK} />}
+        {(pose === "base" || pose === "happy") && <path className="aldo-wing-r" d="M95 72c10 8 12 22 4 34-3-12-6-22-4-34z" fill={INK} />}
         {pose === "wave" && (
           <g className="aldo-wave">
             <path d="M95 74c10-6 16-20 14-34-6 8-11 20-14 34z" fill={INK} />

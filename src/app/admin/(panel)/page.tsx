@@ -150,7 +150,7 @@ export default async function Dashboard() {
             </Item>
           ))}
         </Panel>
-        <section className="flex flex-col justify-between overflow-hidden rounded-2xl bg-ink-900 p-6 text-paper ring-1 ring-inset ring-white/35">
+        <section className="flex flex-col justify-between overflow-hidden rounded-2xl bg-ink-900 p-6 text-paper">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-wider text-paper/50">Tu sitio web</p>
             <p className="mt-2 font-display text-2xl">Cambia textos, servicios y precios sin tocar código.</p>

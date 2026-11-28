@@ -53,7 +53,7 @@ export default async function PostPage({ params }: Props) {
       </div>
 
       <section className="container-x max-w-3xl pb-16">
-        <div className="flex flex-col items-start gap-6 rounded-3xl bg-ink-900 p-7 text-paper ring-1 ring-inset ring-white/35 sm:flex-row sm:items-center sm:p-9">
+        <div className="flex flex-col items-start gap-6 rounded-3xl bg-ink-900 p-7 text-paper sm:flex-row sm:items-center sm:p-9">
           <Aldo pose="wave" className="h-24 w-24 shrink-0" />
           <div className="flex-1">
             <p className="font-display text-2xl">¿Quieres saber cuánto costaría lo tuyo?</p>
