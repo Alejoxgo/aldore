@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { loadAldo } from "@/lib/aldo-server";
+import { groqChat } from "@/lib/groq";
 
 const hits = new Map<string, { n: number; until: number }>();
-const MODEL = () => process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 
 type ChatMsg = { role: "user" | "assistant"; content: string };
 
@@ -53,17 +53,12 @@ ${catalog}
 ${faqs}${{ en: "\n\nIMPORTANT: The visitor is browsing the English version of the site. Always answer in natural English, keeping the same rules.", pt: "\n\nIMPORTANTE: O visitante está na versão em português do site. Responda sempre em português do Brasil natural, mantendo as mesmas regras." }[(k as { lang?: string }).lang || ""] || ""}`;
 
   try {
-    const r = await fetch(process.env.GROQ_API_URL || "https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { "content-type": "application/json", authorization: `Bearer ${key}` },
-      body: JSON.stringify({ model: MODEL(), temperature: 0.4, max_tokens: 350, messages: [{ role: "system", content: system }, ...messages] }),
-    });
+    const r = await groqChat({ temperature: 0.4, maxTokens: 350, timeoutMs: 25000, messages: [{ role: "system", content: system }, ...messages] });
     if (!r.ok) {
-      console.error("Groq respondió", r.status, (await r.text()).slice(0, 300));
+      console.error("Groq respondió", r.status, r.model, r.error);
       return NextResponse.json({ error: "groq" }, { status: 502 });
     }
-    const data = (await r.json()) as { choices?: { message?: { content?: string } }[] };
-    let text = data.choices?.[0]?.message?.content?.trim() ?? "";
+    let text = r.content;
     const wa = text.includes("[WHATSAPP]");
     const link = text.match(/\[LINK:([^\]\s]+)\]/)?.[1];
     text = text.replace(/\[WHATSAPP\]|\[LINK:[^\]]*\]/g, "").trim();

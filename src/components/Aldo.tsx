@@ -10,8 +10,12 @@ export type AldoWear = "santa" | "witch" | "party" | "grad" | "cap" | "crown" | 
 export const AldoSeason = createContext<AldoWear[]>([]);
 
 // Alas abiertas (volando) y alas arriba (celebrando).
-const FLY_L = "M27 74C14 60 1 56-9 60c6 6 10 14 12 22 7-2 15-4 24 4z";
-const FLY_R = "M93 74c13-14 26-18 36-14-6 6-10 14-12 22-7-2-15-4-24 4z";
+// Ala de búho: borde de ataque redondeado y plumas con puntas redondas (no puntas de murciélago).
+const FLY_L = "M28 72C18 60 2 54-10 58c-3 1-4 4-1 6-2 2-1 5 2 5-1 3 1 5 4 4 0 3 2 5 5 4 1 3 4 4 7 2C16 79 23 82 29 86z";
+const FLY_R = "M92 72c10-12 26-18 38-14 3 1 4 4 1 6 2 2 1 5-2 5 1 3-1 5-4 4 0 3-2 5-5 4-1 3-4 4-7 2-9 0-16 3-22 7z";
+// Líneas de plumas dentro del ala.
+const FEATHER_L = "M22 73c-9-5-19-7-28-5M21 78c-7-3-14-4-21-2M23 82c-5-1-10-1-15 1";
+const FEATHER_R = "M98 73c9-5 19-7 28-5M99 78c7-3 14-4 21-2M97 82c5-1 10-1 15 1";
 const UP_L = "M26 76C16 66 12 52 14 40c6 8 11 18 14 30z";
 const UP_R = "M94 76c10-10 14-24 12-36-6 8-11 18-14 30z";
 
@@ -163,7 +167,12 @@ export default function Aldo({
 
         {/* alas */}
         {!["code", "fly", "cheer", "dance", "read"].includes(pose) && <path className="aldo-wing-l" d="M25 72c-10 8-12 22-4 34 3-12 6-22 4-34z" fill={INK} />}
-        {pose === "fly" && <><path className="aldo-flap-l" d={FLY_L} fill={INK} /><path className="aldo-flap-r" d={FLY_R} fill={INK} /></>}
+        {pose === "fly" && (
+          <>
+            <g className="aldo-flap-l"><path d={FLY_L} fill={INK} /><path d={FEATHER_L} stroke={P} strokeOpacity=".35" strokeWidth="1.4" strokeLinecap="round" fill="none" /></g>
+            <g className="aldo-flap-r"><path d={FLY_R} fill={INK} /><path d={FEATHER_R} stroke={P} strokeOpacity=".35" strokeWidth="1.4" strokeLinecap="round" fill="none" /></g>
+          </>
+        )}
         {(pose === "cheer" || pose === "dance") && (
           <>
             <path className="aldo-cheer-l" d={UP_L} fill={INK} />

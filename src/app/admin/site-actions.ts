@@ -5,6 +5,7 @@ import { requirePerm } from "@/lib/auth";
 import { translateLater } from "@/lib/i18n";
 import { DRAFT, SETTINGS_GROUPS, SETTING_KEYS } from "@/lib/settings";
 import { SEASONS } from "@/lib/season";
+import { groqChat } from "@/lib/groq";
 
 /* ---------------- Temáticas ---------------- */
 
@@ -80,8 +81,7 @@ const ASSIST: Record<string, string> = {
 /** Aldo reescribe un texto del sitio con Groq. Devuelve la propuesta; tú decides si la usas. */
 export async function aldoAssist(input: { key: string; value: string; mode: string; prompt?: string }) {
   await requirePerm("editor");
-  const key = process.env.GROQ_API_KEY;
-  if (!key) return { ok: false as const, text: "Aldo necesita la clave GROQ_API_KEY en Cloudflare para ayudarte a escribir." };
+  if (!process.env.GROQ_API_KEY) return { ok: false as const, text: "Aldo necesita la clave GROQ_API_KEY en Cloudflare para ayudarte a escribir." };
   const field = SETTINGS_GROUPS.flatMap((g) => g.fields.map((f) => ({ ...f, group: g.title }))).find((f) => f.key === input.key);
   const task = input.prompt?.trim() ? `Instrucción del usuario: ${input.prompt.trim().slice(0, 500)}` : ASSIST[input.mode] || ASSIST.mejorar;
   const sys = `Eres Aldo, el búho asistente de Aldore, un estudio de software en Medellín, Colombia. Ayudas a escribir los textos de su sitio web en español de Colombia, con tono profesional, cálido y claro (tuteo).
@@ -94,22 +94,13 @@ Texto actual:
 ${input.value || "(vacío)"}
 
 ${task}`;
-  try {
-    const r = await fetch(process.env.GROQ_API_URL || "https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
-        temperature: input.mode === "ortografia" ? 0.1 : 0.6,
-        messages: [{ role: "system", content: sys }, { role: "user", content: user }],
-      }),
-      signal: AbortSignal.timeout(30000),
-    });
-    if (!r.ok) return { ok: false as const, text: `Groq respondió con error ${r.status}. Revisa la clave en Panel → Idioma del sitio → Probar conexión.` };
-    const data = (await r.json()) as { choices?: { message?: { content?: string } }[] };
-    const text = (data.choices?.[0]?.message?.content || "").trim().replace(/^["“](.*)["”]$/s, "$1");
-    return text ? { ok: true as const, text } : { ok: false as const, text: "Aldo no encontró qué proponer. Intenta de nuevo." };
-  } catch {
-    return { ok: false as const, text: "No pude hablar con Groq ahora. Intenta en un momento." };
-  }
+  const r = await groqChat({
+    temperature: input.mode === "ortografia" ? 0.1 : 0.6,
+    maxTokens: 600,
+    timeoutMs: 30000,
+    messages: [{ role: "system", content: sys }, { role: "user", content: user }],
+  });
+  if (!r.ok) return { ok: false as const, text: `Groq no respondió (${r.status || "sin conexión"}). Revisa la clave en Panel → Idioma del sitio → Probar conexión.` };
+  const text = r.content.replace(/^["“](.*)["”]$/s, "$1");
+  return text ? { ok: true as const, text } : { ok: false as const, text: "Aldo no encontró qué proponer. Intenta de nuevo." };
 }

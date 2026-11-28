@@ -3,6 +3,7 @@ import { cache } from "react";
 import { headers } from "next/headers";
 import { after } from "next/server";
 import { prisma } from "./db";
+import { groqChat } from "./groq";
 import { enabledLangs, FOREIGN, isLang, LANG_ENGLISH, type Lang } from "./langs";
 
 /**
@@ -155,46 +156,33 @@ Rules:
 - Short UI labels stay short. Do not add quotes or explanations.`;
 
 let lastGroqError = "";
+let lastModel = "";
 
 async function groqBatch(texts: string[], lang: Lang): Promise<string[] | null> {
-  const key = process.env.GROQ_API_KEY;
-  if (!key) return null;
-  const body = JSON.stringify({
-    model: process.env.GROQ_TRANSLATE_MODEL || process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+  const r = await groqChat({
+    model: process.env.GROQ_TRANSLATE_MODEL,
     temperature: 0.2,
-    response_format: { type: "json_object" },
+    json: true,
+    maxTokens: 4000,
     messages: [
       { role: "system", content: SYSTEM(lang) },
       { role: "user", content: JSON.stringify({ t: texts }) },
     ],
   });
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const r = await fetch(process.env.GROQ_API_URL || "https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body,
-      signal: AbortSignal.timeout(45000),
-    }).catch(() => null);
-    if (r?.status === 429) {
-      const wait = Math.min(20, Number(r.headers.get("retry-after")) || 6);
-      await new Promise((res) => setTimeout(res, wait * 1000));
-      continue;
-    }
-    if (!r?.ok) {
-      const body = (await r?.text().catch(() => "")) || "";
-      lastGroqError = r ? `HTTP ${r.status}: ${body.slice(0, 200)}` : "No se pudo conectar con Groq.";
-      console.error("Groq traducción", r?.status, body);
-      return null;
-    }
-    const data = (await r.json().catch(() => null)) as { choices?: { message?: { content?: string } }[] } | null;
-    try {
-      const out = JSON.parse(data?.choices?.[0]?.message?.content || "{}").t;
-      if (Array.isArray(out) && out.length === texts.length) return out.map((x) => String(x ?? ""));
-    } catch {}
-    lastGroqError = "Groq respondió en un formato inesperado.";
-    console.error("Groq traducción: respuesta inválida");
+  if (!r.ok) {
+    lastGroqError = r.status ? `HTTP ${r.status}${r.model ? ` (${r.model})` : ""}: ${r.error}` : r.error;
+    console.error("Groq traducción", lastGroqError);
     return null;
   }
+  try {
+    const out = JSON.parse(r.content.replace(/^```(?:json)?\s*|\s*```$/g, "")).t;
+    if (Array.isArray(out) && out.length === texts.length) {
+      lastModel = r.model;
+      return out.map((x) => String(x ?? ""));
+    }
+  } catch {}
+  lastGroqError = "Groq respondió en un formato inesperado.";
+  console.error("Groq traducción: respuesta inválida");
   return null;
 }
 
@@ -266,5 +254,5 @@ export async function groqPing(): Promise<{ ok: boolean; detail: string; ms: num
   lastGroqError = "";
   const out = await groqBatch(["Abrimos la puerta digital de tu negocio."], "en").catch(() => null);
   const ms = Date.now() - t0;
-  return out?.[0] ? { ok: true, detail: out[0], ms } : { ok: false, detail: lastGroqError || "Groq no respondió. Revisa que la clave sea correcta y esté vigente.", ms };
+  return out?.[0] ? { ok: true, detail: `${out[0]} (modelo ${lastModel})`, ms } : { ok: false, detail: lastGroqError || "Groq no respondió. Revisa que la clave sea correcta y esté vigente.", ms };
 }
