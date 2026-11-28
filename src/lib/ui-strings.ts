@@ -179,5 +179,14 @@ export const UI_STRINGS: string[] = [
  "← Inicio",
  "← Productos",
  "← Todos los servicios",
- "← Un producto de"
+ "← Un producto de",
+ "Ver otros servicios",
+ "Hablar con una persona",
+ "¿Cuánto cuesta?",
+ "Esto es todo lo que hacemos. ¿Qué te interesa?",
+ "Mmm, eso no lo tengo claro todavía 🦉 Pero el equipo sí: escríbenos por WhatsApp y te respondemos con detalle.",
+ "¡Claro! Te paso con el equipo por WhatsApp.",
+ "Horario:",
+ "Aldo está escribiendo",
+ "Mensaje para Aldo"
 ];

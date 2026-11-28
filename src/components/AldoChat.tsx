@@ -25,6 +25,8 @@ export type AldoKnowledge = {
   quick: string[];
   /** true si el servidor tiene GROQ_API_KEY: el texto libre lo responde la IA. */
   ai?: boolean;
+  /** Idioma de la página en que está la visita (es, en, pt). */
+  lang?: string;
 };
 
 type Msg = { from: "aldo" | "me"; text: string; topic?: AldoTopic; chips?: string[]; wa?: boolean; link?: string };
@@ -86,11 +88,11 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
   const answerTopic = (t: AldoTopic) => {
     if (t.id === "humano") {
       const hours = k.hours.replace(/\.+$/, "");
-      say({ from: "aldo", text: `¡Claro! Te paso con el equipo por WhatsApp.${hours ? ` Atendemos ${hours.charAt(0).toLowerCase()}${hours.slice(1)}.` : ""}`, wa: true });
+      say({ from: "aldo", text: `${tr("¡Claro! Te paso con el equipo por WhatsApp.")}${hours ? ` ${tr("Horario:")} ${hours}.` : ""}`, wa: true });
       return;
     }
     if (t.id !== "precios") setInterest(t.label);
-    say({ from: "aldo", text: t.answer, topic: t, chips: t.id === "precios" ? ["Hablar con una persona"] : ["¿Cuánto cuesta?", "Ver otros servicios", "Hablar con una persona"] });
+    say({ from: "aldo", text: t.answer, topic: t, chips: t.id === "precios" ? [tr("Hablar con una persona")] : [tr("¿Cuánto cuesta?"), tr("Ver otros servicios"), tr("Hablar con una persona")] });
   };
 
   const askAi = async (text: string) => {
@@ -100,11 +102,11 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
       .map((m) => ({ role: m.from === "me" ? "user" : "assistant", content: m.text }));
     setTyping(true);
     try {
-      const r = await fetch("/api/aldo", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ messages: history }) });
+      const r = await fetch("/api/aldo", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ messages: history, lang: k.lang || document.documentElement.lang.slice(0, 2) }) });
       if (!r.ok) throw new Error(String(r.status));
       const d = (await r.json()) as { text: string; wa?: boolean; link?: string };
       setTyping(false);
-      setMsgs((xs) => [...xs, { from: "aldo", text: d.text, wa: d.wa, link: d.link, chips: ["Ver otros servicios", "Hablar con una persona"] }]);
+      setMsgs((xs) => [...xs, { from: "aldo", text: d.text, wa: d.wa, link: d.link, chips: [tr("Ver otros servicios"), tr("Hablar con una persona")] }]);
     } catch {
       setTyping(false);
       keywordAnswer(text);
@@ -118,14 +120,14 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
     setInput("");
 
     const n = norm(text);
-    const byLabel = k.topics.find((t) => norm(t.label) === n);
+    const byLabel = k.topics.find((t) => norm(t.label) === n) || (n === norm(tr("Hablar con una persona")) ? k.topics.find((t) => t.id === "humano") : undefined);
     if (byLabel) return answerTopic(byLabel);
-    if (n.includes("ver otros")) return say({ from: "aldo", text: "Esto es todo lo que hacemos. ¿Qué te interesa?", chips: k.topics.filter((t) => !["humano", "precios"].includes(t.id)).map((t) => t.label) });
-    const isPriceChip = n === norm("¿Cuánto cuesta?");
+    if (n.includes("ver otros") || n === norm(tr("Ver otros servicios"))) return say({ from: "aldo", text: tr("Esto es todo lo que hacemos. ¿Qué te interesa?"), chips: k.topics.filter((t) => !["humano", "precios"].includes(t.id)).map((t) => t.label) });
+    const isPriceChip = n === norm("¿Cuánto cuesta?") || n === norm(tr("¿Cuánto cuesta?"));
     if (k.ai && !isPriceChip) return askAi(text);
     if (/(cuanto|precio|cuesta|valor|tarifa|cotiza)/.test(n)) {
       const current = k.topics.find((t) => t.label === interest);
-      if (current?.price) return say({ from: "aldo", text: current.price, chips: ["Hablar con una persona", "Ver otros servicios"], wa: true });
+      if (current?.price) return say({ from: "aldo", text: current.price, chips: [tr("Hablar con una persona"), tr("Ver otros servicios")], wa: true });
       const p = k.topics.find((t) => t.id === "precios");
       if (p) return answerTopic(p);
     }
@@ -145,11 +147,11 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
       if (sc > best.score) best = { f, score: sc };
     }
     if (best.t && best.score >= 2) return answerTopic(best.t);
-    if (best.f && best.score >= 2) return say({ from: "aldo", text: best.f.a, chips: ["Ver otros servicios", "Hablar con una persona"] });
+    if (best.f && best.score >= 2) return say({ from: "aldo", text: best.f.a, chips: [tr("Ver otros servicios"), tr("Hablar con una persona")] });
     say({
       from: "aldo",
-      text: "Mmm, eso no lo tengo claro todavía 🦉 Pero el equipo sí: escríbenos por WhatsApp y te respondemos con detalle.",
-      chips: ["Ver otros servicios"],
+      text: tr("Mmm, eso no lo tengo claro todavía 🦉 Pero el equipo sí: escríbenos por WhatsApp y te respondemos con detalle."),
+      chips: [tr("Ver otros servicios")],
       wa: true,
     });
   };
@@ -207,7 +209,7 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
               </div>
             ))}
             {typing && (
-              <div className="flex items-end gap-2" aria-label="Aldo está escribiendo" role="status">
+              <div className="flex items-end gap-2" aria-label={tr("Aldo está escribiendo")} role="status">
                 <Aldo pose="code" follow={false} className="aldo-chat-typing h-11 w-11 shrink-0" title="" />
                 <p className="inline-flex items-center gap-1 rounded-2xl rounded-bl-md border border-paper-line bg-white px-4 py-3">
                   {[0, 1, 2].map((d) => <span key={d} className="h-1.5 w-1.5 animate-bounce rounded-full bg-brand-500" style={{ animationDelay: `${d * 0.15}s` }} />)}
@@ -227,7 +229,7 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={tr("Escríbele a Aldo…")}
-              aria-label="Mensaje para Aldo"
+              aria-label={tr("Mensaje para Aldo")}
               className="min-w-0 flex-1 rounded-full border border-paper-line bg-paper px-4 py-2 text-[14px] outline-none focus:border-brand-500"
             />
             <button aria-label="Enviar" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-500 text-white hover:bg-brand-600">
