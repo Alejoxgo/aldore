@@ -18,6 +18,7 @@ export const ADMIN_NAV = [
     title: "Negocio",
     items: [
       { href: "/admin/leads", label: "Solicitudes web", icon: "inbox" },
+      { href: "/admin/agenda", label: "Agenda", icon: "calendar" },
       { href: "/admin/pedidos", label: "Pedidos", icon: "orders" },
       { href: "/admin/clientes", label: "Clientes", icon: "clients" },
       { href: "/admin/mailing", label: "Email marketing", icon: "send" },
@@ -49,6 +50,7 @@ export const ADMIN_NAV = [
       { href: "/admin/servicios", label: "Servicios", icon: "grid" },
       { href: "/admin/productos", label: "Productos", icon: "box" },
       { href: "/admin/planes", label: "Planes y precios", icon: "tag" },
+      { href: "/admin/casos", label: "Casos de éxito", icon: "star" },
       { href: "/admin/testimonios", label: "Testimonios", icon: "quote" },
       { href: "/admin/preguntas", label: "Preguntas frecuentes", icon: "help" },
     ],

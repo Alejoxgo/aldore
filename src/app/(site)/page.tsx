@@ -1,21 +1,24 @@
 import TC from "@/components/TC";
+import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import { StackMarquee } from "@/components/TechSections";
 import Aldo from "@/components/Aldo";
+import { CasesBlock } from "@/components/CaseSections";
 import ContactForm from "@/components/ContactForm";
 import { PuertaBlock } from "@/components/PuertaSections";
 import { AldoBand, CastorlyBlock, Emph, FaqList, Hero, Plans, Process, ProductsList, ServicesList, Testimonials } from "@/components/Sections";
 
 export default async function HomePage() {
   const pub = { where: { published: true }, orderBy: { order: "asc" as const } };
-  const [s, services, products, plans, testimonials, faqs] = await Promise.all([
+  const [s, services, products, plans, testimonials, faqs, cases] = await Promise.all([
     getSettings(),
     prisma.service.findMany(pub),
     prisma.product.findMany(pub),
     prisma.plan.findMany(pub),
     prisma.testimonial.findMany(pub),
     prisma.faq.findMany(pub),
+    prisma.caseStudy.findMany({ where: { published: true }, orderBy: [{ order: "asc" }, { id: "desc" }], take: 3 }),
   ]);
   const castorly = products.find((p) => p.slug === "castorly") ?? null;
 
@@ -27,6 +30,7 @@ export default async function HomePage() {
       <CastorlyBlock s={s} product={castorly} />
       <PuertaBlock s={s} />
       <ProductsList products={products} s={s} />
+      <CasesBlock items={cases} />
       <Process s={s} />
       <Plans plans={plans} s={s} />
       <Testimonials items={testimonials} s={s} />
@@ -41,6 +45,7 @@ export default async function HomePage() {
             </div>
             <h2 className="section-title mt-2"><Emph text={s["cta.title"]} /></h2>
             <p className="mt-5 text-lg text-ink-700">{s["cta.text"]}</p>
+            <Link href="/agendar" className="mt-5 inline-flex items-center gap-2 font-medium text-brand-600 hover:text-brand-700"><TC>{"¿Prefieres hablar? Agenda una llamada →"}</TC></Link>
             <dl className="mt-10 space-y-5 border-t border-paper-line pt-6 text-[15px]">
               <div><dt className="eyebrow"><TC>{"Correo"}</TC></dt><dd className="mt-1"><a className="link-u" href={`mailto:${s["contact.email"]}`}>{s["contact.email"]}</a></dd></div>
               <div><dt className="eyebrow"><TC>{"Teléfono"}</TC></dt><dd className="mt-1">{s["contact.phone"]}</dd></div>

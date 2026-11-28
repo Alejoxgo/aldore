@@ -24,7 +24,7 @@ export type ColumnFormat = "money" | "status" | "relation" | "bool" | "date";
 
 export type ResourceConfig = {
   key: string;
-  model: "service" | "product" | "plan" | "testimonial" | "faq" | "client" | "order" | "employee" | "payroll" | "staffRequest" | "linkPage" | "post" | "queue" | "menuBoard";
+  model: "service" | "product" | "plan" | "testimonial" | "caseStudy" | "faq" | "client" | "order" | "employee" | "payroll" | "staffRequest" | "linkPage" | "post" | "queue" | "menuBoard";
   label: string;
   singular: string;
   description: string;
@@ -146,6 +146,38 @@ export const RESOURCES: ResourceConfig[] = [
       { name: "quote", label: "Testimonio", type: "textarea", rows: 4, required: true },
       order,
       published,
+    ],
+  },
+  {
+    key: "casos",
+    model: "caseStudy",
+    label: "Casos de éxito",
+    singular: "caso",
+    description: "Proyectos terminados con resultados. La sección aparece en el sitio cuando publicas el primero. Si aún no tienes clientes, muestra tus productos propios marcándolos como «Proyecto propio».",
+    titleField: "title",
+    columns: [
+      { name: "title", label: "Título" },
+      { name: "client", label: "Cliente" },
+      { name: "own", label: "Propio", format: "bool" },
+      { name: "published", label: "Publicado", format: "bool" },
+    ],
+    defaults: { published: "false" },
+    fields: [
+      { name: "title", label: "Título del caso", type: "text", required: true, help: "Ej.: «Café Laurel duplicó sus reseñas en Google en un mes»." },
+      { name: "slug", label: "Slug (URL)", type: "slug", help: "Se genera a partir del título si lo dejas vacío." },
+      { name: "client", label: "Cliente o proyecto", type: "text", half: true },
+      { name: "industry", label: "Sector", type: "text", half: true, help: "Ej.: Restaurante, Clínica, Inmobiliaria." },
+      { name: "own", label: "Proyecto propio de Aldore (no de un cliente)", type: "checkbox" },
+      { name: "summary", label: "Resumen (tarjeta)", type: "textarea", rows: 2, required: true },
+      { name: "challenge", label: "El reto", type: "textarea", rows: 4, help: "Qué problema tenía el cliente antes." },
+      { name: "solution", label: "Lo que hicimos", type: "textarea", rows: 5, help: "Separa párrafos con una línea en blanco." },
+      { name: "results", label: "Resultados en números", type: "textarea", rows: 4, help: "Uno por línea: número | qué significa. Ej.: 48% | más reservas en línea" },
+      { name: "quote", label: "Testimonio del cliente", type: "textarea", rows: 3 },
+      { name: "quoteAuthor", label: "Quién lo dice", type: "text", help: "Ej.: Laura Gómez, gerente de Café Laurel." },
+      { name: "coverUrl", label: "Imagen de portada (URL)", type: "url" },
+      { name: "tags", label: "Etiquetas", type: "text", help: "Separadas por coma: Página web, Puerta, Chatbot." },
+      order,
+      { ...published, label: "Publicado (visible en el sitio)" },
     ],
   },
   {

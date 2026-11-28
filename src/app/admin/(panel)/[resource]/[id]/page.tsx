@@ -1,3 +1,4 @@
+import PuertaStatsCard from "@/components/PuertaStatsCard";
 import { requireAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -32,6 +33,7 @@ export default async function EditResource({ params, searchParams }: Props) {
       </div>
       <Flash ok={ok} error={error} />
       {res.model === "linkPage" && <PuertaShare slug={item.slug} views={item.views} clicks={item.clicks} />}
+      {res.model === "linkPage" && <div className="mb-6"><PuertaStatsCard pageId={item.id} name={item.name} tone="admin" /></div>}
       {res.model === "client" && item.portalToken && (
         <ShareLinks
           title="Portal del cliente"

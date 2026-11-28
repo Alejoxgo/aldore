@@ -131,6 +131,7 @@ const TR_FIELDS: Record<string, string[]> = {
   plan: ["name", "price", "period", "description", "features"],
   testimonial: ["role", "quote"],
   faq: ["question", "answer"],
+  caseStudy: ["title", "industry", "summary", "challenge", "solution", "results", "quote", "tags"],
   post: ["title", "excerpt", "content", "tags", "author"],
 };
 const READS = new Set(["findMany", "findFirst", "findUnique", "findFirstOrThrow", "findUniqueOrThrow"]);

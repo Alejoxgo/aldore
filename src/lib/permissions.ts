@@ -40,7 +40,7 @@ export const PERM_GROUPS: { title: string; perms: { id: Perm; label: string; hel
     perms: [
       { id: "editor", label: "Textos, editor visual y temáticas", help: "Cambiar los textos del sitio y publicar." },
       { id: "blog", label: "Blog", help: "Escribir y publicar artículos." },
-      { id: "catalogo", label: "Servicios, productos, planes, testimonios y preguntas", help: "El catálogo que se ve en el sitio." },
+      { id: "catalogo", label: "Servicios, productos, planes, casos de éxito, testimonios y preguntas", help: "El catálogo que se ve en el sitio." },
       { id: "idiomas", label: "Idioma del sitio", help: "Traducciones al inglés y al portugués." },
     ],
   },
@@ -54,7 +54,7 @@ export const ALL_PERMS: Perm[] = PERM_GROUPS.flatMap((g) => g.perms.map((p) => p
 
 /** Ruta del panel → permiso que exige. Las rutas que no aparecen (resumen, correo, perfil) son para todos. */
 const ROUTES: [RegExp, Perm][] = [
-  [/^\/admin\/leads/, "leads"],
+  [/^\/admin\/(leads|agenda)/, "leads"],
   [/^\/admin\/pedidos/, "pedidos"],
   [/^\/admin\/clientes/, "clientes"],
   [/^\/admin\/mailing/, "mailing"],
@@ -66,7 +66,7 @@ const ROUTES: [RegExp, Perm][] = [
   [/^\/admin\/solicitudes/, "solicitudes"],
   [/^\/admin\/(editor|contenido|tematicas)/, "editor"],
   [/^\/admin\/blog/, "blog"],
-  [/^\/admin\/(servicios|productos|planes|testimonios|preguntas)/, "catalogo"],
+  [/^\/admin\/(servicios|productos|planes|testimonios|casos|preguntas)/, "catalogo"],
   [/^\/admin\/idiomas/, "idiomas"],
   [/^\/admin\/usuarios/, "usuarios"],
 ];

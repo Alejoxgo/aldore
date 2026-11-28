@@ -3,6 +3,7 @@ import TC, { useTr } from "@/components/TC";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import Aldo from "./Aldo";
+import { celebrate } from "@/lib/celebrate";
 import { whatsappLink } from "@/lib/utils";
 
 export type AldoTopic = {
@@ -29,7 +30,7 @@ export type AldoKnowledge = {
   lang?: string;
 };
 
-type Msg = { from: "aldo" | "me"; text: string; topic?: AldoTopic; chips?: string[]; wa?: boolean; link?: string };
+type Msg = { from: "aldo" | "me"; text: string; topic?: AldoTopic; chips?: string[]; wa?: boolean; link?: string; form?: boolean };
 
 const norm = (s: string) =>
   s
@@ -133,11 +134,39 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
   const answerTopic = (t: AldoTopic) => {
     if (t.id === "humano") {
       const hours = k.hours.replace(/\.+$/, "");
-      say({ from: "aldo", text: `${tr("¡Claro! Te paso con el equipo por WhatsApp.")}${hours ? ` ${tr("Horario:")} ${hours}.` : ""}`, wa: true });
+      say({ from: "aldo", text: `${tr("¡Claro! Te paso con el equipo por WhatsApp, o déjame tus datos y te contactan ellos.")}${hours ? ` ${tr("Horario:")} ${hours}.` : ""}`, wa: true, form: !sentLead });
       return;
     }
     if (t.id !== "precios") setInterest(t.label);
     say({ from: "aldo", text: t.answer, topic: t, chips: t.id === "precios" ? [tr("Hablar con una persona")] : [tr("¿Cuánto cuesta?"), tr("Ver otros servicios"), tr("Hablar con una persona")] });
+  };
+
+  // Aldo deja la solicitud lista: nombre y contacto, y el equipo recibe el resumen de la conversación.
+  const [sentLead, setSentLead] = useState(false);
+  const [leadBusy, setLeadBusy] = useState(false);
+  const [leadErr, setLeadErr] = useState("");
+  const sendLead = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    const name = String(f.get("name") || "").trim();
+    const contact = String(f.get("contact") || "").trim();
+    setLeadBusy(true);
+    setLeadErr("");
+    try {
+      const r = await fetch("/api/aldo/lead", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name, contact, interest, messages: msgs.filter((m) => m.text).map((m) => ({ role: m.from === "me" ? "user" : "assistant", content: m.text })) }),
+      });
+      if (!r.ok) throw new Error(String(r.status));
+      setSentLead(true);
+      setMsgs((xs) => [...xs.map((m) => ({ ...m, form: false })), { from: "aldo", text: `${tr("¡Listo")}, ${name.split(/\s+/)[0]}! ${tr("Le pasé tu solicitud al equipo con todo lo que hablamos. Te contactan muy pronto 🦉")}` }]);
+      celebrate();
+    } catch {
+      setLeadErr(tr("Revisa tu nombre y escribe un correo o celular válido."));
+    } finally {
+      setLeadBusy(false);
+    }
   };
 
   const askAi = async (text: string) => {
@@ -151,7 +180,7 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
       if (!r.ok) throw new Error(String(r.status));
       const d = (await r.json()) as { text: string; wa?: boolean; link?: string };
       setTyping(false);
-      setMsgs((xs) => [...xs, { from: "aldo", text: d.text, wa: d.wa, link: d.link, chips: [tr("Ver otros servicios"), tr("Hablar con una persona")] }]);
+      setMsgs((xs) => [...xs, { from: "aldo", text: d.text, wa: d.wa, form: d.wa && !sentLead, link: d.link, chips: [tr("Ver otros servicios"), tr("Hablar con una persona")] }]);
     } catch {
       setTyping(false);
       keywordAnswer(text);
@@ -241,6 +270,18 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
                       <a href={waHref(interest)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-3 py-1.5 text-[13px] font-semibold text-white hover:brightness-95"><TC>{"Escribir por WhatsApp ↗"}</TC></a>
                     )}
                   </div>
+                )}
+                {m.form && !sentLead && (
+                  <form onSubmit={sendLead} className="max-w-[92%] space-y-2 rounded-2xl border border-brand-500/30 bg-brand-500/5 p-3">
+                    <p className="text-[13px] font-medium text-ink-900"><TC>{"¿Te dejo la solicitud lista? El equipo te contacta."}</TC></p>
+                    <input name="name" required placeholder={tr("Tu nombre")} className="w-full rounded-lg border border-paper-line bg-white px-3 py-2 text-[13px] outline-none focus:border-brand-500" autoComplete="name" />
+                    <input name="contact" required placeholder={tr("Correo o celular")} className="w-full rounded-lg border border-paper-line bg-white px-3 py-2 text-[13px] outline-none focus:border-brand-500" />
+                    {leadErr && <p className="text-[12px] text-red-600">{leadErr}</p>}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button disabled={leadBusy} className="rounded-full bg-brand-500 px-3.5 py-1.5 text-[13px] font-semibold text-white hover:bg-brand-600 disabled:opacity-60">{leadBusy ? <TC>{"Enviando…"}</TC> : <TC>{"Enviar al equipo"}</TC>}</button>
+                      <Link href="/agendar" onClick={() => setOpen(false)} className="text-[13px] font-medium text-ink-700 underline-offset-2 hover:underline"><TC>{"o agenda una llamada"}</TC></Link>
+                    </div>
+                  </form>
                 )}
                 {m.chips && i === msgs.length - 1 && (
                   <div className="flex flex-wrap gap-1.5 pt-1">

@@ -391,6 +391,19 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     ],
   },
   {
+    id: "agenda",
+    title: "Agendar llamada",
+    fields: [
+      { key: "booking.title", label: "Título de la página /agendar", default: "Agenda una llamada de 30 minutos" },
+      { key: "booking.text", label: "Texto bajo el título", type: "textarea", default: "Escoge el día y la hora. Te escuchamos, resolvemos tus dudas y te decimos cómo lo haríamos. Sin costo y sin compromiso." },
+      { key: "booking.days", label: "Días que atiendes (1 = lunes … 7 = domingo)", default: "1,2,3,4,5" },
+      { key: "booking.hours", label: "Franjas de atención (hora de Colombia)", default: "09:00-12:00, 14:00-17:00" },
+      { key: "booking.slot", label: "Duración de cada llamada (minutos)", default: "30" },
+      { key: "booking.ahead", label: "Cuántos días hacia adelante se puede agendar", default: "21" },
+      { key: "booking.meet", label: "Enlace fijo de videollamada (Meet, Zoom…). Vacío = te llamamos al celular", type: "url", default: "" },
+    ],
+  },
+  {
     id: "contacto",
     title: "Datos de contacto y redes",
     fields: [

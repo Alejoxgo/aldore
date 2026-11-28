@@ -1,3 +1,4 @@
+import { bumpPuerta } from "@/lib/puerta-stats";
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
@@ -28,7 +29,10 @@ export default async function PuertaPage({ params }: Props) {
   const { slug } = await params;
   const p = await load(slug);
   if (!p) notFound();
-  await prisma.linkPage.update({ where: { id: p.id }, data: { views: { increment: 1 } } }).catch(() => {});
+  await Promise.all([
+    prisma.linkPage.update({ where: { id: p.id }, data: { views: { increment: 1 } } }).catch(() => {}),
+    bumpPuerta(p.id, "view"),
+  ]);
   const buttons = parseButtons(p.buttons).map((b, i) => ({
     ...b,
     link: b.href === "wifi" ? "wifi" : `/p/${p.slug}/ir?b=${i}`,

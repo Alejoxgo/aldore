@@ -37,6 +37,15 @@ export const SCHEMA_GUARD: string[] = [
   "CREATE UNIQUE INDEX IF NOT EXISTS \"Contact_token_key\" ON \"Contact\"(\"token\")",
   "CREATE UNIQUE INDEX IF NOT EXISTS \"CampaignSend_key_key\" ON \"CampaignSend\"(\"key\")",
   "CREATE UNIQUE INDEX IF NOT EXISTS \"CampaignSend_campaignId_contactId_key\" ON \"CampaignSend\"(\"campaignId\", \"contactId\")",
+  "CREATE TABLE IF NOT EXISTS \"Booking\" (\n    \"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n    \"name\" TEXT NOT NULL,\n    \"email\" TEXT NOT NULL,\n    \"phone\" TEXT NOT NULL DEFAULT '',\n    \"company\" TEXT NOT NULL DEFAULT '',\n    \"topic\" TEXT NOT NULL DEFAULT '',\n    \"notes\" TEXT NOT NULL DEFAULT '',\n    \"date\" TEXT NOT NULL,\n    \"time\" TEXT NOT NULL,\n    \"status\" TEXT NOT NULL DEFAULT 'agendada',\n    \"leadId\" INTEGER,\n    \"createdAt\" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP\n)",
+  "CREATE TABLE IF NOT EXISTS \"CaseStudy\" (\n    \"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n    \"slug\" TEXT NOT NULL,\n    \"title\" TEXT NOT NULL,\n    \"client\" TEXT NOT NULL DEFAULT '',\n    \"industry\" TEXT NOT NULL DEFAULT '',\n    \"summary\" TEXT NOT NULL DEFAULT '',\n    \"challenge\" TEXT NOT NULL DEFAULT '',\n    \"solution\" TEXT NOT NULL DEFAULT '',\n    \"results\" TEXT NOT NULL DEFAULT '',\n    \"quote\" TEXT NOT NULL DEFAULT '',\n    \"quoteAuthor\" TEXT NOT NULL DEFAULT '',\n    \"coverUrl\" TEXT NOT NULL DEFAULT '',\n    \"tags\" TEXT NOT NULL DEFAULT '',\n    \"own\" BOOLEAN NOT NULL DEFAULT false,\n    \"order\" INTEGER NOT NULL DEFAULT 0,\n    \"published\" BOOLEAN NOT NULL DEFAULT false,\n    \"createdAt\" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP\n)",
+  "CREATE TABLE IF NOT EXISTS \"Payment\" (\n    \"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n    \"orderId\" INTEGER NOT NULL,\n    \"reference\" TEXT NOT NULL,\n    \"amount\" INTEGER NOT NULL,\n    \"status\" TEXT NOT NULL DEFAULT 'pendiente',\n    \"method\" TEXT NOT NULL DEFAULT '',\n    \"wompiId\" TEXT NOT NULL DEFAULT '',\n    \"createdAt\" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    \"updatedAt\" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP\n)",
+  "CREATE TABLE IF NOT EXISTS \"PuertaStat\" (\n    \"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n    \"pageId\" INTEGER NOT NULL,\n    \"day\" TEXT NOT NULL,\n    \"kind\" TEXT NOT NULL,\n    \"label\" TEXT NOT NULL DEFAULT '',\n    \"count\" INTEGER NOT NULL DEFAULT 0\n)",
+  "CREATE INDEX IF NOT EXISTS \"Booking_date_time_idx\" ON \"Booking\"(\"date\", \"time\")",
+  "CREATE UNIQUE INDEX IF NOT EXISTS \"CaseStudy_slug_key\" ON \"CaseStudy\"(\"slug\")",
+  "CREATE UNIQUE INDEX IF NOT EXISTS \"Payment_reference_key\" ON \"Payment\"(\"reference\")",
+  "CREATE INDEX IF NOT EXISTS \"Payment_orderId_idx\" ON \"Payment\"(\"orderId\")",
+  "CREATE UNIQUE INDEX IF NOT EXISTS \"PuertaStat_pageId_day_kind_label_key\" ON \"PuertaStat\"(\"pageId\", \"day\", \"kind\", \"label\")",
 ];
 
 /** Columnas añadidas después de crear la tabla. Se agregan solo si faltan (SQLite no tiene ADD COLUMN IF NOT EXISTS). */

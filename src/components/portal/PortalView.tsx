@@ -1,3 +1,4 @@
+import PuertaStatsCard from "@/components/PuertaStatsCard";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
@@ -176,6 +177,16 @@ export default async function PortalView({ client, account = false, headerAction
                 </li>
               ))}
             </ul>
+          </section>
+        )}
+
+        {puertas.length > 0 && (
+          <section>
+            <h2 className="font-display text-3xl text-ink-900">Cómo le va a tu Puerta</h2>
+            <p className="mt-1 text-ink-500">Cuántas personas la abren cada día y qué botones tocan más.</p>
+            <div className="mt-6 space-y-5">
+              {puertas.map((p) => <PuertaStatsCard key={p.id} pageId={p.id} name={p.name} />)}
+            </div>
           </section>
         )}
 

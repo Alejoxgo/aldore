@@ -397,3 +397,76 @@ model MenuBoard {
   clientId  Int?
   updatedAt DateTime @default(now()) @updatedAt
 }
+
+// ---------- Llamadas agendadas desde el sitio ----------
+model Booking {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String   @default("")
+  company   String   @default("")
+  topic     String   @default("")
+  notes     String   @default("")
+  /// Fecha "AAAA-MM-DD" y hora "HH:MM" en hora de Colombia.
+  date      String
+  time      String
+  /// agendada | hecha | cancelada
+  status    String   @default("agendada")
+  leadId    Int?
+  createdAt DateTime @default(now())
+
+  @@index([date, time])
+}
+
+// ---------- Casos de éxito ----------
+model CaseStudy {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  title       String
+  client      String   @default("")
+  industry    String   @default("")
+  summary     String   @default("")
+  challenge   String   @default("")
+  solution    String   @default("")
+  /// Un resultado por línea: "48% | más reservas".
+  results     String   @default("")
+  quote       String   @default("")
+  quoteAuthor String   @default("")
+  coverUrl    String   @default("")
+  tags        String   @default("")
+  /// Proyecto propio de Aldore (no de un cliente).
+  own         Boolean  @default(false)
+  order       Int      @default(0)
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+// ---------- Pagos en línea (Wompi) ----------
+model Payment {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  reference String   @unique
+  amount    Int
+  /// pendiente | aprobado | rechazado | anulado | error
+  status    String   @default("pendiente")
+  method    String   @default("")
+  wompiId   String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([orderId])
+}
+
+// ---------- Estadísticas diarias de cada Puerta ----------
+model PuertaStat {
+  id     Int    @id @default(autoincrement())
+  pageId Int
+  day    String
+  /// view | click
+  kind   String
+  /// Título del botón tocado ("" para visitas).
+  label  String @default("")
+  count  Int    @default(0)
+
+  @@unique([pageId, day, kind, label])
+}
