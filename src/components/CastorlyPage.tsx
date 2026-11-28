@@ -55,7 +55,7 @@ export default function CastorlyPage({ p, s }: { p: Product; s: Settings }) {
   const slides = parseGallery(s["castorly.gallery"]);
 
   return (
-    <div className="castorly-scope font-castorly">
+    <div className="castorly-scope keep-light font-castorly">
       {/* Portada */}
       <section
         className="relative overflow-hidden text-white"
