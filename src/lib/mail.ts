@@ -54,3 +54,27 @@ export function rows(data: [string, string][]) {
     )
     .join("")}</table>`;
 }
+
+/** Envío masivo: hasta 100 correos por llamada (API batch de Resend). Devuelve cuántos aceptó. */
+export async function sendBatch(items: { to: string; subject: string; html: string; headers?: Record<string, string> }[], from?: string) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key || !items.length) return { ok: false, sent: 0 };
+  const sender = from || process.env.MAIL_MARKETING_FROM || process.env.MAIL_FROM || "Aldore <hola@aldore.co>";
+  const base = (process.env.RESEND_API_URL || "https://api.resend.com/emails").replace(/\/emails$/, "");
+  try {
+    const res = await fetch(`${base}/emails/batch`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify(items.map((i) => ({ from: sender, to: i.to, subject: i.subject, html: i.html, headers: i.headers }))),
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!res.ok) {
+      console.error("Resend batch", res.status, await res.text().catch(() => ""));
+      return { ok: false, sent: 0 };
+    }
+    return { ok: true, sent: items.length };
+  } catch (e) {
+    console.error("Resend batch", e);
+    return { ok: false, sent: 0 };
+  }
+}
