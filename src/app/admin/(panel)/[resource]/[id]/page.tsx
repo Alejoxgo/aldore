@@ -9,7 +9,7 @@ import RelatedRecords from "@/components/admin/RelatedRecords";
 import PuertaShare from "@/components/admin/PuertaShare";
 import ShareLinks from "@/components/admin/ShareLinks";
 
-type Props = { params: Promise<{ resource: string; id: string }>; searchParams: Promise<{ error?: string; ok?: string }> };
+type Props = { params: Promise<{ resource: string; id: string }>; searchParams: Promise<{ error?: string; ok?: string; back?: string }> };
 
 export default async function EditResource({ params, searchParams }: Props) {
   await requireAdmin();
@@ -20,11 +20,12 @@ export default async function EditResource({ params, searchParams }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const item = await (prisma as any)[res.model].findUnique({ where: { id: numId } });
   if (!item) notFound();
-  const { error, ok } = await searchParams;
+  const { error, ok, back } = await searchParams;
+  const backTo = back && back.startsWith("/admin/") ? back : undefined;
   const publicUrl = res.model === "service" ? `/servicios/${item.slug}` : res.model === "product" ? `/productos/${item.slug}` : res.model === "linkPage" ? `/p/${item.slug}` : res.model === "post" ? `/blog/${item.slug}` : res.model === "queue" ? `/t/${item.slug}` : res.model === "menuBoard" ? `/menu/${item.slug}` : null;
   return (
     <div className="max-w-3xl">
-      <Link href={`/admin/${res.key}`} className="text-sm text-slate-500 hover:text-brand-700">← {res.label}</Link>
+      <Link href={backTo || `/admin/${res.key}`} className="text-sm text-slate-500 hover:text-brand-700">← {backTo ? "Volver al cliente" : res.label}</Link>
       <div className="mb-6 mt-2 flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-3xl text-ink-900">Editar: {item[res.titleField]}</h1>
         {publicUrl && <Link href={publicUrl} target="_blank" className="text-sm font-medium text-brand-600">Ver en el sitio ↗</Link>}
@@ -60,7 +61,7 @@ export default async function EditResource({ params, searchParams }: Props) {
           ]}
         />
       )}
-      <ResourceForm res={res} item={item} />
+      <ResourceForm res={res} item={item} back={backTo} />
       <RelatedRecords model={res.model} id={numId} />
     </div>
   );

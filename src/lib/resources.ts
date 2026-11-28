@@ -264,6 +264,7 @@ export const BUSINESS_RESOURCES: ResourceConfig[] = [
       { name: "city", label: "Ciudad", type: "text", half: true },
       { name: "email", label: "Correo", type: "email", half: true },
       { name: "phone", label: "Teléfono / WhatsApp", type: "text", half: true },
+      { name: "color", label: "Color para identificarlo en el panel", type: "text", half: true, help: "Código de color, ej: #1F5C45" },
       { name: "notes", label: "Notas (internas)", type: "textarea", rows: 4 },
       { name: "portalToken", label: "Clave del portal del cliente", type: "text", help: "Se crea sola. Cámbiala o bórrala y guarda para generar un enlace nuevo (el anterior deja de funcionar)." },
     ],

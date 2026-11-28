@@ -237,6 +237,8 @@ export async function saveResource(resourceKey: string, id: number | null, formD
   if (["service", "product", "plan", "testimonial", "faq", "post"].includes(res.model)) {
     translateLater(Object.values(data).filter((v): v is string => typeof v === "string"));
   }
+  const back = String(formData.get("_back") ?? "");
+  if (/^\/admin\/[\w/?=&-]*$/.test(back)) redirect(`${back}${back.includes("?") ? "&" : "?"}ok=${encodeURIComponent("Guardado correctamente")}`);
   redirect(`/admin/${res.key}?ok=${encodeURIComponent("Guardado correctamente")}`);
 }
 
@@ -393,6 +395,29 @@ export async function deleteUser(id: number) {
   await prisma.user.delete({ where: { id } });
   await prisma.passkey.deleteMany({ where: { userId: id } });
   backUsers("ok", "Usuario eliminado");
+}
+
+/* ---------------- Portal del cliente ---------------- */
+
+/** Da, cambia o quita el acceso del cliente a su portal (correo + contraseña). */
+export async function setClientPortal(id: number, formData: FormData) {
+  await requirePerm("clientes");
+  const back = (kind: string, msg: string) => redirect(`/admin/clientes/${id}?tab=portal&${kind}=${encodeURIComponent(msg)}`);
+  if (formData.get("off") === "1") {
+    await prisma.client.update({ where: { id }, data: { portalHash: "" } });
+    back("ok", "Acceso al portal quitado");
+  }
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) back("error", "Escribe un correo válido.");
+  const client = await prisma.client.findUnique({ where: { id } });
+  if (!client) back("error", "Ese cliente ya no existe.");
+  if (!client!.portalHash && password.length < 8) back("error", "Ponle una contraseña de al menos 8 caracteres.");
+  if (password && password.length < 8) back("error", "La contraseña debe tener al menos 8 caracteres.");
+  const other = await prisma.client.findFirst({ where: { email, id: { not: id }, portalHash: { not: "" } } });
+  if (other) back("error", "Otro cliente ya entra al portal con ese correo.");
+  await prisma.client.update({ where: { id }, data: { email, ...(password ? { portalHash: await bcrypt.hash(password, 10) } : {}) } });
+  back("ok", password ? "Listo: ya puede entrar en aldore.co/portal con ese correo y contraseña." : "Correo actualizado");
 }
 
 /* ---------------- Roles ---------------- */
