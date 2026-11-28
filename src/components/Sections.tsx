@@ -111,7 +111,7 @@ export function ServicesList({ services, s }: { services: Service[]; s: Settings
             </li>
           ))}
         </ul>
-        <div className="mt-8 flex flex-col gap-5 rounded-2xl bg-ink-900 p-6 text-paper sm:p-8 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mt-8 flex flex-col gap-5 rounded-2xl bg-ink-900 p-6 text-paper ring-1 ring-inset ring-white/35 sm:p-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <p className="font-display text-2xl">
               {rest.length > 0 ? <>Y {rest.length} servicios más para tu negocio</> : <>Conoce cada servicio en detalle</>}

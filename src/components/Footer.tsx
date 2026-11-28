@@ -11,7 +11,7 @@ export default function Footer({ s, services }: { s: Settings; services: { slug:
     ["X", s["social.x"]],
   ].filter(([, url]) => url);
   return (
-    <footer className="bg-ink-900 text-paper/70">
+    <footer className="border-t border-white/20 bg-ink-900 text-paper/70">
       <div className="container-x py-16">
         <p className="max-w-3xl font-display text-3xl leading-tight text-paper sm:text-4xl">
           {s["footer.cta"]}{" "}

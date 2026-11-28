@@ -147,7 +147,7 @@ export default function Quoter({ cfg }: { cfg: QuoteConfig }) {
       </div>
 
       <aside className="lg:col-span-5">
-        <div className="rounded-3xl bg-ink-900 p-7 text-paper shadow-2xl shadow-black/20 lg:sticky lg:top-24">
+        <div className="rounded-3xl bg-ink-900 p-7 text-paper ring-1 ring-inset ring-white/35 shadow-2xl shadow-black/20 lg:sticky lg:top-24">
           <p className="font-mono text-[11px] uppercase tracking-wider text-paper/50">Tu estimado</p>
           {q ? (
             <>
