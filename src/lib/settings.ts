@@ -234,7 +234,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
       { key: "footer.cta", label: "Frase grande", default: "¿Tienes un proyecto en mente?" },
       { key: "footer.ctaLink", label: "Texto del enlace de la frase", default: "Escríbenos" },
       { key: "footer.ctaUrl", label: "Enlace de la frase", type: "url", default: "/contacto" },
-      { key: "footer.text", label: "Texto bajo el logo", type: "textarea", default: "Estudio de software en Bogotá. Páginas web, aplicaciones, chatbots e integraciones para empresas de Latinoamérica." },
+      { key: "footer.text", label: "Texto bajo el logo", type: "textarea", default: "Estudio de software en Medellín. Páginas web, aplicaciones, chatbots e integraciones para empresas de Latinoamérica." },
       { key: "footer.servicesTitle", label: "Título de la columna de servicios", default: "Servicios", help: "La lista sale de la sección Servicios del panel." },
       { key: "footer.contactTitle", label: "Título de la columna de contacto", default: "Contacto", help: "Los datos salen de «Datos de contacto y redes»." },
       {
@@ -254,7 +254,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
       { key: "contact.email", label: "Correo", default: "hola@aldore.co" },
       { key: "contact.phone", label: "Teléfono", default: "+57 300 000 0000" },
       { key: "contact.whatsapp", label: "WhatsApp (con indicativo)", default: "+573000000000" },
-      { key: "contact.address", label: "Dirección / ciudad", default: "Bogotá, Colombia · Trabajo remoto en toda Latam" },
+      { key: "contact.address", label: "Dirección / ciudad", default: "Medellín, Colombia · Trabajo remoto en toda Latam" },
       { key: "contact.hours", label: "Horario", default: "Lunes a viernes, 8:00 a. m. – 6:00 p. m." },
       { key: "aldo.bubble", label: "Mensaje de Aldo junto a su botón (vacío = sin mensaje)", default: "¡Hola! Soy Aldo 🦉 ¿Te ayudo a encontrar lo que necesitas?" },
       {
