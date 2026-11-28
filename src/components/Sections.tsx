@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import { lines } from "@/lib/utils";
 import HeroDoor from "./HeroDoor";
 import Carousel from "./Carousel";
+import Icon from "./Icon";
 import Aldo from "./Aldo";
 import type { Settings } from "@/lib/settings";
 import type { Faq, Plan, Product, Service, Testimonial } from "@prisma/client";
@@ -33,7 +34,7 @@ function Label({ n, children, light = false }: { n: string; children: React.Reac
   );
 }
 
-const Arrow = ({ className = "h-5 w-5" }: { className?: string }) => (
+export const Arrow = ({ className = "h-5 w-5" }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.6} aria-hidden="true">
     <path d="M5 12h14M13 6l6 6-6 6" />
   </svg>
@@ -80,40 +81,49 @@ export function Hero({ s }: { s: Settings }) {
 }
 
 export function ServicesList({ services, s }: { services: Service[]; s: Settings }) {
+  const featured = services.slice(0, 6);
+  const rest = services.slice(6);
   return (
     <section id="servicios" className="scroll-mt-16 py-24">
       <div className="container-x">
         <div className="grid gap-6 lg:grid-cols-12">
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-6">
             <Label n="01">Servicios</Label>
             <h2 className="section-title mt-5"><Emph text={s["services.title"]} /></h2>
           </div>
-          <p className="self-end text-lg text-ink-700 lg:col-span-5 lg:col-start-8">{s["services.subtitle"]}</p>
+          <div className="self-end lg:col-span-5 lg:col-start-8">
+            <p className="text-lg text-ink-700">{s["services.subtitle"]}</p>
+          </div>
         </div>
-        <ul className="mt-14 border-t border-ink-900">
-          {services.map((sv, i) => (
-            <li key={sv.id} className="border-b border-paper-line">
-              <Link
-                href={`/servicios/${sv.slug}`}
-                className="group grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-4 gap-y-2 py-7 transition-colors hover:bg-paper-2 sm:grid-cols-[4rem_1fr_1.2fr_auto] sm:px-3"
-              >
-                <span className="font-mono text-sm text-ink-400">{String(i + 1).padStart(2, "0")}</span>
-                <span className="font-display text-2xl text-ink-900 sm:text-3xl">{sv.title}</span>
-                <span className="col-start-2 text-ink-500 sm:col-start-3 sm:row-start-1">
-                  {sv.shortDescription}
-                  <span className="mt-3 hidden flex-wrap gap-1.5 sm:flex">
-                    {lines(sv.features).slice(0, 3).map((f) => (
-                      <span key={f} className="rounded border border-paper-line bg-paper px-2 py-0.5 font-mono text-[11px] text-ink-500">{f}</span>
-                    ))}
-                  </span>
+        <ul className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-paper-line bg-paper-line sm:grid-cols-2 lg:grid-cols-3">
+          {featured.map((sv) => (
+            <li key={sv.id} className="min-w-0">
+              <Link href={`/servicios/${sv.slug}`} className="group flex h-full flex-col bg-paper p-7 transition-colors duration-300 hover:bg-white">
+                <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-brand-600 transition duration-300 group-hover:rotate-[-6deg] group-hover:bg-brand-500 group-hover:text-white">
+                  <Icon name={sv.icon} className="h-5 w-5" />
                 </span>
-                <span className="col-start-3 row-start-1 text-ink-400 transition group-hover:translate-x-1 group-hover:text-brand-500 sm:col-start-4">
-                  <Arrow />
+                <h3 className="mt-5 font-display text-2xl leading-tight text-ink-900">{sv.title}</h3>
+                <p className="mt-2 flex-1 text-ink-500">{sv.shortDescription}</p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-ink-900">
+                  Ver más <Arrow className="h-4 w-4 transition group-hover:translate-x-1 group-hover:text-brand-500" />
                 </span>
               </Link>
             </li>
           ))}
         </ul>
+        <div className="mt-8 flex flex-col gap-5 rounded-2xl bg-ink-900 p-6 text-paper sm:p-8 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <p className="font-display text-2xl">
+              {rest.length > 0 ? <>Y {rest.length} servicios más para tu negocio</> : <>Conoce cada servicio en detalle</>}
+            </p>
+            {rest.length > 0 && (
+              <p className="mt-2 text-sm text-paper/60">{rest.slice(0, 6).map((r) => r.title).join(" · ")}{rest.length > 6 ? " · …" : ""}</p>
+            )}
+          </div>
+          <Link href="/servicios" className="btn-signal shrink-0 self-start lg:self-auto">
+            Ver todos los servicios <Arrow className="h-4 w-4" />
+          </Link>
+        </div>
       </div>
     </section>
   );

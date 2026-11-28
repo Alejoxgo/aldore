@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
-import { IntegrationsDiagram, StackMarquee } from "@/components/TechSections";
+import { StackMarquee } from "@/components/TechSections";
 import Aldo from "@/components/Aldo";
 import ContactForm from "@/components/ContactForm";
 import { PuertaBlock } from "@/components/PuertaSections";
@@ -26,7 +26,6 @@ export default async function HomePage() {
       <CastorlyBlock s={s} product={castorly} />
       <PuertaBlock s={s} />
       <ProductsList products={products} s={s} />
-      <IntegrationsDiagram s={s} />
       <Process s={s} />
       <Plans plans={plans} s={s} />
       <Testimonials items={testimonials} s={s} />

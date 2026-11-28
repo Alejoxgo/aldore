@@ -6,7 +6,24 @@ import Logo from "./Logo";
 type NavLink = { label: string; href: string };
 
 /** Botón de ingreso: la puerta de la marca, que se "abre" al pasar el mouse. */
-function LoginButton({ label, className = "", onClick }: { label: string; className?: string; onClick?: () => void }) {
+function LoginButton({ label, user, className = "", onClick }: { label: string; user?: string | null; className?: string; onClick?: () => void }) {
+  if (user) {
+    const first = user.trim().split(/\s+/)[0] || user;
+    return (
+      <Link
+        href="/admin"
+        onClick={onClick}
+        title="Ir a mi panel"
+        className={`group inline-flex items-center gap-2 rounded-full border border-brand-500/50 bg-brand-500/10 py-1.5 pl-1.5 pr-4 text-[14px] font-medium text-paper transition hover:border-brand-500 hover:bg-brand-500/20 ${className}`}
+      >
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-brand-500 font-display text-[13px] font-semibold uppercase text-white">
+          {first.charAt(0)}
+        </span>
+        <span className="max-w-[9rem] truncate">{first}</span>
+        <span className="text-paper/50 transition group-hover:translate-x-0.5 group-hover:text-paper">→</span>
+      </Link>
+    );
+  }
   return (
     <Link
       href="/admin/login"
@@ -24,7 +41,7 @@ function LoginButton({ label, className = "", onClick }: { label: string; classN
   );
 }
 
-export default function Header({ name, links, cta, ctaUrl, login }: { name: string; links: NavLink[]; cta: string; ctaUrl: string; login: string }) {
+export default function Header({ name, links, cta, ctaUrl, login, user = null }: { name: string; links: NavLink[]; cta: string; ctaUrl: string; login: string; user?: string | null }) {
   const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-ink-900/90 text-paper backdrop-blur">
@@ -39,7 +56,7 @@ export default function Header({ name, links, cta, ctaUrl, login }: { name: stri
             </Link>
           ))}
           <div className="flex items-center gap-3">
-            {login && <LoginButton label={login} />}
+            {(login || user) && <LoginButton label={login} user={user} />}
             {cta && (
               <Link href={ctaUrl || "/contacto"} className="btn-signal !py-2">
                 {cta}
@@ -72,7 +89,7 @@ export default function Header({ name, links, cta, ctaUrl, login }: { name: stri
                   {cta}
                 </Link>
               )}
-              {login && <LoginButton label={login} onClick={() => setOpen(false)} className="!py-2.5" />}
+              {(login || user) && <LoginButton label={login} user={user} onClick={() => setOpen(false)} className="!py-2.5" />}
             </div>
           </div>
         </nav>

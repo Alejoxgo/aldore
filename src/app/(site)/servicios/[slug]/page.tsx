@@ -28,7 +28,7 @@ export default async function ServicePage({ params }: Props) {
     <>
       <section className="border-b border-paper-line">
         <div className="container-x pb-14 pt-14 sm:pt-20">
-          <Link href="/#servicios" className="eyebrow hover:text-ink-900">← Servicios</Link>
+          <Link href="/servicios" className="eyebrow hover:text-ink-900">← Todos los servicios</Link>
           <p className="mt-10 font-mono text-sm text-brand-500">{String(idx + 1).padStart(2, "0")}</p>
           <h1 className="mt-2 max-w-4xl font-display text-5xl font-medium leading-[1.02] tracking-tight sm:text-7xl">{sv.title}</h1>
           <p className="mt-6 max-w-2xl text-xl leading-relaxed text-ink-700">{sv.shortDescription}</p>
