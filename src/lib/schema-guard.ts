@@ -17,7 +17,8 @@ export const SCHEMA_GUARD: string[] = [
   "CREATE UNIQUE INDEX IF NOT EXISTS \"Queue_slug_key\" ON \"Queue\"(\"slug\")",
   "CREATE UNIQUE INDEX IF NOT EXISTS \"Ticket_code_key\" ON \"Ticket\"(\"code\")",
   "CREATE INDEX IF NOT EXISTS \"Ticket_queueId_status_idx\" ON \"Ticket\"(\"queueId\", \"status\")",
-  "CREATE UNIQUE INDEX IF NOT EXISTS \"MenuBoard_slug_key\" ON \"MenuBoard\"(\"slug\")",
+  "CREATE UNIQUE INDEX IF NOT EXISTS \"MenuBoard_slug_key\" ON \"MenuBoard\"(\"slug\")",  "CREATE TABLE IF NOT EXISTS \"MfaChallenge\" (\n    \"id\" TEXT NOT NULL PRIMARY KEY,\n    \"userId\" INTEGER NOT NULL,\n    \"codeHash\" TEXT NOT NULL,\n    \"attempts\" INTEGER NOT NULL DEFAULT 0,\n    \"expires\" INTEGER NOT NULL,\n    \"sentAt\" INTEGER NOT NULL,\n    \"createdAt\" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP\n)",
+  "CREATE INDEX IF NOT EXISTS \"MfaChallenge_userId_idx\" ON \"MfaChallenge\"(\"userId\")",
 ];
 
 /** Columnas añadidas después de crear la tabla. Se agregan solo si faltan (SQLite no tiene ADD COLUMN IF NOT EXISTS). */

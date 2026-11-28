@@ -6,6 +6,8 @@ import Sidebar from "@/components/admin/Sidebar";
 import AdminIcon from "@/components/admin/AdminIcon";
 import Logo from "@/components/Logo";
 import { logout } from "../actions";
+import IdleGuard from "@/components/admin/IdleGuard";
+import { idleMinutes } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Panel admin", robots: { index: false } };
 
@@ -17,6 +19,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   ]);
   return (
     <div className="min-h-screen bg-[#f6f5f2]">
+      <IdleGuard minutes={idleMinutes()} />
       <Sidebar
         newLeads={newLeads}
         pendingRequests={pendingRequests}

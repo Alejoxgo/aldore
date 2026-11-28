@@ -5,20 +5,68 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
-import { SESSION_COOKIE, SESSION_MAX_AGE, authSecretReady, signSession } from "@/lib/session";
+import { MFA_COOKIE, SESSION_COOKIE, TRUST_COOKIE, TRUST_DAYS, authSecretReady, hashCode, sessionCookieOptions, signSession, signTrust, verifyTrust } from "@/lib/session";
+import { esc, mailLayout, mailReady, sendMail } from "@/lib/mail";
 
 const NO_SECRET =
   "Falta configurar la variable secreta AUTH_SECRET (mínimo 32 caracteres) en el servidor. Agrégala en Cloudflare → aldore → Settings → Variables and Secrets.";
 import { getResource } from "@/lib/resources";
 import { SETTING_KEYS } from "@/lib/settings";
-import { slugify } from "@/lib/utils";
+import { randomKey, slugify } from "@/lib/utils";
 import { LEAD_STATUSES } from "@/lib/leads";
 
 /* ---------------- Autenticación ---------------- */
 
 const attempts = new Map<string, { count: number; until: number }>();
 
-export type LoginState = { error?: string; email?: string };
+export type LoginState = { error?: string; email?: string; step?: "code"; masked?: string; info?: string };
+
+const CODE_TTL_MS = 10 * 60 * 1000;
+const CODE_MAX_ATTEMPTS = 5;
+const RESEND_WAIT_MS = 30 * 1000;
+
+function maskEmail(email: string) {
+  const [u, d] = email.split("@");
+  return `${u.slice(0, 2)}${"•".repeat(Math.max(1, u.length - 2))}@${d}`;
+}
+
+function sixDigits() {
+  const b = new Uint32Array(1);
+  crypto.getRandomValues(b);
+  return String(b[0] % 1_000_000).padStart(6, "0");
+}
+
+async function startSession(user: { id: number; email: string; name: string }) {
+  const token = await signSession({ uid: user.id, email: user.email, name: user.name });
+  (await cookies()).set(SESSION_COOKIE, token, sessionCookieOptions());
+}
+
+/** Crea (o renueva) el código de 6 dígitos y lo envía al correo del administrador. */
+async function sendLoginCode(user: { id: number; email: string; name: string }, challengeId?: string) {
+  const code = sixDigits();
+  const id = challengeId ?? randomKey(32);
+  const now = Math.floor(Date.now() / 1000); // segundos: caben en un INT de SQLite
+  const codeHash = await hashCode(code, id);
+  if (challengeId) {
+    await prisma.mfaChallenge.update({ where: { id }, data: { codeHash, expires: now + CODE_TTL_MS / 1000, sentAt: now, attempts: 0 } });
+  } else {
+    await prisma.mfaChallenge.deleteMany({ where: { OR: [{ userId: user.id }, { expires: { lt: now } }] } });
+    await prisma.mfaChallenge.create({ data: { id, userId: user.id, codeHash, expires: now + CODE_TTL_MS / 1000, sentAt: now } });
+  }
+  const sent = await sendMail({
+    to: user.email,
+    subject: `${code} es tu código para entrar al panel de Aldore`,
+    html: mailLayout(
+      "Tu código de verificación",
+      `<p style="margin:0 0 16px;font-size:15px;line-height:1.6">Hola ${esc(user.name.split(/\s+/)[0])}, usa este código para terminar de ingresar al panel:</p>
+<p style="margin:0 0 20px;font-family:ui-monospace,Menlo,monospace;font-size:34px;letter-spacing:10px;font-weight:700;color:#16130f">${code}</p>
+<p style="margin:0;font-size:13px;line-height:1.6;color:#6b6358">Vence en 10 minutos. Si no fuiste tú, no compartas este código y cambia tu contraseña: alguien la conoce.</p>`,
+    ),
+  });
+  if (!sent.ok) return null;
+  (await cookies()).set(MFA_COOKIE, id, { ...sessionCookieOptions(), maxAge: CODE_TTL_MS / 1000 });
+  return id;
+}
 
 export async function login(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
@@ -40,15 +88,64 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   }
   attempts.delete(ip);
 
-  const token = await signSession({ uid: user.id, email: user.email, name: user.name });
-  (await cookies()).set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production" && process.env.INSECURE_COOKIES !== "true",
-    path: "/",
-    maxAge: SESSION_MAX_AGE,
-  });
+  // Segundo paso: código por correo. Se omite si el correo no está configurado (para no dejarte por fuera)
+  // o si este equipo ya se verificó en los últimos 30 días.
+  const store = await cookies();
+  const trusted = await verifyTrust(store.get(TRUST_COOKIE)?.value, user.id);
+  if (mailReady() && !trusted) {
+    const sent = await sendLoginCode(user);
+    if (!sent) return { error: "No pudimos enviarte el código de verificación. Intenta de nuevo en un momento.", email };
+    return { step: "code", email, masked: maskEmail(user.email) };
+  }
+
+  await startSession(user);
   redirect("/admin");
+}
+
+export async function verifyLoginCode(prev: LoginState, formData: FormData): Promise<LoginState> {
+  const store = await cookies();
+  const id = store.get(MFA_COOKIE)?.value;
+  const back = { email: prev.email };
+  const ch = id ? await prisma.mfaChallenge.findUnique({ where: { id } }) : null;
+  if (!ch || ch.expires * 1000 < Date.now() || ch.attempts >= CODE_MAX_ATTEMPTS) {
+    if (ch) await prisma.mfaChallenge.delete({ where: { id: ch.id } }).catch(() => {});
+    store.delete(MFA_COOKIE);
+    return { ...back, error: "El código venció o tuvo demasiados intentos. Ingresa de nuevo tu contraseña." };
+  }
+  const code = String(formData.get("code") ?? "").replace(/\D/g, "");
+  if (code.length !== 6 || (await hashCode(code, ch.id)) !== ch.codeHash) {
+    const left = CODE_MAX_ATTEMPTS - ch.attempts - 1;
+    await prisma.mfaChallenge.update({ where: { id: ch.id }, data: { attempts: { increment: 1 } } });
+    if (left <= 0) {
+      await prisma.mfaChallenge.delete({ where: { id: ch.id } }).catch(() => {});
+      store.delete(MFA_COOKIE);
+      return { ...back, error: "Demasiados intentos con el código. Ingresa de nuevo tu contraseña." };
+    }
+    return { ...prev, info: undefined, error: `El código no es correcto. Te quedan ${left} ${left === 1 ? "intento" : "intentos"}.` };
+  }
+
+  await prisma.mfaChallenge.delete({ where: { id: ch.id } }).catch(() => {});
+  store.delete(MFA_COOKIE);
+  const user = await prisma.user.findUnique({ where: { id: ch.userId } });
+  if (!user) return { ...back, error: "Ingresa de nuevo." };
+  if (formData.get("remember") === "on") {
+    store.set(TRUST_COOKIE, await signTrust(user.id), { ...sessionCookieOptions(), maxAge: TRUST_DAYS * 24 * 60 * 60 });
+  }
+  await startSession(user);
+  redirect("/admin");
+}
+
+export async function resendLoginCode(prev: LoginState): Promise<LoginState> {
+  const store = await cookies();
+  const id = store.get(MFA_COOKIE)?.value;
+  const ch = id ? await prisma.mfaChallenge.findUnique({ where: { id } }) : null;
+  if (!ch || ch.expires * 1000 < Date.now()) return { email: prev.email, error: "El código venció. Ingresa de nuevo tu contraseña." };
+  if (Date.now() - ch.sentAt * 1000 < RESEND_WAIT_MS) return { ...prev, error: "Espera unos segundos antes de pedir otro código.", info: undefined };
+  const user = await prisma.user.findUnique({ where: { id: ch.userId } });
+  if (!user) return { email: prev.email, error: "Ingresa de nuevo." };
+  const sent = await sendLoginCode(user, ch.id);
+  if (!sent) return { ...prev, error: "No pudimos reenviar el código. Intenta de nuevo en un momento.", info: undefined };
+  return { ...prev, error: undefined, info: "Te enviamos un código nuevo." };
 }
 
 export async function logout() {
@@ -230,14 +327,7 @@ export async function createFirstAdmin(_prev: SetupState, formData: FormData): P
   }
 
   const user = await prisma.user.create({ data: { name, email, passwordHash: await bcrypt.hash(password, 12) } });
-  const token = await signSession({ uid: user.id, email: user.email, name: user.name });
-  (await cookies()).set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production" && process.env.INSECURE_COOKIES !== "true",
-    path: "/",
-    maxAge: SESSION_MAX_AGE,
-  });
+  await startSession(user);
   redirect("/admin");
 }
 

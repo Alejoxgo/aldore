@@ -17,6 +17,19 @@ model User {
   createdAt    DateTime @default(now())
 }
 
+/// Código de verificación por correo (segundo paso del ingreso al panel).
+model MfaChallenge {
+  id        String   @id
+  userId    Int
+  codeHash  String
+  attempts  Int      @default(0)
+  expires   Int // segundos desde 1970
+  sentAt    Int // segundos desde 1970
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
 model Service {
   id               Int      @id @default(autoincrement())
   slug             String   @unique
