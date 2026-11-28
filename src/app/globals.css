@@ -86,14 +86,6 @@ body { @apply bg-paper font-sans text-ink-900 antialiased; }
 }
 @media (prefers-reduced-motion: reduce) { .hero-msg { animation: none; opacity: 1; } }
 
-/* Cástor flota suavemente en la página de Castorly */
-@keyframes castor-bob {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50% { transform: translateY(-8px) rotate(2deg); }
-}
-.castor-bob { animation: castor-bob 4s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) { .castor-bob { animation: none; } }
-
 /* Dentro de Castorly, el formulario usa sus colores */
 .castorly-scope .btn-signal { background: linear-gradient(90deg, #9b3dff, #2160f0); border-radius: 9999px; color: #fff; }
 .castorly-scope .btn-signal:hover { filter: brightness(1.1); }

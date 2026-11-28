@@ -111,7 +111,7 @@ export default function CastorlyPage({ p, s }: { p: Product; s: Settings }) {
             )}
             {mascot && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={mascot} alt={mascotName} className="castor-bob pointer-events-none absolute -bottom-12 -left-4 w-28 drop-shadow-2xl sm:-left-10 sm:w-40" />
+              <img src={mascot} alt={mascotName} className="pointer-events-none absolute -bottom-12 -left-4 w-28 drop-shadow-2xl sm:-left-10 sm:w-40" />
             )}
           </div>
         </div>
