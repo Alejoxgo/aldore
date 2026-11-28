@@ -16,7 +16,28 @@ model User {
   passwordHash String
   /// "admin" gestiona usuarios y todo el panel; "editor" maneja el contenido pero no los usuarios.
   role         String   @default("admin")
+  /// Cargo que se muestra en el panel (ej. "Gerente", "Desarrollador").
+  title        String   @default("")
+  /// Foto de perfil: imagen (data URL) o uno de los Aldos ("aldo-1" … "aldo-10").
+  avatar       String   @default("aldo-1")
   createdAt    DateTime @default(now())
+}
+
+/// Correo interno entre los usuarios del panel.
+model InternalMessage {
+  id          Int       @id @default(autoincrement())
+  fromId      Int
+  toId        Int
+  subject     String
+  body        String
+  readAt      DateTime?
+  fromDeleted Boolean   @default(false)
+  toDeleted   Boolean   @default(false)
+  replyTo     Int?
+  createdAt   DateTime  @default(now())
+
+  @@index([toId, readAt])
+  @@index([fromId])
 }
 
 /// Código de verificación por correo (segundo paso del ingreso al panel).

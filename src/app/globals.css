@@ -158,3 +158,79 @@ body { @apply bg-paper font-sans text-ink-900 antialiased; }
     radial-gradient(rgba(244,241,234,.06) 1px, transparent 1.2px);
   background-size: auto, auto, 26px 26px;
 }
+
+/* Portada: Aldo entra volando y se posa sobre la puerta */
+.hero-aldo-fly { animation: hero-aldo-fly 2.6s cubic-bezier(.25,.6,.3,1) .3s both; }
+.hero-aldo-sit { animation: hero-aldo-sit .5s ease-out 2.75s both; transform-origin: 50% 100%; }
+@keyframes hero-aldo-fly {
+  0% { transform: translate(-75vw, -40px) rotate(-6deg) scale(.8); opacity: 1; }
+  35% { transform: translate(-42vw, -150px) rotate(-3deg) scale(.9); }
+  70% { transform: translate(-10vw, -90px) rotate(4deg) scale(1); }
+  92% { transform: translate(0, -6px) rotate(0) scale(1); opacity: 1; }
+  100% { transform: translate(0, 0); opacity: 0; }
+}
+@keyframes hero-aldo-sit {
+  0% { opacity: 0; transform: scale(1.06, .9); }
+  60% { opacity: 1; transform: scale(.97, 1.04); }
+  100% { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-aldo-fly { display: none; }
+  .hero-aldo-sit { animation: none; }
+}
+
+/* ---------- Detalles en los espacios vacíos ----------
+ * Dibujos de línea (el arco de la puerta, puntos, cruces, ondas) en una esquina de cada sección,
+ * alternando el lado. Van detrás del contenido y no se pueden tocar. */
+.site-grain main { overflow-x: clip; }
+.site-grain main > section { position: relative; isolation: isolate; }
+.site-grain main > section::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 320px;
+  height: 320px;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320' viewBox='0 0 320 320' fill='none'%3E %3Cpath d='M150 300V170c0-52 36-84 80-100 44 16 80 48 80 100v130' stroke='rgba(22,19,15,.16)' stroke-width='1.5' stroke-dasharray='5 7'/%3E %3Cpath d='M205 300v-62c0-16 11-28 25-34 14 6 25 18 25 34v62' stroke='rgba(226,71,28,.45)' stroke-width='2'/%3E %3Cg fill='rgba(22,19,15,.18)'%3E%3Ccircle cx='20' cy='30' r='1.6'/%3E%3Ccircle cx='20' cy='46' r='1.6'/%3E%3Ccircle cx='20' cy='62' r='1.6'/%3E%3Ccircle cx='20' cy='78' r='1.6'/%3E%3Ccircle cx='20' cy='94' r='1.6'/%3E%3Ccircle cx='36' cy='30' r='1.6'/%3E%3Ccircle cx='36' cy='46' r='1.6'/%3E%3Ccircle cx='36' cy='62' r='1.6'/%3E%3Ccircle cx='36' cy='78' r='1.6'/%3E%3Ccircle cx='36' cy='94' r='1.6'/%3E%3Ccircle cx='52' cy='30' r='1.6'/%3E%3Ccircle cx='52' cy='46' r='1.6'/%3E%3Ccircle cx='52' cy='62' r='1.6'/%3E%3Ccircle cx='52' cy='78' r='1.6'/%3E%3Ccircle cx='52' cy='94' r='1.6'/%3E%3Ccircle cx='68' cy='30' r='1.6'/%3E%3Ccircle cx='68' cy='46' r='1.6'/%3E%3Ccircle cx='68' cy='62' r='1.6'/%3E%3Ccircle cx='68' cy='78' r='1.6'/%3E%3Ccircle cx='68' cy='94' r='1.6'/%3E%3Ccircle cx='84' cy='30' r='1.6'/%3E%3Ccircle cx='84' cy='46' r='1.6'/%3E%3Ccircle cx='84' cy='62' r='1.6'/%3E%3Ccircle cx='84' cy='78' r='1.6'/%3E%3Ccircle cx='84' cy='94' r='1.6'/%3E%3Ccircle cx='100' cy='30' r='1.6'/%3E%3Ccircle cx='100' cy='46' r='1.6'/%3E%3Ccircle cx='100' cy='62' r='1.6'/%3E%3Ccircle cx='100' cy='78' r='1.6'/%3E%3Ccircle cx='100' cy='94' r='1.6'/%3E%3C/g%3E %3Cpath d='M40 190h16M48 182v16M120 40h12M126 34v12' stroke='rgba(226,71,28,.45)' stroke-width='2' stroke-linecap='round'/%3E %3Cpath d='M30 260c14-12 28 12 42 0s28 12 42 0' stroke='rgba(22,19,15,.16)' stroke-width='1.6' stroke-linecap='round'/%3E %3Ccircle cx='270' cy='40' r='14' stroke='rgba(22,19,15,.16)' stroke-width='1.5'/%3E %3Ccircle cx='270' cy='40' r='4' fill='rgba(226,71,28,.45)'/%3E %3Cpath d='M100 120l8 8 8-8 8 8' stroke='rgba(22,19,15,.16)' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E %3C/svg%3E") no-repeat center / contain;
+  top: 24px;
+  right: max(-40px, calc((100vw - 72rem) / 2 - 300px));
+  opacity: .9;
+}
+.site-grain main > section:nth-of-type(even)::before { top: auto; bottom: 16px; right: auto; left: max(-60px, calc((100vw - 72rem) / 2 - 300px)); transform: scaleX(-1); }
+.site-grain main > section.bg-ink-900::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320' viewBox='0 0 320 320' fill='none'%3E %3Cpath d='M150 300V170c0-52 36-84 80-100 44 16 80 48 80 100v130' stroke='rgba(244,241,234,.14)' stroke-width='1.5' stroke-dasharray='5 7'/%3E %3Cpath d='M205 300v-62c0-16 11-28 25-34 14 6 25 18 25 34v62' stroke='rgba(226,71,28,.55)' stroke-width='2'/%3E %3Cg fill='rgba(244,241,234,.16)'%3E%3Ccircle cx='20' cy='30' r='1.6'/%3E%3Ccircle cx='20' cy='46' r='1.6'/%3E%3Ccircle cx='20' cy='62' r='1.6'/%3E%3Ccircle cx='20' cy='78' r='1.6'/%3E%3Ccircle cx='20' cy='94' r='1.6'/%3E%3Ccircle cx='36' cy='30' r='1.6'/%3E%3Ccircle cx='36' cy='46' r='1.6'/%3E%3Ccircle cx='36' cy='62' r='1.6'/%3E%3Ccircle cx='36' cy='78' r='1.6'/%3E%3Ccircle cx='36' cy='94' r='1.6'/%3E%3Ccircle cx='52' cy='30' r='1.6'/%3E%3Ccircle cx='52' cy='46' r='1.6'/%3E%3Ccircle cx='52' cy='62' r='1.6'/%3E%3Ccircle cx='52' cy='78' r='1.6'/%3E%3Ccircle cx='52' cy='94' r='1.6'/%3E%3Ccircle cx='68' cy='30' r='1.6'/%3E%3Ccircle cx='68' cy='46' r='1.6'/%3E%3Ccircle cx='68' cy='62' r='1.6'/%3E%3Ccircle cx='68' cy='78' r='1.6'/%3E%3Ccircle cx='68' cy='94' r='1.6'/%3E%3Ccircle cx='84' cy='30' r='1.6'/%3E%3Ccircle cx='84' cy='46' r='1.6'/%3E%3Ccircle cx='84' cy='62' r='1.6'/%3E%3Ccircle cx='84' cy='78' r='1.6'/%3E%3Ccircle cx='84' cy='94' r='1.6'/%3E%3Ccircle cx='100' cy='30' r='1.6'/%3E%3Ccircle cx='100' cy='46' r='1.6'/%3E%3Ccircle cx='100' cy='62' r='1.6'/%3E%3Ccircle cx='100' cy='78' r='1.6'/%3E%3Ccircle cx='100' cy='94' r='1.6'/%3E%3C/g%3E %3Cpath d='M40 190h16M48 182v16M120 40h12M126 34v12' stroke='rgba(226,71,28,.55)' stroke-width='2' stroke-linecap='round'/%3E %3Cpath d='M30 260c14-12 28 12 42 0s28 12 42 0' stroke='rgba(244,241,234,.14)' stroke-width='1.6' stroke-linecap='round'/%3E %3Ccircle cx='270' cy='40' r='14' stroke='rgba(244,241,234,.14)' stroke-width='1.5'/%3E %3Ccircle cx='270' cy='40' r='4' fill='rgba(226,71,28,.55)'/%3E %3Cpath d='M100 120l8 8 8-8 8 8' stroke='rgba(244,241,234,.14)' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E %3C/svg%3E"); }
+@media (max-width: 767px) { .site-grain main > section::before { width: 200px; height: 200px; opacity: .6; } }
+
+/* Aldo: poses nuevas y versión quieta */
+.aldo-pose-sleep .aldo-body { animation: aldo-breathe 5s ease-in-out infinite; }
+.aldo .aldo-zzz text { animation: aldo-zzz 2.4s ease-in-out infinite; opacity: 0; }
+.aldo .aldo-zzz text:nth-child(2) { animation-delay: .5s; }
+.aldo .aldo-zzz text:nth-child(3) { animation-delay: 1s; }
+@keyframes aldo-zzz { 0% { opacity: 0; transform: translate(0, 6px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(6px, -8px); } }
+.aldo .aldo-heart { animation: aldo-heart 2.1s ease-in infinite; opacity: 0; transform-box: fill-box; transform-origin: center; }
+@keyframes aldo-heart { 0% { opacity: 0; transform: translateY(8px) scale(.6); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-18px) scale(1.1); } }
+.aldo .aldo-book { animation: aldo-float 3s ease-in-out infinite; }
+.aldo-pose-dance .aldo-body { animation: aldo-dance .8s ease-in-out infinite; transform-box: view-box; transform-origin: 60px 118px; }
+@keyframes aldo-dance { 0%,100% { transform: rotate(-7deg) translateY(0); } 50% { transform: rotate(7deg) translateY(-4px); } }
+.aldo .aldo-lens { animation: aldo-lens 2.6s ease-in-out infinite; }
+@keyframes aldo-lens { 0%,100% { transform: translate(0, 0); } 30% { transform: translate(-28px, 0); } 60% { transform: translate(-14px, 8px); } }
+.aldo-still, .aldo-still * { animation: none !important; }
+.aldo-still .aldo-zzz text, .aldo-still .aldo-heart { opacity: 1; }
+
+/* ---------- Temáticas de temporada ---------- */
+.season-layer { position: fixed; inset: 0; z-index: 45; pointer-events: none; overflow: hidden; }
+.season-layer > span { position: absolute; top: -40px; display: block; opacity: .85; animation: season-fall linear infinite; }
+.season-bats > span { animation-name: season-flutter; opacity: .7; }
+.season-hearts > span, .season-flowers > span { opacity: .75; }
+@keyframes season-fall {
+  0% { transform: translate3d(0, -40px, 0) rotate(0); }
+  50% { transform: translate3d(24px, 50vh, 0) rotate(180deg); }
+  100% { transform: translate3d(-12px, 105vh, 0) rotate(360deg); }
+}
+@keyframes season-flutter {
+  0% { transform: translate3d(0, 105vh, 0) scale(.8); }
+  25% { transform: translate3d(30px, 70vh, 0) scaleX(-.8); }
+  50% { transform: translate3d(-20px, 40vh, 0) scale(.9); }
+  100% { transform: translate3d(10px, -60px, 0) scaleX(-1); }
+}
+@media (prefers-reduced-motion: reduce) { .season-layer { display: none; } }
+.season-banner { background: linear-gradient(90deg, var(--s1), var(--s2, var(--s1)), var(--s3, var(--s1))); }

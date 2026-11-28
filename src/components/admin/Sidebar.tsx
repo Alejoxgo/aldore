@@ -3,11 +3,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import AdminIcon from "./AdminIcon";
+import { UserAvatar } from "@/components/AldoAvatar";
 
 export const ADMIN_NAV = [
   {
     title: "",
-    items: [{ href: "/admin", label: "Resumen", icon: "home" }],
+    items: [
+      { href: "/admin", label: "Resumen", icon: "home" },
+      { href: "/admin/correo", label: "Correo interno", icon: "mail" },
+    ],
   },
   {
     title: "Negocio",
@@ -54,7 +58,7 @@ export const ADMIN_NAV = [
   },
 ];
 
-function NavList({ path, newLeads, pendingRequests, onNavigate }: { path: string; newLeads: number; pendingRequests: number; onNavigate?: () => void }) {
+function NavList({ path, newLeads, pendingRequests, unreadMail = 0, onNavigate }: { path: string; newLeads: number; pendingRequests: number; unreadMail?: number; onNavigate?: () => void }) {
   const active = (href: string) => (href === "/admin" ? path === "/admin" : path === href || path.startsWith(href + "/") || path.startsWith(href + "?"));
   return (
     <nav className="space-y-6">
@@ -63,7 +67,7 @@ function NavList({ path, newLeads, pendingRequests, onNavigate }: { path: string
           {g.title && <p className="px-3 pb-2 font-mono text-[10.5px] uppercase tracking-[0.14em] text-paper/35">{g.title}</p>}
           <ul className="space-y-0.5">
             {g.items.map((it) => {
-              const badge = it.href === "/admin/leads" ? newLeads : it.href === "/admin/solicitudes" ? pendingRequests : 0;
+              const badge = it.href === "/admin/leads" ? newLeads : it.href === "/admin/solicitudes" ? pendingRequests : it.href === "/admin/correo" ? unreadMail : 0;
               const on = active(it.href);
               return (
                 <li key={it.href}>
@@ -93,13 +97,15 @@ function NavList({ path, newLeads, pendingRequests, onNavigate }: { path: string
 export default function Sidebar({
   newLeads,
   pendingRequests = 0,
+  unreadMail = 0,
   user,
   brand,
   logout,
 }: {
   newLeads: number;
   pendingRequests?: number;
-  user: { name: string; email: string };
+  unreadMail?: number;
+  user: { name: string; email: string; avatar?: string; title?: string };
   brand: React.ReactNode;
   logout: React.ReactNode;
 }) {
@@ -111,10 +117,12 @@ export default function Sidebar({
   const userCard = (
     <div className="border-t border-white/10 p-4">
       <div className="flex items-center gap-3">
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-500 font-semibold text-white">{initial}</span>
+        <Link href="/admin/usuarios" title="Mi perfil" className="shrink-0">
+          {user.avatar ? <UserAvatar avatar={user.avatar} name={user.name} className="h-10 w-10" /> : <span className="grid h-9 w-9 place-items-center rounded-full bg-brand-500 font-semibold text-white">{initial}</span>}
+        </Link>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-white">{user.name}</p>
-          <p className="truncate text-xs text-paper/45">{user.email}</p>
+          <p className="truncate text-xs text-paper/45">{user.title || user.email}</p>
         </div>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2">
@@ -132,7 +140,7 @@ export default function Sidebar({
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col bg-ink-900 lg:flex">
         <div className="flex h-16 items-center px-6">{brand}</div>
         <div className="flex-1 overflow-y-auto px-3 pb-6 pt-2 [scrollbar-width:thin]">
-          <NavList path={path} newLeads={newLeads} pendingRequests={pendingRequests} />
+          <NavList path={path} newLeads={newLeads} pendingRequests={pendingRequests} unreadMail={unreadMail} />
         </div>
         {userCard}
       </aside>
@@ -142,7 +150,7 @@ export default function Sidebar({
         {brand}
         <button onClick={() => setOpen(true)} aria-label="Abrir menú" className="relative rounded-lg p-2 text-paper">
           <AdminIcon name="menu" className="h-6 w-6" />
-          {newLeads + pendingRequests > 0 && <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full bg-brand-500 ring-2 ring-ink-900" />}
+          {newLeads + pendingRequests + unreadMail > 0 && <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full bg-brand-500 ring-2 ring-ink-900" />}
         </button>
       </header>
       {open && (
@@ -156,7 +164,7 @@ export default function Sidebar({
               </button>
             </div>
             <div className="flex-1 overflow-y-auto px-3 pb-6 pt-2">
-              <NavList path={path} newLeads={newLeads} pendingRequests={pendingRequests} onNavigate={() => setOpen(false)} />
+              <NavList path={path} newLeads={newLeads} pendingRequests={pendingRequests} unreadMail={unreadMail} onNavigate={() => setOpen(false)} />
             </div>
             {userCard}
           </div>

@@ -280,11 +280,30 @@ export async function createUser(formData: FormData) {
   const role = cleanRole(formData.get("role"));
   if (!email || !name || password.length < 10) backUsers("error", "Nombre, correo y contraseña (mín. 10 caracteres) son obligatorios.");
   try {
-    await prisma.user.create({ data: { email, name, role, passwordHash: await bcrypt.hash(password, 12) } });
+    await prisma.user.create({ data: { email, name, role, title: String(formData.get("title") ?? "").trim().slice(0, 80), avatar: `aldo-${1 + Math.floor(Math.random() * 10)}`, passwordHash: await bcrypt.hash(password, 12) } });
   } catch {
     backUsers("error", "Ya existe un usuario con ese correo.");
   }
   backUsers("ok", "Usuario creado");
+}
+
+/** Foto de perfil válida: uno de los Aldos o una imagen pequeña (data URL de hasta ~200 KB). */
+function cleanAvatar(v: FormDataEntryValue | null) {
+  const a = String(v ?? "");
+  if (/^aldo-([1-9]|10)$/.test(a)) return a;
+  if (/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(a) && a.length < 280_000) return a;
+  return undefined;
+}
+
+export async function updateMyProfile(formData: FormData) {
+  const session = await requireAdmin();
+  const name = String(formData.get("name") ?? "").trim();
+  const title = String(formData.get("title") ?? "").trim().slice(0, 80);
+  const avatar = cleanAvatar(formData.get("avatar"));
+  if (!name) backUsers("error", "Escribe tu nombre.");
+  await prisma.user.update({ where: { id: session.uid }, data: { name, title, ...(avatar ? { avatar } : {}) } });
+  revalidatePath("/admin", "layout");
+  backUsers("ok", "Perfil actualizado");
 }
 
 export async function updateUser(id: number, formData: FormData) {
@@ -305,7 +324,14 @@ export async function updateUser(id: number, formData: FormData) {
   try {
     await prisma.user.update({
       where: { id },
-      data: { name, email, role, ...(password ? { passwordHash: await bcrypt.hash(password, 12) } : {}) },
+      data: {
+        name,
+        email,
+        role,
+        title: String(formData.get("title") ?? "").trim().slice(0, 80),
+        ...(cleanAvatar(formData.get("avatar")) ? { avatar: cleanAvatar(formData.get("avatar")) } : {}),
+        ...(password ? { passwordHash: await bcrypt.hash(password, 12) } : {}),
+      },
     });
   } catch {
     backUsers("error", "Ya existe otro usuario con ese correo.");
@@ -481,4 +507,48 @@ export async function redoTranslation(id: number) {
   await prisma.translation.delete({ where: { id } }).catch(() => {});
   refreshSite();
   redirect(`/admin/idiomas?ok=${encodeURIComponent("Se volverá a traducir")}`);
+}
+
+/* ---------------- Correo interno ---------------- */
+
+export async function sendInternal(formData: FormData) {
+  const session = await requireAdmin();
+  const toIds = formData.getAll("to").map((x) => Number.parseInt(String(x), 10)).filter((n) => n > 0);
+  const subject = String(formData.get("subject") ?? "").trim().slice(0, 160) || "(Sin asunto)";
+  const body = String(formData.get("body") ?? "").replace(/\r\n/g, "\n").trim().slice(0, 10000);
+  const replyTo = Number.parseInt(String(formData.get("replyTo") ?? ""), 10) || null;
+  if (!toIds.length || !body) redirect(`/admin/correo?nuevo=1&error=${encodeURIComponent("Elige al menos un destinatario y escribe el mensaje.")}`);
+  const users = await prisma.user.findMany({ where: { id: { in: toIds } }, select: { id: true, email: true, name: true } });
+  if (!users.length) redirect(`/admin/correo?nuevo=1&error=${encodeURIComponent("Ese destinatario ya no existe.")}`);
+  for (const u of users) {
+    await prisma.internalMessage.create({ data: { fromId: session.uid, toId: u.id, subject, body, replyTo } });
+  }
+  // Aviso por correo real (si Resend está configurado), sin incluir el contenido del mensaje.
+  if (mailReady()) {
+    const site = process.env.SITE_URL || "https://aldore.co";
+    await Promise.all(
+      users.filter((u) => u.id !== session.uid).map((u) =>
+        sendMail({
+          to: u.email,
+          subject: `Nuevo mensaje de ${session.name} en el panel`,
+          html: mailLayout(
+            "Tienes un mensaje nuevo",
+            `<p style="margin:0 0 16px;font-size:15px;line-height:1.6">${esc(session.name)} te escribió en el correo interno del panel: <b>${esc(subject)}</b>.</p>
+<p style="margin:0"><a href="${site}/admin/correo" style="display:inline-block;background:#16130f;color:#fff;text-decoration:none;padding:10px 18px;border-radius:999px;font-size:14px">Abrir el panel</a></p>`,
+          ),
+        }).catch(() => null),
+      ),
+    );
+  }
+  redirect(`/admin/correo?f=enviados&ok=${encodeURIComponent(users.length > 1 ? `Mensaje enviado a ${users.length} personas` : `Mensaje enviado a ${users[0].name}`)}`);
+}
+
+export async function deleteInternal(id: number) {
+  const session = await requireAdmin();
+  const m = await prisma.internalMessage.findUnique({ where: { id } });
+  if (m) {
+    if (m.toId === session.uid) await prisma.internalMessage.update({ where: { id }, data: { toDeleted: true } });
+    if (m.fromId === session.uid) await prisma.internalMessage.update({ where: { id }, data: { fromDeleted: true } });
+  }
+  redirect(`/admin/correo?ok=${encodeURIComponent("Mensaje eliminado")}`);
 }

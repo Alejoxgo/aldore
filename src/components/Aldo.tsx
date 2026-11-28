@@ -1,7 +1,13 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { createContext, useContext, useEffect, useRef } from "react";
 
-export type AldoPose = "base" | "wave" | "think" | "code" | "happy" | "fly" | "cheer";
+export type AldoPose = "base" | "wave" | "think" | "code" | "happy" | "fly" | "cheer" | "sleep" | "love" | "read" | "dance" | "search";
+
+/** Accesorios que Aldo puede llevar (perfiles, versiones quietas y temáticas de temporada). */
+export type AldoWear = "santa" | "witch" | "party" | "grad" | "cap" | "crown" | "beanie" | "glasses" | "headset" | "bowtie" | "scarf" | "flag" | "heart";
+
+/** Temática de temporada activa: Aldo se pone el accesorio que toca (lo define el layout del sitio). */
+export const AldoSeason = createContext<AldoWear[]>([]);
 
 // Alas abiertas (volando) y alas arriba (celebrando).
 const FLY_L = "M27 74C14 60 1 56-9 60c6 6 10 14 12 22 7-2 15-4 24 4z";
@@ -24,6 +30,8 @@ export default function Aldo({
   follow = true,
   title = "Aldo, el búho de Aldore",
   onDark = false,
+  wear,
+  still = false,
 }: {
   pose?: AldoPose;
   className?: string;
@@ -31,11 +39,18 @@ export default function Aldo({
   title?: string;
   /** Añade un borde claro para que se vea sobre fondos oscuros. */
   onDark?: boolean;
+  /** Accesorios. Si no se indican, se usan los de la temática de temporada activa. */
+  wear?: AldoWear[];
+  /** Versión quieta: sin animaciones ni seguimiento del cursor. */
+  still?: boolean;
 }) {
   const ref = useRef<SVGSVGElement>(null);
+  const season = useContext(AldoSeason);
+  const items = wear ?? season;
+  if (still) follow = false;
 
   useEffect(() => {
-    if (!follow || pose === "happy") return;
+    if (!follow || pose === "happy" || pose === "sleep") return;
     const svg = ref.current;
     if (!svg || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let raf = 0;
@@ -68,10 +83,10 @@ export default function Aldo({
       <circle cx="46" cy="46" r="12" fill={P} />
       <circle cx="74" cy="46" r="12" fill={P} />
       <g className="aldo-pupils">
-        <circle cx="47" cy={pose === "think" ? 43 : 47} r="5.5" fill={INK} />
-        <circle cx="73" cy={pose === "think" ? 43 : 47} r="5.5" fill={INK} />
-        <circle cx="49" cy={pose === "think" ? 41 : 45} r="1.8" fill={P} />
-        <circle cx="75" cy={pose === "think" ? 41 : 45} r="1.8" fill={P} />
+        <circle cx="47" cy={pose === "think" ? 43 : pose === "read" ? 51 : 47} r="5.5" fill={INK} />
+        <circle cx="73" cy={pose === "think" ? 43 : pose === "read" ? 51 : 47} r="5.5" fill={INK} />
+        <circle cx="49" cy={pose === "think" ? 41 : pose === "read" ? 49 : 45} r="1.8" fill={P} />
+        <circle cx="75" cy={pose === "think" ? 41 : pose === "read" ? 49 : 45} r="1.8" fill={P} />
       </g>
     </g>
   );
@@ -83,11 +98,20 @@ export default function Aldo({
     </g>
   );
 
+  const eyesSleep = (
+    <g>
+      <circle cx="46" cy="46" r="12" fill={P} />
+      <circle cx="74" cy="46" r="12" fill={P} />
+      <path d="M39 47q7 5 14 0M67 47q7 5 14 0" stroke={INK} strokeWidth="3.2" fill="none" strokeLinecap="round" />
+    </g>
+  );
+  const eyes = pose === "happy" || pose === "cheer" || pose === "love" || pose === "dance" ? eyesHappy : pose === "sleep" ? eyesSleep : eyesOpen;
+
   return (
     <svg
       ref={ref}
       viewBox="0 -14 124 144"
-      className={`aldo aldo-pose-${pose} ${className}`}
+      className={`aldo aldo-pose-${pose} ${still ? "aldo-still" : ""} ${className}`}
       role="img"
       aria-label={title}
     >
@@ -103,11 +127,11 @@ export default function Aldo({
 
       <g className="aldo-body" aria-hidden>
         <g className="aldo-head"><path d="M24 114V66C24 47 29 37 35 30L31 10 49 23Q60 19 71 23L89 10 85 30C91 37 96 47 96 66v48z" {...edge} /></g>
-        {!["code", "fly", "cheer"].includes(pose) && <path className="aldo-wing-l" d="M25 72c-10 8-12 22-4 34 3-12 6-22 4-34z" {...edge} />}
+        {!["code", "fly", "cheer", "dance", "read"].includes(pose) && <path className="aldo-wing-l" d="M25 72c-10 8-12 22-4 34 3-12 6-22 4-34z" {...edge} />}
         {pose === "fly" && <><path className="aldo-flap-l" d={FLY_L} {...edge} /><path className="aldo-flap-r" d={FLY_R} {...edge} /></>}
-        {pose === "cheer" && <><path className="aldo-cheer-l" d={UP_L} {...edge} /><path className="aldo-cheer-r" d={UP_R} {...edge} /></>}
+        {(pose === "cheer" || pose === "dance") && <><path className="aldo-cheer-l" d={UP_L} {...edge} /><path className="aldo-cheer-r" d={UP_R} {...edge} /></>}
         {pose === "think" && <path d="M95 76c8 2 8 10 2 14" stroke={P} strokeWidth={onDark ? 11 : 10} fill="none" strokeLinecap="round" />}
-        {(pose === "base" || pose === "happy") && <path className="aldo-wing-r" d="M95 72c10 8 12 22 4 34-3-12-6-22-4-34z" {...edge} />}
+        {["base", "happy", "sleep", "love", "search"].includes(pose) && <path className="aldo-wing-r" d="M95 72c10 8 12 22 4 34-3-12-6-22-4-34z" {...edge} />}
         {pose === "wave" && <g className="aldo-wave"><path d="M95 74c10-6 16-20 14-34-6 8-11 20-14 34z" {...edge} /></g>}
       </g>
 
@@ -125,7 +149,8 @@ export default function Aldo({
             strokeLinejoin="round"
             opacity=".7"
           />
-          {pose === "happy" || pose === "cheer" ? eyesHappy : eyesOpen}
+          {eyes}
+          <AldoWearHead items={items} />
           {pose === "code" && (
             <g>
               <circle cx="46" cy="46" r="13.5" fill="none" stroke={V} strokeWidth="2.5" />
@@ -137,16 +162,16 @@ export default function Aldo({
         </g>
 
         {/* alas */}
-        {!["code", "fly", "cheer"].includes(pose) && <path className="aldo-wing-l" d="M25 72c-10 8-12 22-4 34 3-12 6-22 4-34z" fill={INK} />}
+        {!["code", "fly", "cheer", "dance", "read"].includes(pose) && <path className="aldo-wing-l" d="M25 72c-10 8-12 22-4 34 3-12 6-22 4-34z" fill={INK} />}
         {pose === "fly" && <><path className="aldo-flap-l" d={FLY_L} fill={INK} /><path className="aldo-flap-r" d={FLY_R} fill={INK} /></>}
-        {pose === "cheer" && (
+        {(pose === "cheer" || pose === "dance") && (
           <>
             <path className="aldo-cheer-l" d={UP_L} fill={INK} />
             <path className="aldo-cheer-r" d={UP_R} fill={INK} />
             <path d="M8 34l-4-3M10 26l-2-5M112 34l4-3M110 26l2-5" stroke={V} strokeWidth="2.5" strokeLinecap="round" className="aldo-sparks" />
           </>
         )}
-        {(pose === "base" || pose === "happy") && <path className="aldo-wing-r" d="M95 72c10 8 12 22 4 34-3-12-6-22-4-34z" fill={INK} />}
+        {["base", "happy", "sleep", "love", "search"].includes(pose) && <path className="aldo-wing-r" d="M95 72c10 8 12 22 4 34-3-12-6-22-4-34z" fill={INK} />}
         {pose === "wave" && (
           <g className="aldo-wave">
             <path d="M95 74c10-6 16-20 14-34-6 8-11 20-14 34z" fill={INK} />
@@ -155,6 +180,38 @@ export default function Aldo({
         )}
         {pose === "think" && <path d="M95 76c8 2 8 10 2 14" stroke={INK} strokeWidth="6" fill="none" strokeLinecap="round" />}
       </g>
+
+      {/* Extras de cada pose */}
+      {pose === "sleep" && (
+        <g className="aldo-zzz" fontFamily="Space Grotesk, sans-serif" fontWeight="700" fill={V}>
+          <text x="92" y="20" fontSize="12">z</text>
+          <text x="100" y="8" fontSize="15">z</text>
+          <text x="110" y="-6" fontSize="18">Z</text>
+        </g>
+      )}
+      {pose === "love" && (
+        <g fill={V}>
+          {[[96, 22, 0], [16, 30, 0.7], [104, 52, 1.4]].map(([x, y, d]) => (
+            <path key={x} className="aldo-heart" style={{ animationDelay: `${d}s` }} d={`M${x} ${y + 3}c-3-4-8-1-6 3l6 6 6-6c2-4-3-7-6-3z`} />
+          ))}
+        </g>
+      )}
+      {pose === "read" && (
+        <g className="aldo-book">
+          <path d="M24 84c-6 4-6 12 2 16M96 84c6 4 6 12-2 16" stroke={P} strokeWidth="10" fill="none" strokeLinecap="round" />
+          <path d="M24 84c-6 4-6 12 2 16M96 84c6 4 6 12-2 16" stroke={INK} strokeWidth="6" fill="none" strokeLinecap="round" />
+          <path d="M28 80l32 6 32-6v26l-32 6-32-6z" fill={V} stroke={P} strokeWidth="2" strokeLinejoin="round" />
+          <path d="M60 86v26" stroke={P} strokeWidth="2" />
+          <path d="M36 88l16 3M36 94l16 3M68 91l16-3M68 97l16-3" stroke={P} strokeWidth="1.5" opacity=".7" strokeLinecap="round" />
+        </g>
+      )}
+      {pose === "search" && (
+        <g className="aldo-lens">
+          <circle cx="74" cy="46" r="15" fill="rgba(255,255,255,.12)" stroke={V} strokeWidth="4" />
+          <path d="M85 57l14 14" stroke={V} strokeWidth="6" strokeLinecap="round" />
+        </g>
+      )}
+      <AldoWearBody items={items} />
 
       {pose === "code" ? (
         <g>
@@ -169,4 +226,112 @@ export default function Aldo({
       )}
     </svg>
   );
+}
+
+/* ---------- Accesorios ---------- */
+
+function AldoWearHead({ items }: { items: AldoWear[] }) {
+  if (!items.length) return null;
+  const has = (w: AldoWear) => items.includes(w);
+  return (
+    <g className="aldo-wear">
+      {has("glasses") && (
+        <g>
+          <circle cx="46" cy="46" r="13.5" fill="none" stroke={INK} strokeWidth="3" />
+          <circle cx="74" cy="46" r="13.5" fill="none" stroke={INK} strokeWidth="3" />
+          <path d="M59.5 45h1" stroke={INK} strokeWidth="3" />
+        </g>
+      )}
+      {has("headset") && (
+        <g>
+          <path d="M22 52C22 20 40 12 60 12s38 8 38 40" stroke="#3a342c" strokeWidth="4" fill="none" />
+          <rect x="16" y="46" width="10" height="18" rx="4" fill={V} />
+          <rect x="94" y="46" width="10" height="18" rx="4" fill={V} />
+          <path d="M21 62c0 8 10 12 22 10" stroke="#3a342c" strokeWidth="2.5" fill="none" />
+          <circle cx="44" cy="72" r="3" fill="#3a342c" />
+        </g>
+      )}
+      {has("santa") && (
+        <g>
+          <path d="M36 27c4-18 22-30 44-28 14 1 22 8 26 16l-8 4c-4-6-10-9-18-9-8 0-16 6-20 17z" fill="#d12a2a" />
+          <rect x="30" y="22" width="60" height="9" rx="4.5" fill="#fff" />
+          <circle cx="104" cy="17" r="6" fill="#fff" />
+        </g>
+      )}
+      {has("witch") && (
+        <g>
+          <ellipse cx="60" cy="26" rx="42" ry="6" fill="#3b2366" />
+          <path d="M42 26 66-14 78 26z" fill="#3b2366" />
+          <path d="M45 21h31v5H45z" fill="#f59e0b" />
+        </g>
+      )}
+      {has("party") && (
+        <g>
+          <path d="M46 26 60-10l14 36z" fill="#7c3aed" />
+          <path d="M51 14l10 5M48 21l14 5M55 2l7 4" stroke="#fde047" strokeWidth="3" strokeLinecap="round" />
+          <circle cx="60" cy="-11" r="4.5" fill="#fde047" />
+        </g>
+      )}
+      {has("grad") && (
+        <g>
+          <path d="M44 22v8h32v-8" fill="#1f2937" />
+          <path d="M18 16 60 2l42 14-42 14z" fill="#1f2937" />
+          <path d="M60 16l30 4v14" stroke="#fbbf24" strokeWidth="2" fill="none" />
+          <circle cx="90" cy="36" r="3" fill="#fbbf24" />
+        </g>
+      )}
+      {has("cap") && (
+        <g>
+          <path d="M34 28c0-14 12-22 26-22s26 8 26 22z" fill="#2160f0" />
+          <path d="M60 28h44c2 0 2 5-1 6H60z" fill="#1747b8" />
+          <circle cx="60" cy="7" r="2.5" fill="#1747b8" />
+        </g>
+      )}
+      {has("crown") && <path d="M38 28V10l11 9 11-15 11 15 11-9v18z" fill="#f5b400" stroke="#b7791f" strokeWidth="1.5" strokeLinejoin="round" />}
+      {has("beanie") && (
+        <g>
+          <path d="M33 28c0-16 12-25 27-25s27 9 27 25z" fill="#0f766e" />
+          <rect x="31" y="22" width="58" height="9" rx="3" fill="#115e59" />
+          <circle cx="60" cy="1" r="6" fill="#f4f1ea" />
+        </g>
+      )}
+    </g>
+  );
+}
+
+function AldoWearBody({ items }: { items: AldoWear[] }) {
+  if (!items.length) return null;
+  const has = (w: AldoWear) => items.includes(w);
+  return (
+    <g className="aldo-wear">
+      {has("bowtie") && (
+        <g>
+          <path d="M60 70 46 63v14zM60 70l14-7v14z" fill="#7c3aed" />
+          <circle cx="60" cy="70" r="3.5" fill="#5b21b6" />
+        </g>
+      )}
+      {has("scarf") && (
+        <g>
+          <path d="M28 64c20 8 44 8 64 0v9c-20 8-44 8-64 0z" fill="#d12a2a" />
+          <path d="M74 70h10v24l-5-3-5 3z" fill="#b91c1c" />
+          <path d="M34 68h4M46 71h4M58 72h4M70 71h4" stroke="#fff" strokeWidth="2" opacity=".6" />
+        </g>
+      )}
+      {has("flag") && (
+        <g>
+          <path d="M28 64c20 8 44 8 64 0v4c-20 8-44 8-64 0z" fill="#fcd116" />
+          <path d="M28 68c20 8 44 8 64 0v3c-20 8-44 8-64 0z" fill="#003893" />
+          <path d="M28 71c20 8 44 8 64 0v3c-20 8-44 8-64 0z" fill="#ce1126" />
+        </g>
+      )}
+      {has("heart") && <path d="M60 79c-5-7-15-2-11 5l11 10 11-10c4-7-6-12-11-5z" fill="#ff8fb1" stroke="#fff" strokeWidth="1.5" />}
+    </g>
+  );
+}
+
+export const ALDO_WEARS = ["santa", "witch", "party", "grad", "cap", "crown", "beanie", "glasses", "headset", "bowtie", "scarf", "flag", "heart"] as const;
+
+/** Pone a todos los Aldos del sitio el accesorio de la temática de temporada. */
+export function SeasonWear({ wear, children }: { wear: AldoWear[]; children: React.ReactNode }) {
+  return <AldoSeason.Provider value={wear}>{children}</AldoSeason.Provider>;
 }

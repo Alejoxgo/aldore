@@ -48,7 +48,6 @@ export function Hero({ s }: { s: Settings }) {
     <section className="relative overflow-hidden border-b border-paper-line">
       <div className="pointer-events-none absolute -left-48 top-24 h-[30rem] w-[30rem] rounded-full bg-amber-300/20 blur-3xl" aria-hidden />
       <div className="pointer-events-none absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-brand-500/10 blur-3xl" aria-hidden />
-      <AldoFlyBy top="9%" size={52} every={24} delay={4} />
       <div className="container-x relative grid grid-cols-1 items-center gap-20 pb-16 pt-28 sm:pt-32 lg:grid-cols-12 lg:gap-12 lg:pb-24 lg:pt-24">
         <div className="min-w-0 lg:col-span-7">
           {s["hero.kicker"] && (

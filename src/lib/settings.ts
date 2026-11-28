@@ -173,6 +173,21 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     ],
   },
   {
+    id: "temporada",
+    title: "Temáticas de temporada",
+    description: "Decora el sitio según la época: Aldo se pone el accesorio de la fecha, aparece una franja con un mensaje y caen detalles (nieve, corazones, confeti…).",
+    fields: [
+      {
+        key: "theme.mode",
+        label: "Temática",
+        help: "auto (según la fecha en Colombia) · ninguna · navidad · anionuevo · halloween · amor · patria · madres",
+        default: "auto",
+      },
+      { key: "theme.message", label: "Mensaje de la franja superior (vacío = el de la temática)", default: "" },
+      { key: "theme.effects", label: "Animación que cae (sí / no)", default: "sí" },
+    ],
+  },
+  {
     id: "avisos",
     title: "Avisos por correo",
     description: "Se envían cuando alguien escribe desde el sitio. Necesitan la clave RESEND_API_KEY en Cloudflare; sin ella no se envía nada.",
@@ -405,7 +420,7 @@ export const SETTING_KEYS = new Set(SETTINGS_GROUPS.flatMap((g) => g.fields.map(
 export type Settings = Record<string, string>;
 
 /** Textos que nunca se traducen: datos técnicos o que solo ve el panel. */
-const NO_TRANSLATE = /^(notify\.|seo\.keywords|social\.|contact\.(email|phone)|site\.name|seed\.)/;
+const NO_TRANSLATE = /^(notify\.|seo\.keywords|social\.|contact\.(email|phone)|site\.name|seed\.|theme\.(mode|effects))/;
 
 /** Textos del sitio en español, tal como están guardados (lo que usa el panel). */
 export async function getRawSettings(): Promise<Settings> {

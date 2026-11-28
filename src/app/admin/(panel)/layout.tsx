@@ -13,9 +13,11 @@ export const metadata: Metadata = { title: "Panel admin", robots: { index: false
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   const session = await requireAdmin();
-  const [newLeads, pendingRequests] = await Promise.all([
+  const [newLeads, pendingRequests, unreadMail, me] = await Promise.all([
     prisma.lead.count({ where: { status: "nuevo" } }),
     prisma.staffRequest.count({ where: { status: "pendiente" } }),
+    prisma.internalMessage.count({ where: { toId: session.uid, readAt: null, toDeleted: false } }).catch(() => 0),
+    prisma.user.findUnique({ where: { id: session.uid }, select: { name: true, avatar: true, title: true } }),
   ]);
   return (
     <div className="min-h-screen bg-[#f6f5f2]">
@@ -23,7 +25,8 @@ export default async function PanelLayout({ children }: { children: React.ReactN
       <Sidebar
         newLeads={newLeads}
         pendingRequests={pendingRequests}
-        user={{ name: session.name, email: session.email }}
+        unreadMail={unreadMail}
+        user={{ name: me?.name || session.name, email: session.email, avatar: me?.avatar, title: me?.title }}
         brand={
           <Link href="/admin" className="flex items-center gap-2.5">
             <Logo name="aldore" light />
