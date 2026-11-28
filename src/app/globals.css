@@ -69,6 +69,43 @@ body { @apply bg-paper font-sans text-ink-900 antialiased; }
 @keyframes aldo-cursor { 50% { opacity: .3; } }
 @keyframes aldo-hop { 0% { transform: translateY(0); } 40% { transform: translateY(-8px); } 100% { transform: translateY(0); } }
 
+/* Aldo volando y celebrando */
+.aldo-pose-fly .aldo-body { animation: aldo-bob .9s ease-in-out infinite; }
+.aldo-pose-fly .aldo-shadow { animation: aldo-shadow-fly .9s ease-in-out infinite; }
+.aldo .aldo-flap-l { animation: aldo-flap-l .32s ease-in-out infinite alternate; transform-box: view-box; transform-origin: 27px 76px; }
+.aldo .aldo-flap-r { animation: aldo-flap-r .32s ease-in-out infinite alternate; transform-box: view-box; transform-origin: 93px 76px; }
+.aldo-pose-cheer .aldo-body { animation: aldo-jump 1.1s cubic-bezier(.3,.7,.4,1) infinite; }
+.aldo-pose-cheer .aldo-shadow { animation: aldo-shadow-fly 1.1s ease-in-out infinite; }
+.aldo .aldo-cheer-l { animation: aldo-cheer-l .55s ease-in-out infinite alternate; transform-box: view-box; transform-origin: 26px 76px; }
+.aldo .aldo-cheer-r { animation: aldo-cheer-r .55s ease-in-out infinite alternate; transform-box: view-box; transform-origin: 94px 76px; }
+.aldo .aldo-sparks { animation: aldo-sparks 1.1s ease-in-out infinite; }
+@keyframes aldo-bob { 0%,100% { transform: translateY(-7px); } 50% { transform: translateY(1px); } }
+@keyframes aldo-shadow-fly { 0%,100% { transform: scaleX(.55); opacity: .5; } 50% { transform: scaleX(.75); opacity: .8; } }
+@keyframes aldo-flap-l { from { transform: rotate(18deg); } to { transform: rotate(-22deg); } }
+@keyframes aldo-flap-r { from { transform: rotate(-18deg); } to { transform: rotate(22deg); } }
+@keyframes aldo-jump { 0%,100% { transform: translateY(0) scale(1.03,.97); } 15% { transform: translateY(0) scale(.97,1.04); } 45% { transform: translateY(-12px); } 75% { transform: translateY(0) scale(1.04,.96); } }
+@keyframes aldo-cheer-l { from { transform: rotate(0); } to { transform: rotate(-14deg); } }
+@keyframes aldo-cheer-r { from { transform: rotate(0); } to { transform: rotate(14deg); } }
+
+/* Aldo cruzando la pantalla volando (ver AldoFlyBy.tsx) */
+.aldo-flyby { position: absolute; left: 0; pointer-events: none; animation: aldo-flyby var(--fly-time, 18s) linear infinite; animation-delay: var(--fly-delay, 1s); opacity: 0; }
+.aldo-flyby > * { animation: aldo-glide 2.4s ease-in-out infinite; }
+@keyframes aldo-flyby {
+  0% { transform: translateX(-160px) rotate(4deg); opacity: 1; }
+  45% { transform: translateX(calc(100vw + 40px)) rotate(4deg); opacity: 1; }
+  45.01%, 100% { transform: translateX(calc(100vw + 40px)); opacity: 0; }
+}
+@keyframes aldo-glide { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-22px); } }
+.aldo-flyby.reverse { animation-name: aldo-flyby-rev; }
+.aldo-flyby.reverse > * { transform: scaleX(-1); animation-name: aldo-glide-rev; }
+@keyframes aldo-flyby-rev {
+  0% { transform: translateX(calc(100vw + 40px)) rotate(-4deg); opacity: 1; }
+  45% { transform: translateX(-160px) rotate(-4deg); opacity: 1; }
+  45.01%, 100% { transform: translateX(-160px); opacity: 0; }
+}
+@keyframes aldo-glide-rev { 0%,100% { transform: scaleX(-1) translateY(0); } 50% { transform: scaleX(-1) translateY(-22px); } }
+@media (prefers-reduced-motion: reduce) { .aldo-flyby { display: none; } }
+
 @keyframes aldo-peek { from { transform: translateY(110%); } to { transform: translateY(0); } }
 @keyframes aldo-pop { from { opacity: 0; transform: translateY(6px) scale(.96); } to { opacity: 1; transform: none; } }
 
@@ -95,3 +132,29 @@ body { @apply bg-paper font-sans text-ink-900 antialiased; }
 /* Aparición al hacer scroll (ver Reveal.tsx) */
 .reveal-armed { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1); }
 .reveal-armed.reveal-in { opacity: 1; transform: none; }
+
+/* ---------- Fondos con textura ----------
+ * Grano de papel muy suave sobre todo el sitio, puntos en las secciones claras alternas
+ * y brillos cálidos en las secciones oscuras, para que nada se vea plano. */
+.site-grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: .5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .09 0 0 0 0 .07 0 0 0 0 .06 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.site-grain { background-image: radial-gradient(70rem 40rem at 100% -10%, rgba(226,71,28,.07), transparent 60%), radial-gradient(60rem 40rem at -10% 30%, rgba(214,160,70,.08), transparent 60%); background-attachment: fixed; }
+.site-grain section.bg-paper-2 {
+  background-image: radial-gradient(rgba(22,19,15,.07) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+}
+.site-grain section.bg-ink-900, .site-grain footer.bg-ink-900 {
+  background-image:
+    radial-gradient(48rem 26rem at 105% -10%, rgba(226,71,28,.20), transparent 62%),
+    radial-gradient(40rem 26rem at -10% 110%, rgba(214,160,70,.10), transparent 60%),
+    radial-gradient(rgba(244,241,234,.06) 1px, transparent 1.2px);
+  background-size: auto, auto, 26px 26px;
+}

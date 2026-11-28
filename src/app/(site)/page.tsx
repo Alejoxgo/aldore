@@ -4,7 +4,7 @@ import { StackMarquee } from "@/components/TechSections";
 import Aldo from "@/components/Aldo";
 import ContactForm from "@/components/ContactForm";
 import { PuertaBlock } from "@/components/PuertaSections";
-import { CastorlyBlock, Emph, FaqList, Hero, Plans, Process, ProductsList, ServicesList, Testimonials } from "@/components/Sections";
+import { AldoBand, CastorlyBlock, Emph, FaqList, Hero, Plans, Process, ProductsList, ServicesList, Testimonials } from "@/components/Sections";
 
 export default async function HomePage() {
   const pub = { where: { published: true }, orderBy: { order: "asc" as const } };
@@ -29,6 +29,7 @@ export default async function HomePage() {
       <Process s={s} />
       <Plans plans={plans} s={s} />
       <Testimonials items={testimonials} s={s} />
+      <AldoBand s={s} />
       <FaqList items={faqs} s={s} />
       <section id="contacto" className="scroll-mt-16 border-t border-paper-line bg-white/50 py-24">
         <div className="container-x grid grid-cols-1 gap-14 lg:grid-cols-12">

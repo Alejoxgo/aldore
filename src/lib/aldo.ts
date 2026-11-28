@@ -70,6 +70,7 @@ export function buildAldo(s: Settings, services: Svc[], products: Prod[], plans:
       keywords: KEYWORDS[p.slug] ?? [],
     })),
     { id: "cotizar", label: "Cotizar en línea", answer: "En el cotizador eliges qué necesitas y ves un rango de precio al instante, sin dejar tus datos hasta el final.", href: "/cotizar", keywords: ["cotizar", "cotizacion", "cotizador", "presupuesto", "calcular"] },
+    { id: "nosotros", label: "Quiénes somos", answer: "Somos Aldore, un estudio de software en Medellín. En la página Nosotros está nuestra misión, la visión, lo que nos guía… y mi propia sección. 🦉", href: "/nosotros", keywords: ["nosotros", "quienes", "somos", "empresa", "mision", "vision", "valores", "equipo", "aldo", "buho", "mascota"] },
     { id: "blog", label: "Blog", answer: "En el blog tenemos guías cortas sobre páginas web, chatbots, QR y más, escritas para dueños de negocio.", href: "/blog", keywords: ["blog", "articulo", "articulos", "guia", "guias", "aprender"] },
     { id: "precios", label: "Precios", answer: `${webPrices}\n\n${puertaPrice}\n\nPara apps, chatbots e integraciones: ${quote}\n\nSi quieres un número rápido, usa el cotizador en línea.`, href: "/cotizar", keywords: ["precio", "precios", "planes", "cuanto", "cuesta", "valor", "tarifa"] },
     { id: "humano", label: "Hablar con una persona", answer: "", keywords: KEYWORDS.humano },

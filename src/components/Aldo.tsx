@@ -1,7 +1,13 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-export type AldoPose = "base" | "wave" | "think" | "code" | "happy";
+export type AldoPose = "base" | "wave" | "think" | "code" | "happy" | "fly" | "cheer";
+
+// Alas abiertas (volando) y alas arriba (celebrando).
+const FLY_L = "M27 74C14 60 1 56-9 60c6 6 10 14 12 22 7-2 15-4 24 4z";
+const FLY_R = "M93 74c13-14 26-18 36-14-6 6-10 14-12 22-7-2-15-4-24 4z";
+const UP_L = "M26 76C16 66 12 52 14 40c6 8 11 18 14 30z";
+const UP_R = "M94 76c10-10 14-24 12-36-6 8-11 18-14 30z";
 
 const INK = "#16130f";
 const V = "#e2471c";
@@ -81,7 +87,7 @@ export default function Aldo({
     <svg
       ref={ref}
       viewBox="0 -14 124 144"
-      className={`aldo ${className}`}
+      className={`aldo aldo-pose-${pose} ${className}`}
       role="img"
       aria-label={title}
     >
@@ -97,7 +103,10 @@ export default function Aldo({
 
       <g className="aldo-body" aria-hidden>
         <g className="aldo-head"><path d="M24 114V66C24 47 29 37 35 30L31 10 49 23Q60 19 71 23L89 10 85 30C91 37 96 47 96 66v48z" {...edge} /></g>
-        {pose !== "code" && <path className="aldo-wing-l" d="M25 72c-10 8-12 22-4 34 3-12 6-22 4-34z" {...edge} />}
+        {!["code", "fly", "cheer"].includes(pose) && <path className="aldo-wing-l" d="M25 72c-10 8-12 22-4 34 3-12 6-22 4-34z" {...edge} />}
+        {pose === "fly" && <><path className="aldo-flap-l" d={FLY_L} {...edge} /><path className="aldo-flap-r" d={FLY_R} {...edge} /></>}
+        {pose === "cheer" && <><path className="aldo-cheer-l" d={UP_L} {...edge} /><path className="aldo-cheer-r" d={UP_R} {...edge} /></>}
+        {pose === "think" && <path d="M95 76c8 2 8 10 2 14" stroke={P} strokeWidth={onDark ? 11 : 10} fill="none" strokeLinecap="round" />}
         {(pose === "base" || pose === "happy") && <path className="aldo-wing-r" d="M95 72c10 8 12 22 4 34-3-12-6-22-4-34z" {...edge} />}
         {pose === "wave" && <g className="aldo-wave"><path d="M95 74c10-6 16-20 14-34-6 8-11 20-14 34z" {...edge} /></g>}
       </g>
@@ -116,7 +125,7 @@ export default function Aldo({
             strokeLinejoin="round"
             opacity=".7"
           />
-          {pose === "happy" ? eyesHappy : eyesOpen}
+          {pose === "happy" || pose === "cheer" ? eyesHappy : eyesOpen}
           {pose === "code" && (
             <g>
               <circle cx="46" cy="46" r="13.5" fill="none" stroke={V} strokeWidth="2.5" />
@@ -128,7 +137,15 @@ export default function Aldo({
         </g>
 
         {/* alas */}
-        {pose !== "code" && <path className="aldo-wing-l" d="M25 72c-10 8-12 22-4 34 3-12 6-22 4-34z" fill={INK} />}
+        {!["code", "fly", "cheer"].includes(pose) && <path className="aldo-wing-l" d="M25 72c-10 8-12 22-4 34 3-12 6-22 4-34z" fill={INK} />}
+        {pose === "fly" && <><path className="aldo-flap-l" d={FLY_L} fill={INK} /><path className="aldo-flap-r" d={FLY_R} fill={INK} /></>}
+        {pose === "cheer" && (
+          <>
+            <path className="aldo-cheer-l" d={UP_L} fill={INK} />
+            <path className="aldo-cheer-r" d={UP_R} fill={INK} />
+            <path d="M8 34l-4-3M10 26l-2-5M112 34l4-3M110 26l2-5" stroke={V} strokeWidth="2.5" strokeLinecap="round" className="aldo-sparks" />
+          </>
+        )}
         {(pose === "base" || pose === "happy") && <path className="aldo-wing-r" d="M95 72c10 8 12 22 4 34-3-12-6-22-4-34z" fill={INK} />}
         {pose === "wave" && (
           <g className="aldo-wave">
@@ -141,13 +158,14 @@ export default function Aldo({
 
       {pose === "code" ? (
         <g>
+          <path className="aldo-typing" d="M24 86c-8 6-6 14 6 14M96 86c8 6 6 14-6 14" stroke={P} strokeWidth="10" fill="none" strokeLinecap="round" />
           <path className="aldo-typing" d="M24 86c-8 6-6 14 6 14M96 86c8 6 6 14-6 14" stroke={INK} strokeWidth="6" fill="none" strokeLinecap="round" />
           <path d="M18 98h84l-8 18H26z" fill="#3a342c" />
           <rect x="24" y="96" width="72" height="4" rx="2" fill="#6b6358" />
           <text x="50" y="111" fontFamily="JetBrains Mono, monospace" fontSize="8" fill={V} className="aldo-cursor">{"</>"}</text>
         </g>
       ) : (
-        <path d="M44 114v6M48 114v6M52 114v6M68 114v6M72 114v6M76 114v6" stroke={V} strokeWidth="3" strokeLinecap="round" />
+        <path className="aldo-feet" d={pose === "fly" ? "M46 114l-2 4M50 114l-1 4M54 114v4M66 114v4M70 114l1 4M74 114l2 4" : "M44 114v6M48 114v6M52 114v6M68 114v6M72 114v6M76 114v6"} stroke={V} strokeWidth="3" strokeLinecap="round" />
       )}
     </svg>
   );

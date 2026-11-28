@@ -1,3 +1,4 @@
+import AldoFlyBy from "./AldoFlyBy";
 import Link from "next/link";
 import { Fragment } from "react";
 import { lines } from "@/lib/utils";
@@ -43,8 +44,11 @@ export const Arrow = ({ className = "h-5 w-5" }: { className?: string }) => (
 export function Hero({ s }: { s: Settings }) {
   const promises = [1, 2, 3].map((i) => [s[`hero.stat${i}Value`], s[`hero.stat${i}Label`]]).filter(([v]) => v);
   return (
-    <section className="relative overflow-hidden border-b border-paper-line bg-paper">
-      <div className="container-x grid grid-cols-1 items-center gap-20 pb-16 pt-28 sm:pt-32 lg:grid-cols-12 lg:gap-12 lg:pb-24 lg:pt-24">
+    <section className="relative overflow-hidden border-b border-paper-line">
+      <div className="pointer-events-none absolute -left-48 top-24 h-[30rem] w-[30rem] rounded-full bg-amber-300/20 blur-3xl" aria-hidden />
+      <div className="pointer-events-none absolute -right-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-brand-500/10 blur-3xl" aria-hidden />
+      <AldoFlyBy top="9%" size={52} every={24} delay={4} />
+      <div className="container-x relative grid grid-cols-1 items-center gap-20 pb-16 pt-28 sm:pt-32 lg:grid-cols-12 lg:gap-12 lg:pb-24 lg:pt-24">
         <div className="min-w-0 lg:col-span-7">
           {s["hero.kicker"] && (
             <p className="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-ink-500">
@@ -386,6 +390,33 @@ export function FaqList({ items, s }: { items: Faq[]; s: Settings }) {
               <p className="-mt-2 max-w-2xl whitespace-pre-line pb-6 leading-relaxed text-ink-500">{f.answer}</p>
             </details>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Franja de la portada que presenta a Aldo y lleva a /nosotros. */
+export function AldoBand({ s }: { s: Settings }) {
+  return (
+    <section className="relative overflow-hidden bg-ink-900 py-20 text-paper">
+      <AldoFlyBy top="14%" size={48} every={19} delay={3} onDark />
+      <div className="container-x relative grid items-center gap-10 lg:grid-cols-12">
+        <div className="flex justify-center gap-2 lg:col-span-5 lg:justify-start">
+          {(["wave", "think", "cheer"] as const).map((pose, i) => (
+            <div key={pose} className={`aldo-hover ${i === 1 ? "-translate-y-4" : ""}`}>
+              <Aldo pose={pose} onDark className="h-24 w-24 sm:h-32 sm:w-32" />
+            </div>
+          ))}
+        </div>
+        <div className="lg:col-span-7">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-brand-400">Nuestra mascota</p>
+          <h2 className="mt-3 font-display text-4xl leading-[1.05] sm:text-5xl"><Emph text={s["aldo.title"]} /></h2>
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-paper/70">{s["aldo.text"]}</p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/nosotros#aldo" className="btn-signal">Conoce a Aldo <Arrow className="h-4 w-4" /></Link>
+            <Link href="/nosotros" className="btn-ghost text-paper">Quiénes somos</Link>
+          </div>
         </div>
       </div>
     </section>

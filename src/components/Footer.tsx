@@ -2,6 +2,7 @@ import Link from "next/link";
 import Logo from "./Logo";
 import type { Settings } from "@/lib/settings";
 import { isExternal, linkList } from "@/lib/utils";
+import { SERVICE_GROUPS } from "@/lib/service-groups";
 
 export default function Footer({ s, services }: { s: Settings; services: { slug: string; title: string }[] }) {
   const socials = [
@@ -24,8 +25,8 @@ export default function Footer({ s, services }: { s: Settings; services: { slug:
             </>
           )}
         </p>
-        <div className="mt-14 grid gap-10 border-t border-white/10 pt-10 md:grid-cols-4">
-          <div className="md:col-span-2">
+        <div className="mt-14 grid gap-10 border-t border-white/10 pt-10 sm:grid-cols-2 lg:grid-cols-12">
+          <div className="sm:col-span-2 lg:col-span-4">
             <Logo name={s["site.name"]} light />
             <p className="mt-4 max-w-sm text-sm leading-relaxed">{s["footer.text"]}</p>
             {socials.length > 0 && (
@@ -38,19 +39,42 @@ export default function Footer({ s, services }: { s: Settings; services: { slug:
               </div>
             )}
           </div>
-          <div>
+          {/* Los servicios van por áreas (hay muchos); cada área lleva a su parte de /servicios. */}
+          <div className="lg:col-span-3">
             <h3 className="eyebrow !text-paper/50">{s["footer.servicesTitle"]}</h3>
-            <ul className="mt-4 space-y-2 text-sm">
-              {services.map((sv) => (
-                <li key={sv.slug}>
-                  <Link href={`/servicios/${sv.slug}`} className="hover:text-paper">
-                    {sv.title}
-                  </Link>
-                </li>
+            <ul className="mt-4 space-y-3 text-sm">
+              {SERVICE_GROUPS.map((g) => {
+                const n = g.slugs.filter((slug) => services.some((sv) => sv.slug === slug)).length;
+                if (!n) return null;
+                return (
+                  <li key={g.id}>
+                    <Link href={`/servicios#${g.id}`} className="group flex items-baseline justify-between gap-3 hover:text-paper">
+                      <span>{g.title.replace(/\*/g, "")}</span>
+                      <span className="font-mono text-[11px] text-paper/35 group-hover:text-brand-400">{n}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+              <li className="pt-1">
+                <Link href="/servicios" className="text-brand-400 hover:text-brand-300">Ver todos los servicios →</Link>
+              </li>
+            </ul>
+          </div>
+          <div className="lg:col-span-2">
+            <h3 className="eyebrow !text-paper/50">Aldore</h3>
+            <ul className="mt-4 space-y-3 text-sm">
+              {[
+                ["Nosotros", "/nosotros"],
+                ["Castorly", "/castorly"],
+                ["Puerta", "/puerta"],
+                ["Blog", "/blog"],
+                ["Cotizar en línea", "/cotizar"],
+              ].map(([label, href]) => (
+                <li key={href}><Link href={href} className="hover:text-paper">{label}</Link></li>
               ))}
             </ul>
           </div>
-          <div>
+          <div className="lg:col-span-3">
             <h3 className="eyebrow !text-paper/50">{s["footer.contactTitle"]}</h3>
             <ul className="mt-4 space-y-2 text-sm">
               {s["contact.email"] && <li><a href={`mailto:${s["contact.email"]}`} className="hover:text-paper">{s["contact.email"]}</a></li>}
