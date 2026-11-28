@@ -14,6 +14,13 @@ type ClientRow = { id: number; name: string; company: string };
 
 /** El portal del cliente: proyectos, pagos y servicios. Lo usan el enlace privado y la cuenta con contraseña. */
 export default async function PortalView({ client, account = false, headerAction, children }: { client: ClientRow; account?: boolean; headerAction?: React.ReactNode; children?: React.ReactNode }) {
+  /** En la cuenta con contraseña cada servicio tiene su botón para pedir un cambio. */
+  const ask = (item: string) =>
+    account ? (
+      <a href={`/portal?pedir=${encodeURIComponent(item)}#solicitar`} className="text-ink-700 hover:text-brand-600">
+        Solicitar un cambio
+      </a>
+    ) : null;
   const [s, orders, puertas, queues, menus] = await Promise.all([
     getSettings(),
     prisma.order.findMany({ where: { clientId: client.id, status: { not: "cancelado" } }, orderBy: { createdAt: "desc" } }),
@@ -46,7 +53,7 @@ export default async function PortalView({ client, account = false, headerAction
           <div>
             <p className="font-mono text-xs uppercase tracking-wider text-ink-500">{client.company || "Tu cuenta"}</p>
             <h1 className="mt-2 font-display text-4xl text-ink-900 sm:text-5xl">Hola, {first}<span className="text-brand-500">.</span></h1>
-            <p className="mt-2 max-w-xl text-lg text-ink-700">Aquí ves en qué va cada proyecto, tus pagos y tus servicios activos con Aldore.</p>
+            <p className="mt-2 max-w-xl text-lg text-ink-700">Aquí ves lo que tienes contratado con Aldore, en qué va cada proyecto y tus pagos. Si necesitas un cambio, pídelo aquí y nosotros lo hacemos.</p>
           </div>
           {waLink && (
             <a href={waLink} target="_blank" rel="noopener noreferrer" className="btn-signal self-start sm:self-auto">Escribirnos por WhatsApp</a>
@@ -121,6 +128,7 @@ export default async function PortalView({ client, account = false, headerAction
                       </div>
                     )}
                     {o.status === "cotizacion" && o.amount > 0 && <p className="mt-6 text-sm text-ink-600">Valor cotizado: <strong className="text-ink-900">{money(o.amount)}</strong></p>}
+                    {account && <p className="mt-6 text-sm font-medium">{ask(`o${o.id}`)}</p>}
                   </li>
                 );
               })}
@@ -130,14 +138,18 @@ export default async function PortalView({ client, account = false, headerAction
 
         {(puertas.length > 0 || queues.length > 0 || menus.length > 0) && (
           <section>
-            <h2 className="font-display text-3xl text-ink-900">Tus servicios activos</h2>
+            <h2 className="font-display text-3xl text-ink-900">Lo que tienes contratado</h2>
+            <p className="mt-1 text-ink-500">Tus servicios activos con Aldore.</p>
             <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {puertas.map((p) => (
                 <li key={`p${p.id}`} className="rounded-2xl border border-paper-line bg-white p-5">
                   <p className="font-mono text-[11px] uppercase tracking-wider text-brand-500">Puerta (QR / NFC)</p>
                   <p className="mt-1 font-display text-xl text-ink-900">{p.name}</p>
                   <p className="mt-2 text-sm text-ink-500">{p.views} visitas · {p.clicks} toques</p>
-                  <a href={`/p/${p.slug}`} target="_blank" className="mt-4 inline-block text-sm font-medium text-brand-600">Ver página ↗</a>
+                  <div className="mt-4 flex flex-wrap gap-3 text-sm font-medium">
+                    <a href={`/p/${p.slug}`} target="_blank" className="text-brand-600">Ver página ↗</a>
+                    {ask(`p${p.id}`)}
+                  </div>
                 </li>
               ))}
               {queues.map((q) => (
@@ -148,6 +160,7 @@ export default async function PortalView({ client, account = false, headerAction
                   <div className="mt-4 flex flex-wrap gap-3 text-sm font-medium">
                     <a href={`/t/${q.slug}/atender?k=${q.staffKey}`} target="_blank" className="text-brand-600">Atender turnos ↗</a>
                     <a href={`/t/${q.slug}/pantalla`} target="_blank" className="text-ink-700">Pantalla ↗</a>
+                    {ask(`q${q.id}`)}
                   </div>
                 </li>
               ))}
@@ -157,8 +170,8 @@ export default async function PortalView({ client, account = false, headerAction
                   <p className="mt-1 font-display text-xl text-ink-900">{m.name}</p>
                   <p className="mt-2 text-sm text-ink-500">Actualizado: {m.date ? shortDate(m.date) : "—"}</p>
                   <div className="mt-4 flex flex-wrap gap-3 text-sm font-medium">
-                    <a href={`/menu/${m.slug}/editar?k=${m.staffKey}`} target="_blank" className="text-brand-600">Cambiar el menú ↗</a>
-                    <a href={`/menu/${m.slug}`} target="_blank" className="text-ink-700">Ver ↗</a>
+                    <a href={`/menu/${m.slug}`} target="_blank" className="text-brand-600">Ver menú ↗</a>
+                    {ask(`m${m.id}`)}
                   </div>
                 </li>
               ))}

@@ -2,7 +2,7 @@ import "server-only";
 import { getRawSettings as getSettings } from "@/lib/settings";
 import { esc, mailLayout, rows, sendMail } from "@/lib/mail";
 
-export async function notifyLead(id: number, d: { name: string; email: string; phone: string; company: string; service: string; message: string }, title = "Llegó una nueva solicitud desde el sitio") {
+export async function notifyLead(id: number, d: { name: string; email: string; phone: string; company: string; service: string; message: string }, title = "Llegó una nueva solicitud desde el sitio", autoReply = true) {
   const s = await getSettings();
   const site = (process.env.SITE_URL || "https://aldore.co").replace(/\/$/, "");
   const from = s["notify.from"] || undefined;
@@ -25,7 +25,7 @@ export async function notifyLead(id: number, d: { name: string; email: string; p
       }),
     );
   }
-  const auto = (s["notify.autoReply"] || "").trim();
+  const auto = autoReply ? (s["notify.autoReply"] || "").trim() : "";
   if (auto) {
     const first = d.name.split(/\s+/)[0];
     jobs.push(

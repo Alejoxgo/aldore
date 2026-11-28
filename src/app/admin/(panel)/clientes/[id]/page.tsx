@@ -166,7 +166,7 @@ export default async function ClientSpace({ params, searchParams }: Props) {
                 <div>
                   <h2 className="font-semibold text-ink-900">Cuenta del cliente</h2>
                   <p className="mt-1 text-sm text-slate-500">
-                    Con correo y contraseña entra a <b>aldore.co/portal</b> y gestiona lo suyo: cambia su menú del día, edita su Puerta, abre o cierra los turnos y ve sus proyectos y pagos.
+                    Con correo y contraseña entra a <b>aldore.co/portal</b> y ve lo que tiene contratado, sus proyectos y pagos. No puede editar nada: si necesita un cambio lo solicita desde ahí y te llega a Solicitudes web.
                   </p>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">

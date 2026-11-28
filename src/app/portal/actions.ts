@@ -2,8 +2,9 @@
 import bcrypt from "bcryptjs";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
+import { notifyLead } from "@/lib/notify";
+import { contractedItems } from "@/lib/client-items";
 import { CLIENT_COOKIE, getClientId, startClientSession } from "@/lib/client-session";
 
 const tries = new Map<string, { n: number; until: number }>();
@@ -39,26 +40,30 @@ async function me() {
   return cid!;
 }
 
-/** El cliente cambia los textos, botones y wifi de su propia Puerta. */
-export async function updateMyPuerta(id: number, formData: FormData) {
-  const cid = await me();
-  const page = await prisma.linkPage.findFirst({ where: { id, clientId: cid } });
-  if (!page) redirect("/portal?error=" + encodeURIComponent("Esa Puerta no es tuya."));
-  const s = (k: string, max: number) => String(formData.get(k) ?? "").replace(/\r\n/g, "\n").trim().slice(0, max);
-  await prisma.linkPage.update({
-    where: { id },
-    data: { name: s("name", 80) || page!.name, subtitle: s("subtitle", 120), buttons: s("buttons", 4000), wifiName: s("wifiName", 60), wifiPass: s("wifiPass", 60) },
-  });
-  revalidatePath(`/p/${page!.slug}`);
-  redirect("/portal?ok=" + encodeURIComponent("Tu Puerta quedó actualizada."));
-}
+const asks = new Map<number, { n: number; until: number }>();
 
-/** Abrir o cerrar su fila de turnos. */
-export async function toggleMyQueue(id: number) {
+/** El cliente no edita nada: pide el cambio y le llega al equipo como solicitud en el panel. */
+export async function requestChange(formData: FormData) {
   const cid = await me();
-  const q = await prisma.queue.findFirst({ where: { id, clientId: cid } });
-  if (q) await prisma.queue.update({ where: { id }, data: { open: !q.open } });
-  redirect("/portal?ok=" + encodeURIComponent(q?.open ? "Turnos cerrados." : "Turnos abiertos."));
+  const c = await prisma.client.findUnique({ where: { id: cid } });
+  if (!c) redirect("/portal/ingresar");
+  const now = Date.now();
+  const t = asks.get(cid);
+  if (t && t.until > now && t.n >= 10) redirect("/portal?error=" + encodeURIComponent("Ya enviaste varias solicitudes hoy. Te respondemos pronto."));
+  asks.set(cid, t && t.until > now ? { n: t.n + 1, until: t.until } : { n: 1, until: now + 24 * 3600_000 });
+
+  const message = String(formData.get("message") ?? "").replace(/\r\n/g, "\n").trim().slice(0, 3000);
+  if (message.length < 5) redirect("/portal?error=" + encodeURIComponent("Cuéntanos qué cambio necesitas.") + "#solicitar");
+  const key = String(formData.get("item") ?? "");
+  const item = (await contractedItems(cid)).find((i) => i.key === key)?.label || "Otro tema";
+  const data = { name: c!.name, email: c!.email, phone: c!.phone, company: c!.company, service: `Portal · ${item}`.slice(0, 160), message };
+  const lead = await prisma.lead.create({ data });
+  try {
+    await notifyLead(lead.id, data, `${c!.company || c!.name} pidió un cambio desde su portal`, false);
+  } catch (e) {
+    console.error("Aviso de solicitud del portal", e);
+  }
+  redirect("/portal?ok=" + encodeURIComponent("Recibimos tu solicitud. Te avisamos cuando esté lista.") + "#solicitudes");
 }
 
 export async function changeMyPortalPassword(formData: FormData) {

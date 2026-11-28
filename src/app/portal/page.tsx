@@ -3,19 +3,29 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getClientId } from "@/lib/client-session";
 import PortalView from "@/components/portal/PortalView";
-import { changeMyPortalPassword, clientLogout, toggleMyQueue, updateMyPuerta } from "./actions";
+import { contractedItems } from "@/lib/client-items";
+import { shortDate } from "@/lib/format";
+import { changeMyPortalPassword, clientLogout, requestChange } from "./actions";
+
+const STATUS: Record<string, [string, string]> = {
+  nuevo: ["Recibida", "bg-sky-50 text-sky-700"],
+  contactado: ["En revisión", "bg-amber-50 text-amber-700"],
+  "en negociación": ["En revisión", "bg-amber-50 text-amber-700"],
+  ganado: ["Lista", "bg-emerald-50 text-emerald-700"],
+  perdido: ["Cerrada", "bg-paper-2 text-ink-500"],
+};
 
 export const metadata: Metadata = { title: "Mi portal", robots: { index: false, follow: false } };
 
-export default async function MyPortal({ searchParams }: { searchParams: Promise<{ ok?: string; error?: string }> }) {
+export default async function MyPortal({ searchParams }: { searchParams: Promise<{ ok?: string; error?: string; pedir?: string }> }) {
   const cid = await getClientId();
   if (!cid) redirect("/portal/ingresar");
   const client = await prisma.client.findUnique({ where: { id: cid } });
   if (!client || !client.portalHash) redirect("/portal/ingresar");
-  const { ok, error } = await searchParams;
-  const [puertas, queues] = await Promise.all([
-    prisma.linkPage.findMany({ where: { clientId: cid } }),
-    prisma.queue.findMany({ where: { clientId: cid } }),
+  const { ok, error, pedir = "" } = await searchParams;
+  const [items, requests] = await Promise.all([
+    contractedItems(cid),
+    client.email ? prisma.lead.findMany({ where: { email: client.email, service: { startsWith: "Portal · " } }, orderBy: { createdAt: "desc" }, take: 20 }) : Promise.resolve([]),
   ]);
   return (
     <PortalView
@@ -29,45 +39,42 @@ export default async function MyPortal({ searchParams }: { searchParams: Promise
     >
       {(ok || error) && <p className={`rounded-2xl px-4 py-3 text-sm font-medium ${error ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"}`}>{error || ok}</p>}
 
-      {puertas.length > 0 && (
-        <section>
-          <h2 className="font-display text-3xl text-ink-900">Edita tu Puerta</h2>
-          <p className="mt-1 text-ink-500">Los cambios se ven de inmediato cuando alguien escanea tu QR o toca tu NFC.</p>
-          <div className="mt-6 space-y-5">
-            {puertas.map((p) => (
-              <form key={p.id} action={updateMyPuerta.bind(null, p.id)} className="grid gap-4 rounded-3xl border border-paper-line bg-white p-6 sm:grid-cols-2 sm:p-8">
-                <label className="text-sm"><span className="label">Nombre</span><input name="name" defaultValue={p.name} className="input" /></label>
-                <label className="text-sm"><span className="label">Texto bajo el nombre</span><input name="subtitle" defaultValue={p.subtitle} className="input" /></label>
-                <label className="text-sm sm:col-span-2">
-                  <span className="label">Botones</span>
-                  <textarea name="buttons" defaultValue={p.buttons} rows={7} className="input font-mono text-[13px]" />
-                  <span className="mt-1 block text-xs text-ink-500">Un botón por línea: <code>tipo | Título | Texto pequeño | enlace o número</code>. Tipos: carta, whatsapp, resena, reservar, pago, instagram, facebook, tiktok, mapa, web, llamar, link.</span>
-                </label>
-                <label className="text-sm"><span className="label">Nombre del wifi</span><input name="wifiName" defaultValue={p.wifiName} className="input" /></label>
-                <label className="text-sm"><span className="label">Clave del wifi</span><input name="wifiPass" defaultValue={p.wifiPass} className="input" /></label>
-                <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
-                  <button className="btn-signal">Guardar mi Puerta</button>
-                  <a href={`/p/${p.slug}`} target="_blank" className="text-sm font-medium text-ink-700">Ver cómo quedó ↗</a>
-                </div>
-              </form>
-            ))}
-          </div>
-        </section>
-      )}
+      <section id="solicitar" className="scroll-mt-6 rounded-3xl border border-paper-line bg-white p-6 sm:p-8">
+        <h2 className="font-display text-3xl text-ink-900">Solicitar un cambio</h2>
+        <p className="mt-1 text-ink-500">Cuéntanos qué quieres cambiar en tu Puerta, tus turnos, tu menú o tu proyecto. Nuestro equipo lo hace por ti y te avisa.</p>
+        <form action={requestChange} className="mt-6 grid gap-4">
+          <label className="text-sm">
+            <span className="label">¿Sobre qué es?</span>
+            <select name="item" defaultValue={pedir} className="input">
+              {items.map((i) => <option key={i.key} value={i.key}>{i.label}</option>)}
+              <option value="">Otro tema</option>
+            </select>
+          </label>
+          <label className="text-sm">
+            <span className="label">¿Qué necesitas?</span>
+            <textarea name="message" rows={5} required minLength={5} maxLength={3000} className="input" placeholder="Ej.: cambiar el número de WhatsApp del botón, agregar el horario de diciembre, poner el link de la nueva carta…" />
+          </label>
+          <div><button className="btn-signal">Enviar solicitud</button></div>
+        </form>
+      </section>
 
-      {queues.length > 0 && (
-        <section>
-          <h2 className="font-display text-3xl text-ink-900">Tus turnos</h2>
-          <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-            {queues.map((q) => (
-              <li key={q.id} className="flex items-center justify-between gap-4 rounded-2xl border border-paper-line bg-white p-5">
-                <div>
-                  <p className="font-display text-xl text-ink-900">{q.name}</p>
-                  <p className={`text-sm ${q.open ? "text-emerald-700" : "text-ink-500"}`}>{q.open ? "● Abierta: la gente puede tomar turno" : "Cerrada"}</p>
-                </div>
-                <form action={toggleMyQueue.bind(null, q.id)}><button className="btn-outline !py-2 text-sm">{q.open ? "Cerrar" : "Abrir"}</button></form>
-              </li>
-            ))}
+      {requests.length > 0 && (
+        <section id="solicitudes" className="scroll-mt-6">
+          <h2 className="font-display text-3xl text-ink-900">Tus solicitudes</h2>
+          <ul className="mt-6 space-y-3">
+            {requests.map((r) => {
+              const [l, cls] = STATUS[r.status] ?? STATUS.nuevo;
+              return (
+                <li key={r.id} className="rounded-2xl border border-paper-line bg-white p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="font-mono text-[11px] uppercase tracking-wider text-brand-500">{r.service.replace(/^Portal · /, "")}</p>
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}`}>{l}</span>
+                  </div>
+                  <p className="mt-2 whitespace-pre-line text-[15px] text-ink-800">{r.message}</p>
+                  <p className="mt-2 text-xs text-ink-400">{shortDate(r.createdAt.toISOString().slice(0, 10))}</p>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}
