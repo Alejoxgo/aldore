@@ -3,8 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getSettings } from "@/lib/settings";
 import { lines, paragraphs } from "@/lib/utils";
-import Aldo, { type AldoPose, type AldoWear } from "@/components/Aldo";
-import { ALDO_AVATARS, AldoAvatar } from "@/components/AldoAvatar";
+import Aldo, { type AldoPose } from "@/components/Aldo";
 import AldoFlyBy from "@/components/AldoFlyBy";
 import Reveal from "@/components/Reveal";
 import { Arrow, Emph } from "@/components/Sections";
@@ -24,22 +23,6 @@ const POSES: { pose: AldoPose; label: string }[] = [
   { pose: "code", label: "Programa" },
   { pose: "cheer", label: "Celebra" },
   { pose: "happy", label: "Sonríe" },
-];
-
-/** Los 5 Aldos nuevos con movimiento y los 5 quietos (con accesorios). */
-const MOVING: { pose: AldoPose; label: string }[] = [
-  { pose: "dance", label: "Baila" },
-  { pose: "love", label: "Se enamora" },
-  { pose: "read", label: "Lee" },
-  { pose: "search", label: "Investiga" },
-  { pose: "sleep", label: "Duerme" },
-];
-const STILL: { wear: AldoWear[]; label: string; pose?: AldoPose }[] = [
-  { wear: ["bowtie", "glasses"], label: "Ejecutivo" },
-  { wear: ["headset"], label: "Soporte" },
-  { wear: ["grad"], label: "Graduado" },
-  { wear: ["crown"], label: "Jefe", pose: "happy" },
-  { wear: ["beanie", "scarf"], label: "Invierno" },
 ];
 
 export default async function AboutPage() {
@@ -233,42 +216,6 @@ export default async function AboutPage() {
               </blockquote>
             )}
           </Reveal>
-        </div>
-        {/* Galería: más versiones de Aldo */}
-        <div className="container-x relative mt-20 grid gap-10 lg:grid-cols-2">
-          <div>
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-paper/50"><TC>{"En movimiento"}</TC></p>
-            <ul className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-5">
-              {MOVING.map(({ pose, label }) => (
-                <li key={pose} className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/[0.04] px-2 pb-3 pt-4">
-                  <Aldo pose={pose} onDark follow={false} className="h-20 w-20" title={`Aldo ${label.toLowerCase()}`} />
-                  <span className="mt-1 text-center font-mono text-[11px] uppercase tracking-wider text-paper/60"><TC>{label}</TC></span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-paper/50"><TC>{"Quietos, para documentos y redes"}</TC></p>
-            <ul className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-5">
-              {STILL.map(({ wear, label, pose }) => (
-                <li key={label} className="flex flex-col items-center rounded-2xl border border-white/10 bg-paper px-2 pb-3 pt-4">
-                  <Aldo pose={pose ?? "base"} wear={wear} still className="h-20 w-20" title={`Aldo ${label.toLowerCase()}`} />
-                  <span className="mt-1 text-center font-mono text-[11px] uppercase tracking-wider text-ink-500"><TC>{label}</TC></span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="lg:col-span-2">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-paper/50"><TC>{"Para foto de perfil"}</TC></p>
-            <ul className="mt-4 flex flex-wrap gap-3">
-              {ALDO_AVATARS.map((a) => (
-                <li key={a.id} className="flex flex-col items-center gap-1.5">
-                  <AldoAvatar id={a.id} className="h-16 w-16 ring-2 ring-white/10" />
-                  <span className="font-mono text-[10px] uppercase tracking-wider text-paper/50"><TC>{a.name}</TC></span>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
       </section>
 
