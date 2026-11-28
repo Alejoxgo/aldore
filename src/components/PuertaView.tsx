@@ -59,7 +59,7 @@ export default function PuertaView({ data, preview = false }: { data: PuertaData
 
   return (
     <div
-      className={`relative flex min-h-full flex-col items-center overflow-hidden px-5 pb-8 ${data.coverUrl ? "pt-0" : "pt-12"} ${font}`}
+      className={`keep-light relative flex min-h-full flex-col items-center overflow-hidden px-5 pb-8 ${data.coverUrl ? "pt-0" : "pt-12"} ${font}`}
       style={{ background: bg, color: ink }}
     >
       {!data.coverUrl && <div className="pointer-events-none absolute -top-32 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full opacity-30 blur-3xl" style={{ background: c }} />}

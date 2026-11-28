@@ -1,5 +1,6 @@
 import TC from "@/components/TC";
 import LangFooter from "@/components/LangFooter";
+import ThemeToggle from "@/components/ThemeToggle";
 import type { Lang } from "@/lib/langs";
 import Link from "next/link";
 import Logo from "./Logo";
@@ -87,12 +88,11 @@ export default function Footer({ s, services, lang = "es", langs = [] }: { s: Se
             </ul>
           </div>
         </div>
-        {langs.length > 1 && (
-          <div className="mt-12 border-t border-paper/10 pt-6">
-            <LangFooter lang={lang} langs={langs} />
-          </div>
-        )}
-        <div className={`${langs.length > 1 ? "mt-6" : "mt-12"} flex flex-col justify-between gap-2 text-xs text-paper/40 sm:flex-row`}>
+        <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-paper/10 pt-6">
+          <LangFooter lang={lang} langs={langs} />
+          <ThemeToggle />
+        </div>
+        <div className={`mt-6 flex flex-col justify-between gap-2 text-xs text-paper/40 sm:flex-row`}>
           <p>© {new Date().getFullYear()} {s["site.name"]}{s["footer.copyright"] ? ` · ${s["footer.copyright"]}` : ""}</p>
           <div className="flex flex-wrap gap-x-5 gap-y-1">
             {linkList(s["footer.links"]).map((l) =>

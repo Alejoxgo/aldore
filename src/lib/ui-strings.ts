@@ -192,5 +192,7 @@ export const UI_STRINGS: string[] = [
  "¿Tienes una idea? Te ayudo a cotizarla en un minuto.",
  "Pregúntame lo que quieras sobre Aldore 🦉",
  "en línea",
- "Cerrar mensaje"
+ "Cerrar mensaje",
+ "Modo oscuro",
+ "Modo claro"
 ];

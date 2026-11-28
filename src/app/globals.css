@@ -326,3 +326,23 @@ main.door-reveal { animation: door-reveal .6s cubic-bezier(.3,.7,.2,1) both; }
   [data-tilt="tilt"] { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty, 0px)) !important; transition: transform .25s ease-out, box-shadow .3s, border-color .3s !important; will-change: transform; }
   [data-tilt="tilt"]:hover { --ty: -4px; box-shadow: 0 0 0 1px rgba(226,71,28,.35), 0 24px 48px -24px rgba(22,19,15,.45); }
 }
+
+/* Modo oscuro del sitio público (interruptor en el pie). Solo cambia las variables de colores claros. */
+html.dark:has(.site-grain) {
+  color-scheme: dark;
+  --t-900: 244 241 234; --t-800: 230 224 212; --t-700: 207 199 184; --t-500: 163 154 139; --t-400: 133 125 112;
+  --b-paper: 20 18 15; --b-paper2: 27 24 20; --b-line: 52 46 38; --b-white: 30 27 23;
+}
+html.dark:has(.site-grain) body { background: #14120f; }
+html.dark .site-grain main > section::before { background-image: url("/deco/puerta-dark.svg"); }
+html.dark .site-grain main > section:nth-of-type(even)::before { background-image: url("/deco/red-dark.svg"); }
+html.dark .site-grain .bg-brand-50 { background-color: rgba(226, 71, 28, .16); }
+html.dark .site-grain .bg-ink-900 { background-color: #0c0b09; }
+html.dark .site-grain header.bg-ink-900\/90 { background-color: rgba(12, 11, 9, .9); }
+html.dark .site-grain img { filter: brightness(.92); }
+html.theme-switching *, html.theme-switching *::before, html.theme-switching *::after { transition: background-color .45s ease, color .45s ease, border-color .45s ease !important; }
+/* Maquetas (Puerta, celulares) que deben verse igual en modo oscuro */
+html.dark .site-grain .keep-light {
+  --t-900: 22 19 15; --t-800: 34 30 25; --t-700: 58 52 44; --t-500: 107 99 88; --t-400: 143 134 121;
+  --b-paper: 244 241 234; --b-paper2: 235 230 219; --b-line: 217 210 195; --b-white: 255 255 255;
+}
