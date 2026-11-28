@@ -19,6 +19,7 @@ export type AldoTopic = {
 export type AldoKnowledge = {
   greeting: string;
   bubble: string;
+  tips?: string[];
   whatsapp: string;
   hours: string;
   topics: AldoTopic[];
@@ -105,7 +106,7 @@ export default function AldoChat({ k }: { k: AldoKnowledge }) {
       window.removeEventListener("aldore:celebrate", onParty);
     };
   }, []);
-  const tips = [k.bubble, tr("¿Tienes una idea? Te ayudo a cotizarla en un minuto."), tr("Pregúntame lo que quieras sobre Aldore 🦉")];
+  const tips = [k.bubble, ...(k.tips ?? [])].filter(Boolean);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });

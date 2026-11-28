@@ -30,7 +30,7 @@ export default async function HomePage() {
       <CastorlyBlock s={s} product={castorly} />
       <PuertaBlock s={s} />
       <ProductsList products={products} s={s} />
-      <CasesBlock items={cases} />
+      <CasesBlock items={cases} title={s["cases.title"]} />
       <Process s={s} />
       <Plans plans={plans} s={s} />
       <Testimonials items={testimonials} s={s} />
@@ -45,7 +45,7 @@ export default async function HomePage() {
             </div>
             <h2 className="section-title mt-2"><Emph text={s["cta.title"]} /></h2>
             <p className="mt-5 text-lg text-ink-700">{s["cta.text"]}</p>
-            <Link href="/agendar" className="mt-5 inline-flex items-center gap-2 font-medium text-brand-600 hover:text-brand-700"><TC>{"¿Prefieres hablar? Agenda una llamada →"}</TC></Link>
+            {s["booking.link"] && <Link href="/agendar" className="mt-5 inline-flex items-center gap-2 font-medium text-brand-600 hover:text-brand-700">{s["booking.link"]} →</Link>}
             <dl className="mt-10 space-y-5 border-t border-paper-line pt-6 text-[15px]">
               <div><dt className="eyebrow"><TC>{"Correo"}</TC></dt><dd className="mt-1"><a className="link-u" href={`mailto:${s["contact.email"]}`}>{s["contact.email"]}</a></dd></div>
               <div><dt className="eyebrow"><TC>{"Teléfono"}</TC></dt><dd className="mt-1">{s["contact.phone"]}</dd></div>

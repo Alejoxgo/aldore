@@ -407,11 +407,30 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     fields: [
       { key: "booking.title", label: "Título de la página /agendar", default: "Agenda una llamada de 30 minutos" },
       { key: "booking.text", label: "Texto bajo el título", type: "textarea", default: "Escoge el día y la hora. Te escuchamos, resolvemos tus dudas y te decimos cómo lo haríamos. Sin costo y sin compromiso." },
+      { key: "booking.link", label: "Enlace a la agenda en Inicio y Contacto (vacío = sin enlace)", default: "¿Prefieres hablar? Agenda una llamada" },
+    ],
+  },
+  {
+    id: "agendaHorario",
+    title: "Horarios de la agenda",
+    fields: [
       { key: "booking.days", label: "Días que atiendes (1 = lunes … 7 = domingo)", default: "1,2,3,4,5" },
       { key: "booking.hours", label: "Franjas de atención (hora de Colombia)", default: "09:00-12:00, 14:00-17:00" },
       { key: "booking.slot", label: "Duración de cada llamada (minutos)", default: "30" },
       { key: "booking.ahead", label: "Cuántos días hacia adelante se puede agendar", default: "21" },
       { key: "booking.meet", label: "Enlace fijo de videollamada (Meet, Zoom…). Vacío = te llamamos al celular", type: "url", default: "" },
+    ],
+  },
+  {
+    id: "casos",
+    title: "Casos de éxito",
+    description: "Se ven cuando publiques el primer caso.",
+    fields: [
+      { key: "cases.title", label: "Título de la sección en Inicio", default: "Resultados que se pueden contar" },
+      { key: "cases.pageTitle", label: "Título de la página /casos", default: "Lo que hemos construido" },
+      { key: "cases.pageText", label: "Texto de la página /casos", type: "textarea", default: "Cada caso cuenta el reto, lo que hicimos y lo que cambió después. Con números, no con adjetivos." },
+      { key: "cases.ctaTitle", label: "Cierre de cada caso – título", default: "¿Quieres algo así para tu negocio?" },
+      { key: "cases.ctaText", label: "Cierre de cada caso – texto", type: "textarea", default: "Agenda una llamada de 30 minutos y te decimos cómo lo haríamos." },
     ],
   },
   {
@@ -424,6 +443,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
       { key: "contact.address", label: "Dirección / ciudad", default: "Medellín, Colombia · Trabajo remoto en toda Latam" },
       { key: "contact.hours", label: "Horario", default: "Lunes a viernes, 8:00 a. m. – 6:00 p. m." },
       { key: "aldo.bubble", label: "Mensaje de Aldo junto a su botón (vacío = sin mensaje)", default: "¡Hola! Soy Aldo 🦉 ¿Te ayudo a encontrar lo que necesitas?" },
+      { key: "aldo.tips", label: "Otros mensajes que Aldo va rotando en su pestaña", type: "textarea", help: "Uno por línea.", default: "¿Tienes una idea? Te ayudo a cotizarla en un minuto.\nPregúntame lo que quieras sobre Aldore 🦉" },
       {
         key: "aldo.greeting",
         label: "Saludo de Aldo al abrir el chat",

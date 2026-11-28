@@ -6,6 +6,7 @@ import CountUp from "@/components/CountUp";
 import Aldo from "@/components/Aldo";
 import { prisma } from "@/lib/db";
 import { caseTags, parseResults } from "@/lib/cases";
+import { getSettings } from "@/lib/settings";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -24,6 +25,7 @@ const paras = (t: string) => t.split(/\n\s*\n/).map((p) => p.trim()).filter(Bool
 export default async function CasePage({ params }: Props) {
   const c = await load((await params).slug);
   if (!c) notFound();
+  const s = await getSettings();
   const results = parseResults(c.results);
   const more = await prisma.caseStudy.findMany({ where: { published: true, id: { not: c.id } }, orderBy: { order: "asc" }, take: 2, select: { slug: true, title: true, client: true } });
   return (
@@ -83,8 +85,8 @@ export default async function CasePage({ params }: Props) {
           <aside className="lg:col-span-4">
             <div className="sticky top-24 rounded-3xl border border-paper-line bg-white p-7">
               <Aldo pose="cheer" className="h-20 w-20" />
-              <p className="mt-3 font-display text-2xl text-ink-900"><TC>{"¿Quieres algo así para tu negocio?"}</TC></p>
-              <p className="mt-2 text-ink-500"><TC>{"Agenda una llamada de 30 minutos y te decimos cómo lo haríamos."}</TC></p>
+              <p className="mt-3 font-display text-2xl text-ink-900">{s["cases.ctaTitle"]}</p>
+              <p className="mt-2 text-ink-500">{s["cases.ctaText"]}</p>
               <Link href="/agendar" className="btn-signal mt-5 w-full justify-center"><TC>{"Agendar llamada"}</TC></Link>
               {more.length > 0 && (
                 <div className="mt-6 border-t border-paper-line pt-5">

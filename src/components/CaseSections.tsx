@@ -39,7 +39,7 @@ export function CaseCard({ c, big = false }: { c: CaseStudy; big?: boolean }) {
 }
 
 /** Sección de la portada. No aparece hasta que haya al menos un caso publicado. */
-export function CasesBlock({ items, title }: { items: CaseStudy[]; title?: string }) {
+export function CasesBlock({ items, title }: { items: CaseStudy[]; title: string }) {
   if (!items.length) return null;
   const [first, ...rest] = items;
   return (
@@ -48,7 +48,7 @@ export function CasesBlock({ items, title }: { items: CaseStudy[]; title?: strin
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className="eyebrow flex items-center gap-3"><span className="h-px w-8 bg-ink-900/20" /><TC>{"Casos de éxito"}</TC></p>
-            <h2 className="section-title mt-5">{title || <TC>{"Resultados que se pueden contar"}</TC>}</h2>
+            <h2 className="section-title mt-5">{title}</h2>
           </div>
           <Link href="/casos" className="btn-outline"><TC>{"Ver todos los casos"}</TC> →</Link>
         </div>

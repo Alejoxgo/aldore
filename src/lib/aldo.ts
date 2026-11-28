@@ -82,6 +82,7 @@ export function buildAldo(s: Settings, services: Svc[], products: Prod[], plans:
   return {
     greeting: s["aldo.greeting"],
     bubble: s["aldo.bubble"],
+    tips: (s["aldo.tips"] || "").split("\n").map((t) => t.trim()).filter(Boolean),
     whatsapp: s["contact.whatsapp"],
     hours: s["contact.hours"],
     topics,

@@ -7,7 +7,7 @@ import VisualEditor from "@/components/admin/VisualEditor";
 export const metadata = { title: "Editor visual" };
 
 /** Grupos que no se ven en el sitio o que tienen su propia pantalla. */
-const HIDDEN = new Set(["avisos", "temporada"]);
+const HIDDEN = new Set(["avisos", "temporada", "agendaHorario", "cobros"]);
 
 export default async function EditorPage() {
   const session = await requireAdmin();
